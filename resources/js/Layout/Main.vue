@@ -7,5 +7,9 @@
 
         <v-app-bar-title>Application Bar</v-app-bar-title>
         </v-app-bar>
+
+        <v-main>
+            <slot />
+        </v-main>
     </v-layout>
 </template>
