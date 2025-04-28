@@ -11,8 +11,6 @@ use Illuminate\Support\Facades\Auth;
 
 use App\Model\User;
 
-Route::inertia('/card', 'Card');
-
 Route::middleware(['user-group'])->group(function () {
     Route::inertia('/login', 'Login');
 
