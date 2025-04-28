@@ -31,7 +31,8 @@
             <v-divider></v-divider>
 
             <v-list density="compact" nav>
-                <v-list-item prepend-icon="mdi-view-dashboard" href="/maintenance" title="Maintenance"></v-list-item>
+                <v-list-item prepend-icon="mdi-view-dashboard" href="/dashboard" title="Dashboard"></v-list-item>
+                <v-list-item prepend-icon="mdi-wrench" href="/maintenance" title="Maintenance"></v-list-item>
                 <v-list-group>
                     <template v-slot:activator="{ props }">
                         <v-list-item

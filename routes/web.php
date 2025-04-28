@@ -13,9 +13,11 @@ use App\Model\User;
 
 
 Route::middleware(['user-group'])->group(function () {
-    Route::inertia('/login', 'Login');    
+    Route::inertia('/login', 'Login');
 
     Route::inertia('/maintenance', 'Maintenance')->can('view', User::class);
+
+    Route::inertia('/dashboard', 'Dashboard');
 
     Route::inertia('/in', 'In');
 
@@ -23,11 +25,11 @@ Route::middleware(['user-group'])->group(function () {
 
     Route::get('/logout', function (Request $request) {
         Auth::logout();
- 
+
         $request->session()->invalidate();
-     
+
         $request->session()->regenerateToken();
-     
+
         return redirect('/login');
     });
 
