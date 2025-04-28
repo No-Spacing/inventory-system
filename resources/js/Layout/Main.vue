@@ -4,6 +4,13 @@
   const drawer = ref(true)
   const rail = ref(false)
 
+  const cruds = [
+    ['Create', 'mdi-plus-outline'],
+    ['Read', 'mdi-file-outline'],
+    ['Update', 'mdi-update'],
+    ['Delete', 'mdi-delete'],
+  ]
+
 </script>
 <template>
     <v-card>
@@ -25,19 +32,18 @@
 
             <v-list density="compact" nav>
                 <v-list-item prepend-icon="mdi-view-dashboard" href="/maintenance" title="Maintenance"></v-list-item>
-                <v-list-item>
-                    <v-expansion-panels>
-                        <v-expansion-panel>
-                            <v-expansion-panel-title>
-                                Transactions
-                            </v-expansion-panel-title>
-                            <v-expansion-panel-text>
-                                <v-list-item prepend-icon="mdi-import" href="/in">In</v-list-item>
-                                <v-list-item prepend-icon="mdi-export" href="/out">Out</v-list-item>
-                            </v-expansion-panel-text>
-                        </v-expansion-panel>
-                    </v-expansion-panels>
-                </v-list-item>
+                <v-list-group>
+                    <template v-slot:activator="{ props }">
+                        <v-list-item
+                        v-bind="props"
+                        title="Transaction"
+                        prepend-icon="mdi-clipboard-text-outline"
+                        ></v-list-item>
+                    </template>
+
+                    <v-list-item prepend-icon="mdi-invoice-import-outline" href="/in">In</v-list-item>
+                    <v-list-item prepend-icon="mdi-invoice-export-outline" href="/out">Out</v-list-item>
+                </v-list-group>
                 <v-list-item prepend-icon="mdi-chart-bar" title="Reports"></v-list-item>
             </v-list>
             <template v-slot:append>
