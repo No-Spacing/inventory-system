@@ -32,7 +32,6 @@
 
             <v-list density="compact" nav>
                 <v-list-item prepend-icon="mdi-view-dashboard" href="/dashboard" title="Dashboard"></v-list-item>
-                <v-list-item prepend-icon="mdi-wrench" href="/maintenance" title="Maintenance"></v-list-item>
                 <v-list-group>
                     <template v-slot:activator="{ props }">
                         <v-list-item
@@ -45,7 +44,8 @@
                     <v-list-item prepend-icon="mdi-invoice-import-outline" href="/in">In</v-list-item>
                     <v-list-item prepend-icon="mdi-invoice-export-outline" href="/out">Out</v-list-item>
                 </v-list-group>
-                <v-list-item prepend-icon="mdi-chart-bar" title="Reports"></v-list-item>
+                <v-list-item prepend-icon="mdi-chart-bar" title="Reports" href="/reports"></v-list-item>
+                <v-list-item v-if="$page.props.user.can.view" prepend-icon="mdi-wrench" href="/maintenance" title="Maintenance"></v-list-item>
             </v-list>
             <template v-slot:append>
                 <v-list density="compact" nav>

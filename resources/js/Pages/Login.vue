@@ -36,9 +36,9 @@ function submit(){
         <v-alert
           v-if="$page.props.flash.message"
           density="compact"
-          title="Error"
           type="error"
           class="mb-4"
+          variant="outlined"
         > {{ $page.props.flash.message }}</v-alert>
 
         <v-form @submit.prevent="submit">

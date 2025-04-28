@@ -18,11 +18,7 @@ class UserController extends Controller
         ]);
 
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password], $request->remember)) {
-            if(Auth::user()->role_id == Role::IS_ADMIN || Auth::user()->role_id == Role::IS_SUPERVISOR){
-                return redirect('/maintenance');
-            }else {   
-                return redirect('/in');
-            }
+            return redirect('/dashboard');
         } else {
             return back()->with(['message' => 'Invalid Credentials',]);
         }

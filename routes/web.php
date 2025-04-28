@@ -11,17 +11,20 @@ use Illuminate\Support\Facades\Auth;
 
 use App\Model\User;
 
+Route::inertia('/card', 'Card');
 
 Route::middleware(['user-group'])->group(function () {
     Route::inertia('/login', 'Login');
-
-    Route::inertia('/maintenance', 'Maintenance')->can('view', User::class);
 
     Route::inertia('/dashboard', 'Dashboard');
 
     Route::inertia('/in', 'In');
 
     Route::inertia('/out', 'Out');
+
+    Route::inertia('/reports', 'Reports');
+
+    Route::inertia('/maintenance', 'Maintenance')->can('view', User::class);
 
     Route::get('/logout', function (Request $request) {
         Auth::logout();

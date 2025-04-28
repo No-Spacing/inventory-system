@@ -150,12 +150,14 @@ const desserts = [
                             color="primary"
                             elevation="2"
                         >
-                            <v-card-text>
-                                <div class="text-h6 font-weight-medium">
-                                    Users
-                                </div>
-                                <div class="text-h4 mt-2">12</div>
-                            </v-card-text>
+                            <template v-slot:prepend>
+                                <v-icon icon="mdi-account" size="70px" class="mr-5"></v-icon>
+                            </template>
+                            <template v-slot:title>
+                                <span class="">Users</span>
+                                <br>
+                                <span class="text-h4 mt-2">200</span>
+                            </template>
                         </v-card>
                     </v-col>
 
@@ -165,12 +167,14 @@ const desserts = [
                             color="blue-lighten-1"
                             elevation="2"
                         >
-                            <v-card-text>
-                                <div class="text-h6 font-weight-medium">
-                                    Products
-                                </div>
-                                <div class="text-h4 mt-2">23,456</div>
-                            </v-card-text>
+                            <template v-slot:prepend>
+                                <v-icon icon="mdi-shopping-outline" size="70px" class="mr-5"></v-icon>
+                            </template>
+                            <template v-slot:title>
+                                <span class="">Users</span>
+                                <br>
+                                <span class="text-h4 mt-2">200</span>
+                            </template>
                         </v-card>
                     </v-col>
 
@@ -178,15 +182,16 @@ const desserts = [
                         <v-card
                             class="rounded-lg"
                             color="green"
-                            theme="dark"
                             elevation="2"
                         >
-                            <v-card-text>
-                                <div class="text-h6 font-weight-medium">
-                                    Lot Numbers
-                                </div>
-                                <div class="text-h4 mt-2">834</div>
-                            </v-card-text>
+                            <template v-slot:prepend>
+                                <v-icon icon="mdi-package-variant-closed" size="70px" class="mr-5"></v-icon>
+                            </template>
+                            <template v-slot:title>
+                                <span class="">Users</span>
+                                <br>
+                                <span class="text-h4 mt-2">200</span>
+                            </template>
                         </v-card>
                     </v-col>
 
