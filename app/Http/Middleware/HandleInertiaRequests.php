@@ -5,6 +5,10 @@ namespace App\Http\Middleware;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
+use Illuminate\Support\Facades\Auth;
+
+use App\Models\User;
+
 class HandleInertiaRequests extends Middleware
 {
     /**
@@ -40,6 +44,20 @@ class HandleInertiaRequests extends Middleware
             'flash' => [
                 'message' => fn () => $request->session()->get('message')
             ],
+            'user' => function () {
+                $user = Auth::user();
+                return $user ? [
+                    [
+                        'user' => $user,
+                    ],
+                    'can' => [
+                        'view' => $user->can('view', User::class),
+                        'create' => $user->can('create', User::class),
+                        'update' => $user->can('update', User::class),
+                        'delete' => $user->can('delete', User::class),
+                    ]
+                ] : null;
+            }
         ];
     }
 }

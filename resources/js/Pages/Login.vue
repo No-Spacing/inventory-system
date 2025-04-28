@@ -1,12 +1,17 @@
 <script setup>
 import { useForm } from '@inertiajs/vue3'
-import { errorMessages } from 'vue/compiler-sfc';
 
 const form = useForm({
   email: null,
   password: null,
   remember: false,
 })
+
+function submit(){
+  form.post('/submit-login', {
+    onError: () => form.reset(),
+  })
+}
 </script>
 
 <template>
@@ -28,7 +33,15 @@ const form = useForm({
             Stockcard
         </v-card-subtitle>
 
-        <v-form v-model="formValid" @submit.prevent="form.post('/submit-login')">
+        <v-alert
+          v-if="$page.props.flash.message"
+          density="compact"
+          title="Error"
+          type="error"
+          class="mb-4"
+        > {{ $page.props.flash.message }}</v-alert>
+
+        <v-form @submit.prevent="submit">
           <v-text-field
             v-model="form.email"
             :error-messages="form.errors.email"
@@ -62,7 +75,7 @@ const form = useForm({
             block
             size="large"
             rounded="xl"
-
+            :loading="form.processing"
           >
             Sign In
           </v-btn>
