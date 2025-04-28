@@ -2,16 +2,15 @@
   import { ref, watch } from 'vue'
 
   const drawer = ref(true)
-  const rail = ref(true)
+  const rail = ref(false)
 
 </script>
 <template>
     <v-card>
         <v-layout>
         <v-navigation-drawer
-            expand-on-hover
-            v-model="drawer"  
-            :rail="rail"     
+            v-model="drawer"
+            :rail="rail"
             >
             <v-list>
             <v-list-item
