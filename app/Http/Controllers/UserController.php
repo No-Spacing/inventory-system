@@ -21,7 +21,7 @@ class UserController extends Controller
             if(Auth::user()->role_id == Role::IS_ADMIN || Auth::user()->role_id == Role::IS_SUPERVISOR){
                 return redirect('/maintenance');
             }else {   
-                return redirect('/in-transactions');
+                return redirect('/in');
             }
         } else {
             return back()->with(['message' => 'Invalid Credentials',]);
