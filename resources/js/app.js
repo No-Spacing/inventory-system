@@ -8,9 +8,22 @@ import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 
+import colors from 'vuetify/util/colors'
+
 const vuetify = createVuetify({
     components,
-    directives
+    directives,
+    theme: {
+        themes: {
+          light: {
+            dark: false,
+            colors: {
+              primary: colors.amber.darken4,
+            //   secondary: colors.red.lighten4, // #FFCDD2
+            }
+          },
+        },
+      },
   })
 
 createInertiaApp({
@@ -25,3 +38,6 @@ createInertiaApp({
         .mount(el)
     },
   })
+
+
+
