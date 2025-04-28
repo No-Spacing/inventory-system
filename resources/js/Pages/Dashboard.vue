@@ -171,7 +171,7 @@ const desserts = [
                                 <v-icon icon="mdi-shopping-outline" size="70px" class="mr-5"></v-icon>
                             </template>
                             <template v-slot:title>
-                                <span class="">Users</span>
+                                <span class="">Products</span>
                                 <br>
                                 <span class="text-h4 mt-2">200</span>
                             </template>
@@ -188,7 +188,7 @@ const desserts = [
                                 <v-icon icon="mdi-package-variant-closed" size="70px" class="mr-5"></v-icon>
                             </template>
                             <template v-slot:title>
-                                <span class="">Users</span>
+                                <span class="">Lot No.</span>
                                 <br>
                                 <span class="text-h4 mt-2">200</span>
                             </template>
