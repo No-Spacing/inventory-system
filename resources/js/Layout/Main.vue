@@ -17,8 +17,8 @@
             <v-list-item
                 prepend-icon="mdi-account-circle"
             >
-                <v-list-item-title>{{ $page.props.user[0].user.name }}</v-list-item-title>
-                <v-list-item-subtitle>{{ $page.props.user[0].user.email }}</v-list-item-subtitle>
+                <v-list-item-title>{{ $page.props.user.name }}</v-list-item-title>
+                <v-list-item-subtitle>{{ $page.props.user.email }}</v-list-item-subtitle>
             </v-list-item>
             </v-list>
 

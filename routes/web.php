@@ -9,13 +9,13 @@ use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-use App\Model\Role;
+use App\Model\User;
 
 
 Route::middleware(['user-group'])->group(function () {
     Route::inertia('/login', 'Login');    
 
-    Route::inertia('/maintenance', 'Maintenance')->can('view', Role::class);
+    Route::inertia('/maintenance', 'Maintenance')->can('view', User::class);
 
     Route::inertia('/in', 'In');
 

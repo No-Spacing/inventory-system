@@ -47,9 +47,8 @@ class HandleInertiaRequests extends Middleware
             'user' => function () {
                 $user = Auth::user();
                 return $user ? [
-                    [
-                        'user' => $user,
-                    ],
+                    'name' => $user->name,
+                    'email' => $user->email,
                     'can' => [
                         'view' => $user->can('view', User::class),
                         'create' => $user->can('create', User::class),
