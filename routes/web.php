@@ -26,6 +26,9 @@ Route::middleware(['user-group'])->group(function () {
 
     // Maintenance routes
     Route::inertia('/units', 'maintenance/Units')->can('view', User::class);
+    Route::inertia('/category', 'maintenance/Category')->can('view', User::class);
+    Route::inertia('/lot', 'maintenance/Lot')->can('view', User::class);
+    Route::inertia('/serial', 'maintenance/Serial')->can('view', User::class);
 
     Route::get('/logout', function (Request $request) {
         Auth::logout();

@@ -33,19 +33,21 @@ const cruds = [
                                 prepend-icon="mdi-clipboard-text-outline"></v-list-item>
                         </template>
 
-                        <v-list-item prepend-icon="mdi-invoice-import-outline" href="/in">In</v-list-item>
-                        <v-list-item prepend-icon="mdi-invoice-export-outline" href="/out">Out</v-list-item>
+                        <v-list-item title="In" href="/in"></v-list-item>
+                        <v-list-item title="Out" href="/out"></v-list-item>
                     </v-list-group>
                     <v-list-item prepend-icon="mdi-chart-bar" title="Reports" href="/reports"></v-list-item>
                     <v-list-group v-if="$page.props.user.can.view">
                         <template v-slot:activator="{ props }">
-                            <v-list-item v-bind="props" title="Maintenance"
-                                prepend-icon="mdi-wrench"></v-list-item>
+                            <v-list-item v-bind="props" title="Maintenance" prepend-icon="mdi-wrench"></v-list-item>
                         </template>
 
                         <!-- <v-list-item v-if="$page.props.user.can.view" prepend-icon="mdi-wrench" href="/maintenance"
                             title="Maintenance"></v-list-item> -->
-                        <v-list-item href="/units">Units</v-list-item>
+                        <v-list-item title="Units" href="/units"></v-list-item>
+                        <v-list-item title="Category" href="/category"></v-list-item>
+                        <v-list-item title="Lot Number" href="/lot"></v-list-item>
+                        <v-list-item title="Serial Number" href="/serial"></v-list-item>
                     </v-list-group>
                 </v-list>
                 <template v-slot:append>
