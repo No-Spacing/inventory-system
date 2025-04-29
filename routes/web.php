@@ -14,11 +14,11 @@ use App\Model\User;
 Route::middleware(['user-group'])->group(function () {
     Route::inertia('/login', 'Login');
 
-    Route::inertia('/dashboard', [UserController::class, 'Dashboard']);
+    Route::get('/dashboard', [UserController::class, 'Dashboard']);
 
-    Route::inertia('/in', [UserController::class, 'In']);
+    Route::get('/in', [UserController::class, 'In']);
 
-    Route::inertia('/out', [UserController::class, 'Out']);
+    Route::get('/out', [UserController::class, 'Out']);
 
     Route::inertia('/reports', 'Reports');
 
