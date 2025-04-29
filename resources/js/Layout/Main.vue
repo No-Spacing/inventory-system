@@ -1,70 +1,73 @@
 <script setup>
-  import { ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 
-  const drawer = ref(true)
-  const rail = ref(false)
+const drawer = ref(true)
+const rail = ref(false)
 
-  const cruds = [
+const cruds = [
     ['Create', 'mdi-plus-outline'],
     ['Read', 'mdi-file-outline'],
     ['Update', 'mdi-update'],
     ['Delete', 'mdi-delete'],
-  ]
+]
 
 </script>
 <template>
     <v-card>
         <v-layout>
-        <v-navigation-drawer
-            v-model="drawer"
-            :rail="rail"
-            >
-            <v-list>
-            <v-list-item
-                prepend-icon="mdi-account-circle"
-            >
-                <v-list-item-title>{{ $page.props.user.name }}</v-list-item-title>
-                <v-list-item-subtitle>{{ $page.props.user.email }}</v-list-item-subtitle>
-            </v-list-item>
-            </v-list>
-
-            <v-divider></v-divider>
-
-            <v-list density="compact" nav>
-                <v-list-item prepend-icon="mdi-view-dashboard" href="/dashboard" title="Dashboard"></v-list-item>
-                <v-list-group>
-                    <template v-slot:activator="{ props }">
-                        <v-list-item
-                        v-bind="props"
-                        title="Transaction"
-                        prepend-icon="mdi-clipboard-text-outline"
-                        ></v-list-item>
-                    </template>
-
-                    <v-list-item prepend-icon="mdi-invoice-import-outline" href="/in">In</v-list-item>
-                    <v-list-item prepend-icon="mdi-invoice-export-outline" href="/out">Out</v-list-item>
-                </v-list-group>
-                <v-list-item prepend-icon="mdi-chart-bar" title="Reports" href="/reports"></v-list-item>
-                <v-list-item v-if="$page.props.user.can.view" prepend-icon="mdi-wrench" href="/maintenance" title="Maintenance"></v-list-item>
-            </v-list>
-            <template v-slot:append>
-                <v-list density="compact" nav>
-                    <v-list-item prepend-icon="mdi-logout" title="Logout" href="/logout"></v-list-item>
+            <v-navigation-drawer v-model="drawer" :rail="rail">
+                <v-list>
+                    <v-list-item prepend-icon="mdi-account-circle">
+                        <v-list-item-title>{{ $page.props.user.name }}</v-list-item-title>
+                        <v-list-item-subtitle>{{ $page.props.user.email }}</v-list-item-subtitle>
+                    </v-list-item>
                 </v-list>
-            </template>
-        </v-navigation-drawer>
 
-        <v-app-bar :elevation="2">
-            <template v-slot:prepend>
-                <v-app-bar-nav-icon @click.stop="rail = !rail"></v-app-bar-nav-icon>
-            </template>
+                <v-divider></v-divider>
 
-            <v-app-bar-title>Application Bar</v-app-bar-title>
+                <v-list density="compact" nav>
+                    <v-list-item prepend-icon="mdi-view-dashboard" href="/dashboard" title="Dashboard"></v-list-item>
+                    <v-list-group>
+                        <template v-slot:activator="{ props }">
+                            <v-list-item v-bind="props" title="Transaction"
+                                prepend-icon="mdi-clipboard-text-outline"></v-list-item>
+                        </template>
+
+                        <v-list-item title="In" href="/in"></v-list-item>
+                        <v-list-item title="Out" href="/out"></v-list-item>
+                    </v-list-group>
+                    <v-list-item prepend-icon="mdi-chart-bar" title="Reports" href="/reports"></v-list-item>
+                    <v-list-group v-if="$page.props.user.can.view">
+                        <template v-slot:activator="{ props }">
+                            <v-list-item v-bind="props" title="Maintenance" prepend-icon="mdi-wrench"></v-list-item>
+                        </template>
+
+                        <!-- <v-list-item v-if="$page.props.user.can.view" prepend-icon="mdi-wrench" href="/maintenance"
+                            title="Maintenance"></v-list-item> -->
+                        <v-list-item title="Units" href="/units"></v-list-item>
+                        <v-list-item title="Category" href="/category"></v-list-item>
+                        <v-list-item title="Lot Number" href="/lot"></v-list-item>
+                        <v-list-item title="Serial Number" href="/serial"></v-list-item>
+                    </v-list-group>
+                </v-list>
+                <template v-slot:append>
+                    <v-list density="compact" nav>
+                        <v-list-item prepend-icon="mdi-logout" title="Logout" href="/logout"></v-list-item>
+                    </v-list>
+                </template>
+            </v-navigation-drawer>
+
+            <v-app-bar :elevation="2">
+                <template v-slot:prepend>
+                    <v-app-bar-nav-icon @click.stop="rail = !rail"></v-app-bar-nav-icon>
+                </template>
+
+                <v-app-bar-title>Application Bar</v-app-bar-title>
             </v-app-bar>
 
-        <v-main>
-            <slot />
-        </v-main>
+            <v-main>
+                <slot />
+            </v-main>
         </v-layout>
     </v-card>
 </template>
