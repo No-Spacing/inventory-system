@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Role;
 
+use Illuminate\Support\Facades\DB;
+
 use Inertia\Inertia;
 
 class UserController extends Controller
@@ -32,9 +34,16 @@ class UserController extends Controller
         ]);
     }
 
-    public function In(){
+    public function In(Request $request){
+
+        $products = DB::table('product')
+                    ->when($request->code, function($query, $filter){
+                        $query->where('code', 'Like', '%'.$filter.'%');
+                    });
+
         return Inertia::render('In', [
             'users' => User::with('role')->get(),
+            'product' => $products->select('code')->limit(5)->get(),
         ]);
     }
 
