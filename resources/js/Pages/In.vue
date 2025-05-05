@@ -1,5 +1,6 @@
 <script setup>
 import {  router, useForm } from '@inertiajs/vue3'
+import { reactive } from 'vue'
 import Layout from '../Layout/Main.vue'
 import Input from '../Layout/Input-In.vue'
 
@@ -45,10 +46,9 @@ const headers = [
     },
 ];
 
-let code = ref(null)
+let code = ref('');
 
 watch(code, (newCode) => {
-    console.log(newCode);
     router.get('/in',
         {
             code: newCode,
@@ -58,6 +58,7 @@ watch(code, (newCode) => {
         }
     )
 })
+    
 </script>
 
 <template>
@@ -76,85 +77,86 @@ watch(code, (newCode) => {
         </v-tabs>
 
         <v-tabs-window v-model="tab">
-        <v-tabs-window-item :value="1">
-            <v-container fluid>
+            <v-tabs-window-item :value="1">
+                <v-container fluid>
+                    <v-card>
+                        <v-container fluid>
+                            <v-card-title>
+                                In Transaction Details
+                            </v-card-title>
+                            <v-card-text>
+                                <v-form>
+                                    <v-container>
+                                        <div class="d-flex">
+                                            <v-col>
+                                                <v-autocomplete
+                                                    label="Code"
+                                                    v-model:search="code"
+                                                    :items="product"
+                                                    item-title="code"
+                                                    variant="outlined" 
+                                                >
+                                                </v-autocomplete>
+                                            </v-col>
+                                            
+                                            <v-col>
+                                                <v-text-field
+                                                    label="Description"
+                                                    variant="outlined"  
+                                                ></v-text-field>
+                                            </v-col>
 
-<v-form>
-    <v-container>
-        <div class="d-flex">
-            <v-col>
-                <v-autocomplete
-                    label="Code"
-                   
-                    :items="product"
-                    item-title="code"
-                    variant="outlined" 
-                >
-                </v-autocomplete>
-            </v-col>
-            
-            <v-col>
-                <v-text-field
-                    label="Description"
-                    v-model="code"
-                    variant="outlined"  
-                ></v-text-field>
-            </v-col>
+                                            <v-col>
+                                                <v-text-field
+                                                    label="Unit"
+                                                    variant="outlined"  
+                                                ></v-text-field>
+                                            </v-col>              
+                                        </div>
 
-            <v-col>
-                <v-text-field
-                    label="Unit"
-                    variant="outlined"  
-                ></v-text-field>
-            </v-col>              
-        </div>
+                                        <div class="d-flex">
+                                            <v-col>
+                                                <v-autocomplete
+                                                    label="Lot/Batch No."
+                                                    :items="['0000', '0001', '0002', '0003', '0004', '0005']"
+                                                    variant="outlined"  
+                                                    class="mx-1"
+                                                ></v-autocomplete>
+                                            </v-col>
 
-        <div class="d-flex">
-            <v-col>
-                <v-autocomplete
-                    label="Lot/Batch No."
-                    :items="['0000', '0001', '0002', '0003', '0004', '0005']"
-                    variant="outlined"  
-                    class="mx-1"
-                ></v-autocomplete>
-            </v-col>
+                                            <v-col>
+                                                <v-text-field
+                                                    label="Total Items"
+                                                    variant="outlined"  
+                                                    class="mx-1"
+                                                ></v-text-field>
+                                            </v-col>
 
-            <v-col>
-                <v-text-field
-                    label="Total Items"
-                    variant="outlined"  
-                    class="mx-1"
-                ></v-text-field>
-            </v-col>
-
-            <v-col>
-                <v-text-field
-                label="Total Items Per Lot/Batch"
-                variant="outlined"
-                class="mx-1"  
-            ></v-text-field>
-            </v-col>
-        </div>
-        <v-container fluid>
-                        <v-data-table
-                            :items="product"
-                            :search="search"
-                        ></v-data-table>
-                    </v-container>
-    </v-container>
-</v-form>
-</v-container>
-                </v-tabs-window-item>
-                <v-tabs-window-item :value="2">
-                    <v-container fluid>
-                        <v-data-table
-                            :headers="headers"
-                            :items="users"
-                            :search="search"
-                        ></v-data-table>
-                    </v-container>
-                </v-tabs-window-item>
-            </v-tabs-window>
+                                            <v-col>
+                                                <v-text-field
+                                                label="Total Items Per Lot/Batch"
+                                                variant="outlined"
+                                                class="mx-1"  
+                                            ></v-text-field>
+                                            </v-col>
+                                        </div>
+                                    </v-container>
+                                </v-form>
+                            </v-card-text>
+                        </v-container>
+                    </v-card>
+                </v-container>
+            </v-tabs-window-item>
+            <v-tabs-window-item :value="2">
+                <v-container fluid>
+                    <v-data-table
+                        :headers="headers"
+                        :items="users"
+                        :search="search"
+                    ></v-data-table>
+                </v-container>
+            </v-tabs-window-item>
+        </v-tabs-window>
     <!-- <v-card>
             <v-container fluid>
                 <v-card-title>In Transaction</v-card-title>

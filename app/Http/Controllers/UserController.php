@@ -38,12 +38,12 @@ class UserController extends Controller
 
         $products = DB::table('product')
                     ->when($request->code, function($query, $filter){
-                        $query->where('code', 'Like', '%'.$filter.'%');
+                         $query->where('code', 'Like', '%'.$filter.'%');
                     });
 
         return Inertia::render('In', [
             'users' => User::with('role')->get(),
-            'product' => $products->select('code')->limit(5)->get(),
+            'product' => $products->select('code','product_desc','unit')->limit(5)->get(),
         ]);
     }
 
