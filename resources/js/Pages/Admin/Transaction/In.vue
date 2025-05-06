@@ -1,13 +1,13 @@
 <script setup>
-import {  router, useForm } from '@inertiajs/vue3'
-import { reactive } from 'vue'
-import Layout from "../../../Layout/Main.vue"
+import { router, useForm } from "@inertiajs/vue3";
+import { reactive } from "vue";
+import Layout from "../../../Layout/Main.vue";
 
-import { ref, watch } from 'vue'
+import { ref, watch } from "vue";
 
-const tab = ref(null)
+const tab = ref(null);
 
-const props = defineProps({ users: Object, products: Object})
+const props = defineProps({ users: Object, products: Object });
 
 const search = ref("");
 
@@ -44,72 +44,305 @@ const headers = [
     },
 ];
 
-let code = ref('');
+let code = ref("");
 
 const form = reactive({
-    description: '',
-})
+    description: "",
+});
 
 watch(code, (newCode) => {
-    router.get('/in',
+    router.get(
+        "/in",
         {
             code: newCode,
         },
         {
-            preserveState: true,   
+            preserveState: true,
         }
-    )
-})
-    
+    );
+});
+
+// Expiration Date states
+const expirationMenu = ref(false);
+const expirationDate = ref(null);
+const formattedExpirationDate = ref("");
+
+// Date of Transaction states
+const transactionMenu = ref(false);
+const transactionDate = ref(null);
+const formattedTransactionDate = ref("");
+
+// Format dates (MM/DD/YYYY)
+const formatDate = (date) => {
+    const d = new Date(date);
+    return d.toLocaleDateString();
+};
+
+// Handlers for date selection
+const onExpirationDateSelected = (val) => {
+    formattedExpirationDate.value = formatDate(val);
+    expirationMenu.value = false;
+};
+
+const onTransactionDateSelected = (val) => {
+    formattedTransactionDate.value = formatDate(val);
+    transactionMenu.value = false;
+};
+
+// Posting Date (Disabled)
+const postingDate = new Date(); // or any specific date you want
+const formattedPostingDate = ref(postingDate.toLocaleDateString());
 </script>
 
 <template>
     <Layout title="In Transaction">
-        <v-tabs
-        v-model="tab"
-        align-tabs="center"
-        color="primary"
-        >
+        <v-tabs v-model="tab" align-tabs="center" color="primary" bg-color="grey-lighten-4
+">
             <v-tab :value="1">
-                <v-icon icon="mdi-plus"></v-icon>
+                <v-icon start icon="mdi-plus"></v-icon>
+                <p class="font-weight-bold">Adjustments</p>
             </v-tab>
             <v-tab :value="2">
-                <v-icon icon="mdi-format-list-bulleted"></v-icon>
+                <v-icon start icon="mdi-format-list-bulleted"></v-icon>
+                <p class="font-weight-bold">List</p>
             </v-tab>
         </v-tabs>
 
         <v-tabs-window v-model="tab">
             <v-tabs-window-item :value="1">
-                <v-container fluid>
+                <v-container max-width="1500" fluid>
                     <v-form>
-                        <v-row>
-                            <v-col>
-                                <div class="text-subtitle-1 text-medium-emphasis">Code</div>
+                        <v-row no-gutters>
+                            <v-col sm="4" cols="12">
+                                <div
+                                    class="text-subtitle-1 text-medium-emphasis mx-2"
+                                >
+                                    Code
+                                </div>
                                 <v-autocomplete
-                                    :items="['1-BR-BD7800', '9-IC-BABPA1', '0-PM-104116', '4-EP-ECGMS3', 'P-MC-000006', '2-PP-KCPK24']"
+                                    :items="[
+                                        '1-BR-BD7800',
+                                        '9-IC-BABPA1',
+                                        '0-PM-104116',
+                                        '4-EP-ECGMS3',
+                                        'P-MC-000006',
+                                        '2-PP-KCPK24',
+                                    ]"
+                                    class="mx-2"
                                     placeholder="Select..."
                                     variant="outlined"
                                     required
                                 ></v-autocomplete>
                             </v-col>
-                            <v-col>
-                                <div class="text-subtitle-1 text-medium-emphasis">Unit</div>
+                            <v-col sm="4" cols="12">
+                                <div
+                                    class="text-subtitle-1 text-medium-emphasis mx-2"
+                                >
+                                    Unit
+                                </div>
                                 <v-text-field
-                                placeholder="Unit"
-                                prepend-inner-icon=""
-                                variant="outlined"
+                                    class="mx-2"
+                                    placeholder="Unit"
+                                    prepend-inner-icon=""
+                                    variant="outlined"
                                 ></v-text-field>
                             </v-col>
-                            <v-col>
-                                <div class="text-subtitle-1 text-medium-emphasis">Total Items</div>
+                            <v-col sm="4" cols="12">
+                                <div
+                                    class="text-subtitle-1 text-medium-emphasis mx-2"
+                                >
+                                    Total Items
+                                </div>
                                 <v-text-field
-                                placeholder="Total Items"
-                                prepend-inner-icon=""
-                                variant="outlined"
+                                    class="mx-2"
+                                    placeholder="Total Items"
+                                    prepend-inner-icon=""
+                                    variant="outlined"
                                 ></v-text-field>
+                            </v-col>
+                            <v-col sm="4" cols="12">
+                                <div
+                                    class="text-subtitle-1 text-medium-emphasis mx-2"
+                                >
+                                    Lot No.
+                                </div>
+                                <v-autocomplete
+                                    :items="[
+                                        '1-BR-BD7800',
+                                        '9-IC-BABPA1',
+                                        '0-PM-104116',
+                                        '4-EP-ECGMS3',
+                                        'P-MC-000006',
+                                        '2-PP-KCPK24',
+                                    ]"
+                                    class="mx-2"
+                                    placeholder="Select..."
+                                    variant="outlined"
+                                    required
+                                ></v-autocomplete>
+                            </v-col>
+                            <v-col sm="4" cols="12">
+                                <div
+                                    class="text-subtitle-1 text-medium-emphasis mx-2"
+                                >
+                                    Total Items per Lot
+                                </div>
+                                <v-text-field
+                                    class="mx-2"
+                                    placeholder="Per Lot"
+                                    prepend-inner-icon=""
+                                    variant="outlined"
+                                ></v-text-field>
+                            </v-col>
+                            <!-- Expiration Date -->
+                            <v-col sm="4" cols="12">
+                                <div
+                                    class="text-subtitle-1 text-medium-emphasis mx-2"
+                                >
+                                    Expiration Date
+                                </div>
+
+                                <v-menu
+                                    v-model="expirationMenu"
+                                    :close-on-content-click="false"
+                                    transition="scale-transition"
+                                    offset-y
+                                    class="mx-2"
+                                >
+                                    <template v-slot:activator="{ props }">
+                                        <v-text-field
+                                            class="mx-2"
+                                            v-model="formattedExpirationDate"
+                                            v-bind="props"
+                                            readonly
+                                            variant="outlined"
+                                            placeholder="Select Expiration Date"
+                                        ></v-text-field>
+                                    </template>
+
+                                    <v-date-picker
+                                        v-model="expirationDate"
+                                        @update:model-value="
+                                            onExpirationDateSelected
+                                        "
+                                    ></v-date-picker>
+                                </v-menu>
+                            </v-col>
+
+                            <v-col sm="4" cols="12">
+                                <div
+                                    class="text-subtitle-1 text-medium-emphasis mx-2"
+                                >
+                                    Serial No.
+                                </div>
+                                <v-autocomplete
+                                    :items="[
+                                        '1-BR-BD7800',
+                                        '9-IC-BABPA1',
+                                        '0-PM-104116',
+                                        '4-EP-ECGMS3',
+                                        'P-MC-000006',
+                                        '2-PP-KCPK24',
+                                    ]"
+                                    class="mx-2"
+                                    placeholder="Select..."
+                                    variant="outlined"
+                                    required
+                                ></v-autocomplete>
+                            </v-col>
+                            <v-col sm="4" cols="12">
+                                <div
+                                    class="text-subtitle-1 text-medium-emphasis mx-2"
+                                >
+                                    Reference
+                                </div>
+                                <v-text-field
+                                    class="mx-2"
+                                    placeholder="Ref"
+                                    prepend-inner-icon=""
+                                    variant="outlined"
+                                ></v-text-field>
+                            </v-col>
+                            <v-col sm="4" cols="12">
+                                <div
+                                    class="text-subtitle-1 text-medium-emphasis mx-2"
+                                >
+                                    Quantity
+                                </div>
+                                <v-text-field
+                                    class="mx-2"
+                                    placeholder="Qty"
+                                    prepend-inner-icon=""
+                                    variant="outlined"
+                                ></v-text-field>
+                            </v-col>
+                            <!-- Date of Transaction -->
+                            <v-col sm="6" cols="12">
+                                <div
+                                    class="text-subtitle-1 text-medium-emphasis mx-2"
+                                >
+                                    Date of Transaction
+                                </div>
+
+                                <v-menu
+                                    v-model="transactionMenu"
+                                    :close-on-content-click="false"
+                                    transition="scale-transition"
+                                    offset-y
+                                    class="mx-2"
+                                >
+                                    <template v-slot:activator="{ props }">
+                                        <v-text-field
+                                            class="mx-2"
+                                            v-model="formattedTransactionDate"
+                                            v-bind="props"
+                                            readonly
+                                            variant="outlined"
+                                            placeholder="Select Transaction Date"
+                                        ></v-text-field>
+                                    </template>
+
+                                    <v-date-picker
+                                        v-model="transactionDate"
+                                        @update:model-value="
+                                            onTransactionDateSelected
+                                        "
+                                    ></v-date-picker>
+                                </v-menu>
+                            </v-col>
+                            <!-- Date of Posting (Disabled) -->
+                            <v-col sm="6" cols="12">
+                                <div
+                                    class="text-subtitle-1 text-medium-emphasis mx-2"
+                                >
+                                    Date of Posting
+                                </div>
+
+                                <v-text-field
+                                    class="mx-2"
+                                    v-model="formattedPostingDate"
+                                    variant="outlined"
+                                    readonly
+                                    disabled
+                                ></v-text-field>
+                            </v-col>
+                            <v-col sm="12" cols="12">
+                                <div
+                                    class="text-subtitle-1 text-medium-emphasis mx-2"
+                                >
+                                    Remarks
+                                </div>
+
+                                <v-textarea clearable class="mx-2" placeholder="Write a comment.." variant="outlined"></v-textarea>
                             </v-col>
                         </v-row>
-                    </v-form> 
+                        
+                        <div class="d-flex justify-end">
+                            <v-btn append-icon="mdi-send" color="primary" class="me-2">
+                                Submit
+                            </v-btn>
+                        </div>
+                    </v-form>
                 </v-container>
             </v-tabs-window-item>
             <v-tabs-window-item :value="2">
@@ -122,107 +355,5 @@ watch(code, (newCode) => {
                 </v-container>
             </v-tabs-window-item>
         </v-tabs-window>
-    <!-- <v-card>
-            <v-container fluid>
-                <v-card-title>In Transaction</v-card-title>
-              
-                <v-form v-model="valid">
-                    <v-container>
-                       
-                        <div class="d-flex">
-                            <v-col>
-                                <v-autocomplete
-                                    label="Code"
-                                    :items="['1-BR-BD7800', '9-IC-BABPA1', '0-PM-104116', '4-EP-ECGMS3', 'P-MC-000006', '2-PP-KCPK24']"
-                                    variant="outlined" 
-                                    :rules="['error']"  
-                                ></v-autocomplete>
-                            </v-col>
-                            
-                            <v-col>
-                                <v-text-field
-                                    label="Description"
-                                    variant="outlined"  
-                                ></v-text-field>
-                            </v-col>
-
-                            <v-col>
-                                <v-text-field
-                                    label="Unit"
-                                    variant="outlined"  
-                                ></v-text-field>
-                            </v-col>              
-                        </div>
-
-                        <div class="d-flex">
-                            <v-col>
-                                <v-autocomplete
-                                    label="Lot/Batch No."
-                                    :items="['0000', '0001', '0002', '0003', '0004', '0005']"
-                                    variant="outlined"  
-                                    class="mx-1"
-                                ></v-autocomplete>
-                            </v-col>
-
-                            <v-col>
-                                <v-text-field
-                                    label="Total Items"
-                                    variant="outlined"  
-                                    class="mx-1"
-                                ></v-text-field>
-                            </v-col>
-
-                            <v-col>
-                                <v-text-field
-                                label="Total Items Per Lot/Batch"
-                                variant="outlined"
-                                class="mx-1"  
-                            ></v-text-field>
-                            </v-col>
-                        </div>
-                        
-                    </v-container>
-                </v-form>
-
-                <v-text-field
-                    type="date"
-                    label="Expiration Date"
-                ></v-text-field>
-
-                <v-text-field
-                    label="Reference In"
-                ></v-text-field>
-
-                <v-textarea
-                    label="Remarks"
-                ></v-textarea>
-
-                <v-text-field
-                    type="number"
-                    label="Quantity"
-                ></v-text-field>
-
-                <v-text-field
-                    type="date"
-                    label="Date of Transaction"
-                ></v-text-field>
-
-                <v-text-field
-                    type="date"
-                    label="Date of Transaction"
-                ></v-text-field>
-            
-                <v-btn
-                    class="me-4"
-                >
-                    submit
-                </v-btn>
-            
-                <v-btn>
-                    clear
-                </v-btn>
-
-            </v-container>
-        </v-card> -->
     </Layout>
 </template>

@@ -26,6 +26,7 @@ const cruds = [
 ];
 </script>
 <template>
+    <Head title="StockCard" />
     <v-card>
         <v-layout>
             <v-navigation-drawer v-model="drawer" :rail="rail" @click="rail = false">
