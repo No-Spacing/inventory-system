@@ -86,48 +86,50 @@ const cruds = [
                             title="Serial Number"
                             href="/serial"
                         ></v-list-item>
+                        
                     </v-list-group>
+                    
                 </v-list>
 
                 <template v-slot:append>
                     <v-list density="compact" nav>
+                        <!-- User Info -->
+                        <v-list-item
+                            prepend-icon="mdi-account-circle"
+                        >
+                            <div class="d-flex align-center px-4">
+                                <v-row class="mr-5">
+                                    <v-list-item-title>{{ $page.props.user.name }}</v-list-item-title>
+                                    <v-list-item-subtitle>{{ $page.props.user.email }}</v-list-item-subtitle>
+                                </v-row>
+                                <v-menu location="top start" offset="4">
+                                    <template #activator="{ props }">
+                                        <v-btn
+                                            v-bind="props"
+                                            icon="mdi-dots-vertical"
+                                            variant="text"
+                                            size="small"
+                                        ></v-btn>
+                                    </template>
+
+                                    <v-list>
+                                        <v-list-item
+                                            title="Change Password"
+                                            prepend-icon="mdi-lock-reset"
+                                            href="/change-password"
+                                        ></v-list-item>
+                                        <v-list-item
+                                            title="Logout"
+                                            prepend-icon="mdi-logout"
+                                            href="/logout"
+                                        ></v-list-item>
+                                    </v-list>
+                                </v-menu>
+                            </div>
+                        </v-list-item>
                         <div
                             class="d-flex justify-space-between align-center px-4 py-2"
                         >
-                            <!-- User Info -->
-                            <div>
-                                <div class="text-subtitle-2 font-weight-medium">
-                                    {{ $page.props.user.name }}
-                                </div>
-                                <div class="text-caption text-grey">
-                                    {{ $page.props.user.email }}
-                                </div>
-                            </div>
-
-                            <!-- 3 Dots Menu -->
-                            <v-menu location="top start" offset="4">
-                                <template #activator="{ props }">
-                                    <v-btn
-                                        v-bind="props"
-                                        icon="mdi-dots-vertical"
-                                        variant="text"
-                                        size="small"
-                                    ></v-btn>
-                                </template>
-
-                                <v-list>
-                                    <v-list-item
-                                        title="Change Password"
-                                        prepend-icon="mdi-lock-reset"
-                                        href="/change-password"
-                                    ></v-list-item>
-                                    <v-list-item
-                                        title="Logout"
-                                        prepend-icon="mdi-logout"
-                                        href="/logout"
-                                    ></v-list-item>
-                                </v-list>
-                            </v-menu>
                         </div>
                     </v-list>
                 </template>
