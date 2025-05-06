@@ -1,14 +1,22 @@
 <script setup>
 import { ref, watch } from "vue";
+import { useDisplay } from 'vuetify'
 import { Head } from '@inertiajs/vue3';
 
 defineProps({
     title: String,
 })
 
+const { mobile } = useDisplay()
+
 const drawer = ref(true);
 const rail = ref(false);
 const openGroup = ref(['']);
+
+function navigationRail () {
+    this.drawer = !this.drawer;
+    this.rail = false;
+}
 
 const cruds = [
     ["Create", "mdi-plus-outline"],
@@ -135,7 +143,9 @@ const cruds = [
 
             <v-app-bar :elevation="2">
                 <template v-slot:prepend>
-                    <v-app-bar-nav-icon  @click.stop="rail = !rail; openGroup = ''"/>
+                    <!-- <v-app-bar-nav-icon  @click.stop="rail = !rail; openGroup = ''"/> -->
+                    <v-app-bar-nav-icon variant="text" @click="rail = !rail; openGroup = ''" v-if="mobile === false"></v-app-bar-nav-icon>
+                    <v-app-bar-nav-icon variant="text" @click="navigationRail();" v-if="mobile"></v-app-bar-nav-icon> 
                 </template>
 
                 <template v-slot:title>
