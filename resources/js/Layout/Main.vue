@@ -137,13 +137,16 @@ const cruds = [
                 </template>
             </v-navigation-drawer>
 
-            <v-app-bar :title="title ? `${title}` : 'StockCard'" :elevation="2">
+            <v-app-bar :elevation="2">
                 <template v-slot:prepend>
-                    <v-app-bar-nav-icon
-                        @click.stop="rail = !rail; openGroup = ''"
-                    ></v-app-bar-nav-icon>
+                    <v-app-bar-nav-icon  @click.stop="rail = !rail; openGroup = ''"/>
                 </template>
 
+                <template v-slot:title>
+                    <span class="text-orange-darken-3 font-weight-bold">
+                        {{ title ? title : "StockCard" }}
+                    </span>
+                </template>
             </v-app-bar>
 
             <v-main>
