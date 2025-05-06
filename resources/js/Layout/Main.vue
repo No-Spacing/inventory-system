@@ -129,10 +129,6 @@ const cruds = [
                                 </v-menu>
                             </div>
                         </v-list-item>
-                        <div
-                            class="d-flex justify-space-between align-center px-4 py-2"
-                        >
-                        </div>
                     </v-list>
                 </template>
             </v-navigation-drawer>
