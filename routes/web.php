@@ -21,7 +21,13 @@ Route::middleware(['user-group'])->group(function () {
 
     Route::get('/out', [UserController::class, 'Out']);
 
-    Route::inertia('/reports', 'Admin/Reports');
+    Route::inertia('/stockcard', 'Admin/Report/Stockcard');
+
+    Route::inertia('/stocks', 'Admin/Report/Stocks');
+
+    Route::inertia('/stocks_with_pr', 'Admin/Report/Stocks_Pr_no');
+
+    Route::inertia('/product_expiry', 'Admin/Report/ProductExpiry');
 
     Route::inertia('/maintenance', 'Admin/Maintenance')->can('view', User::class);
 

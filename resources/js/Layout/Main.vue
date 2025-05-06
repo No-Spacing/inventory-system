@@ -1,7 +1,7 @@
 <script setup>
-import { ref, watch } from "vue";
+import { ref } from "vue";
 import { useDisplay } from 'vuetify'
-import { Head } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 
 defineProps({
     title: String,
@@ -24,10 +24,10 @@ const cruds = [
     ["Update", "mdi-update"],
     ["Delete", "mdi-delete"],
 ];
+
 </script>
 <template>
     <Head title="StockCard" />
-    <v-card>
         <v-layout>
             <v-navigation-drawer v-model="drawer" :rail="rail" @click="rail = false">
                 <!-- Company Logo -->
@@ -69,11 +69,22 @@ const cruds = [
                         <v-list-item title="Out" href="/out"></v-list-item>
                     </v-list-group>
 
-                    <v-list-item
-                        prepend-icon="mdi-chart-bar"
-                        title="Reports"
-                        href="/reports"
-                    ></v-list-item>
+                    <v-list-group value="Reports" v-if="$page.props.user.can.view">
+                        <template v-slot:activator="{ props }">
+                            <v-list-item
+                                v-bind="props"
+                                prepend-icon="mdi-chart-bar"
+                                title="Reports"
+                                 @click="openGroup[0] != 'Reports'; rail = false"
+                            ></v-list-item>
+                        </template>
+                        <v-list-item title="Stockcard" href="stockcard"></v-list-item>
+                        <v-list-item title="Stocks (Batch/Lots)" href="stocks"></v-list-item>
+                        <v-list-item title="Stocks with PR No." href="/stocks_with_pr"></v-list-item>
+                        <v-list-item title="Product Expiry" href="/product_expiry"></v-list-item>
+                        <v-list-item title="Summary"></v-list-item>
+                        
+                    </v-list-group>
                         
                     <v-list-group value="Maintenance" v-if="$page.props.user.can.view">
                         <template v-slot:activator="{ props }">
@@ -160,5 +171,5 @@ const cruds = [
                 <slot />
             </v-main>
         </v-layout>
-    </v-card>
+
 </template>

@@ -7,42 +7,43 @@ import { ref, watch } from "vue";
 
 const tab = ref(null);
 
-const props = defineProps({ users: Object, products: Object });
+const props = defineProps({ products: Object });
 
 const search = ref("");
 
 const headers = [
     {
         align: "start",
-        key: "name",
+        key: "",
         sortable: true,
-        title: "Name",
+        title: "ID",
         headerProps: {
             style: "font-weight: 700",
         },
     },
     {
-        key: "email",
-        title: "Email",
+        key: "",
+        title: "Code",
         headerProps: {
             style: "font-weight: 700",
         },
     },
     {
-        key: "created_at",
-        title: "Date Created",
+        key: "",
+        title: "Quantity",
         headerProps: {
             style: "font-weight: 700",
         },
     },
     {
-        key: "role.name",
-        title: "Roles",
+        key: "",
+        title: "Expiration Date",
         headerProps: {
             style: "font-weight: 700",
         },
     },
 ];
+
 
 let code = ref("");
 
@@ -346,13 +347,14 @@ const formattedPostingDate = ref(postingDate.toLocaleDateString());
                 </v-container>
             </v-tabs-window-item>
             <v-tabs-window-item :value="2">
+
                 <v-container fluid>
                     <v-data-table
                         :headers="headers"
-                        :items="users"
                         :search="search"
                     ></v-data-table>
                 </v-container>
+
             </v-tabs-window-item>
         </v-tabs-window>
     </Layout>
