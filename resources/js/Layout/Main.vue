@@ -8,6 +8,7 @@ defineProps({
 
 const drawer = ref(true);
 const rail = ref(false);
+const openGroup = ref(['']);
 
 const cruds = [
     ["Create", "mdi-plus-outline"],
@@ -19,7 +20,7 @@ const cruds = [
 <template>
     <v-card>
         <v-layout>
-            <v-navigation-drawer v-model="drawer" :rail="rail">
+            <v-navigation-drawer v-model="drawer" :rail="rail" @click="rail = false">
                 <!-- Company Logo -->
                 <div class="pt-4 pb-2 d-flex justify-center" v-if="!rail">
                     <v-img
@@ -33,46 +34,47 @@ const cruds = [
 
                 <div class="d-flex text-center" v-if="!rail">
                     <v-app-bar-title>
-                        <span class="text-subtitle-1 text-grey">Stockard</span>
+                        <span class="text-subtitle-1 text-grey">StockCard</span>
                     </v-app-bar-title>
                 </div>
 
                 <v-divider></v-divider>
 
-                <v-list density="compact" nav>
+                <v-list v-model:opened="openGroup" density="compact" nav>
                     <v-list-item
                         prepend-icon="mdi-view-dashboard"
                         href="/dashboard"
                         title="Dashboard"
                     ></v-list-item>
-                    <v-list-group>
+                    <v-list-group value="Transaction">
                         <template v-slot:activator="{ props }">
                             <v-list-item
                                 v-bind="props"
                                 title="Transaction"
                                 prepend-icon="mdi-clipboard-text-outline"
+                                @click="openGroup[0] != 'Transaction'; rail = false"
                             ></v-list-item>
                         </template>
 
                         <v-list-item title="In" href="/in"></v-list-item>
                         <v-list-item title="Out" href="/out"></v-list-item>
                     </v-list-group>
+
                     <v-list-item
                         prepend-icon="mdi-chart-bar"
                         title="Reports"
                         href="/reports"
                     ></v-list-item>
-                    <v-list-group v-if="$page.props.user.can.view">
+                        
+                    <v-list-group value="Maintenance" v-if="$page.props.user.can.view">
                         <template v-slot:activator="{ props }">
                             <v-list-item
                                 v-bind="props"
                                 title="Maintenance"
                                 prepend-icon="mdi-wrench"
+                                @click="openGroup[0] != 'Maintenance'; rail = false"
                             ></v-list-item>
                         </template>
-
-                        <!-- <v-list-item v-if="$page.props.user.can.view" prepend-icon="mdi-wrench" href="/maintenance"
-                            title="Maintenance"></v-list-item> -->
                         <v-list-item title="Units" href="/units"></v-list-item>
                         <v-list-item
                             title="Category"
@@ -138,7 +140,7 @@ const cruds = [
             <v-app-bar :title="title ? `${title}` : 'StockCard'" :elevation="2">
                 <template v-slot:prepend>
                     <v-app-bar-nav-icon
-                        @click.stop="rail = !rail"
+                        @click.stop="rail = !rail; openGroup = ''"
                     ></v-app-bar-nav-icon>
                 </template>
 
