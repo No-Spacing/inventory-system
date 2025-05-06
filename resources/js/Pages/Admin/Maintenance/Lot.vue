@@ -2,7 +2,7 @@
 import Layout from "../../../Layout/Main.vue"
 </script>
 <template>
-    <Layout>
+    <Layout title="Lot">
         <v-card title="Lot Number" text="This is lot number page..."></v-card>
     </Layout>
 </template>

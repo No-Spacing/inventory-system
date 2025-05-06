@@ -64,7 +64,7 @@ watch(code, (newCode) => {
 </script>
 
 <template>
-    <Layout>
+    <Layout title="Out Transaction">
         <v-tabs
         v-model="tab"
         align-tabs="center"

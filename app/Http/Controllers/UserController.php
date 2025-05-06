@@ -38,22 +38,22 @@ class UserController extends Controller
 
         return Inertia::render('Admin/Transaction/In', [
             'users' => User::with('role')->get(),
-            'products' => DB::table('product')
-            ->select('code','product_desc','unit')
-            ->where('code', 'Like', '%'.$request->code.'%')
-            ->limit(5)
-            ->get(),
+            // 'products' => DB::table('product')
+            // ->select('code','product_desc','unit')
+            // ->where('code', 'Like', '%'.$request->code.'%')
+            // ->limit(5)
+            // ->get(),
         ]);
     }
 
     public function Out(Request $request){
         return Inertia::render('Admin/Transaction/Out', [
             'users' => User::with('role')->get(),
-            'products' => DB::table('product')
-            ->select('code','product_desc','unit')
-            ->where('code', 'Like', '%'.$request->code.'%')
-            ->limit(5)
-            ->get(),
+            // 'products' => DB::table('product')
+            // ->select('code','product_desc','unit')
+            // ->where('code', 'Like', '%'.$request->code.'%')
+            // ->limit(5)
+            // ->get(),
         ]);
     }
 }

@@ -40,7 +40,7 @@ const headers = [
 </script>
 
 <template>
-    <Layout>
+    <Layout title="Dashboard">
         <!-- Main -->
         <v-main class="pa-6">
             <v-container fluid>

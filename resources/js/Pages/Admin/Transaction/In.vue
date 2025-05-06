@@ -64,7 +64,7 @@ watch(code, (newCode) => {
 </script>
 
 <template>
-    <Layout>
+    <Layout title="In Transaction">
         <v-tabs
         v-model="tab"
         align-tabs="center"
@@ -81,73 +81,35 @@ watch(code, (newCode) => {
         <v-tabs-window v-model="tab">
             <v-tabs-window-item :value="1">
                 <v-container fluid>
-                    <v-card>
-                        <v-container fluid>
-                            <v-card-title>
-                                In Transaction Details
-                            </v-card-title>
-                            <v-card-text>
-                                <v-form>
-                                    <v-container>
-                                        <div class="d-flex">
-                                            <v-col>
-                                                <v-autocomplete
-                                                    label="Code"
-                                                    v-model:search="code"
-                                                    :items="products"
-                                                    item-title="code"
-                                                    variant="outlined" 
-                                                    @keyup.enter="submit()"
-                                                >
-                                                </v-autocomplete>
-                                            </v-col>
-                                            
-                                            <v-col>
-                                                <v-text-field
-                                                    label="Description"
-                                                    variant="outlined"  
-                                                ></v-text-field>
-                                            </v-col>
-
-                                            <v-col>
-                                                <v-text-field
-                                                    label="Unit"
-                                                    variant="outlined"  
-                                                ></v-text-field>
-                                            </v-col>              
-                                        </div>
-
-                                        <div class="d-flex">
-                                            <v-col>
-                                                <v-autocomplete
-                                                    label="Lot/Batch No."
-                                                    :items="['0000', '0001', '0002', '0003', '0004', '0005']"
-                                                    variant="outlined"  
-                                                    class="mx-1"
-                                                ></v-autocomplete>
-                                            </v-col>
-
-                                            <v-col>
-                                                <v-text-field
-                                                    label="Total Items"
-                                                    variant="outlined"  
-                                                    class="mx-1"
-                                                ></v-text-field>
-                                            </v-col>
-
-                                            <v-col>
-                                                <v-text-field
-                                                label="Total Items Per Lot/Batch"
-                                                variant="outlined"
-                                                class="mx-1"  
-                                            ></v-text-field>
-                                            </v-col>
-                                        </div>
-                                    </v-container>
-                                </v-form>
-                            </v-card-text>
-                        </v-container>
-                    </v-card>
+                    <v-form>
+                        <v-row>
+                            <v-col>
+                                <div class="text-subtitle-1 text-medium-emphasis">Code</div>
+                                <v-autocomplete
+                                    :items="['1-BR-BD7800', '9-IC-BABPA1', '0-PM-104116', '4-EP-ECGMS3', 'P-MC-000006', '2-PP-KCPK24']"
+                                    placeholder="Select..."
+                                    variant="outlined"
+                                    required
+                                ></v-autocomplete>
+                            </v-col>
+                            <v-col>
+                                <div class="text-subtitle-1 text-medium-emphasis">Unit</div>
+                                <v-text-field
+                                placeholder="Unit"
+                                prepend-inner-icon=""
+                                variant="outlined"
+                                ></v-text-field>
+                            </v-col>
+                            <v-col>
+                                <div class="text-subtitle-1 text-medium-emphasis">Total Items</div>
+                                <v-text-field
+                                placeholder="Total Items"
+                                prepend-inner-icon=""
+                                variant="outlined"
+                                ></v-text-field>
+                            </v-col>
+                        </v-row>
+                    </v-form> 
                 </v-container>
             </v-tabs-window-item>
             <v-tabs-window-item :value="2">

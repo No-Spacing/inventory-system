@@ -1,5 +1,10 @@
 <script setup>
 import { ref, watch } from "vue";
+import { Head } from '@inertiajs/vue3';
+
+defineProps({
+    title: String,
+})
 
 const drawer = ref(true);
 const rail = ref(false);
@@ -128,14 +133,13 @@ const cruds = [
                 </template>
             </v-navigation-drawer>
 
-            <v-app-bar :elevation="2">
+            <v-app-bar :title="title ? `${title}` : 'StockCard'" :elevation="2">
                 <template v-slot:prepend>
                     <v-app-bar-nav-icon
                         @click.stop="rail = !rail"
                     ></v-app-bar-nav-icon>
                 </template>
 
-                <v-app-bar-title>Application Bar</v-app-bar-title>
             </v-app-bar>
 
             <v-main>
