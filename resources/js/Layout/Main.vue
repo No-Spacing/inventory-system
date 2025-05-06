@@ -143,7 +143,7 @@ const cruds = [
                 </template>
 
                 <template v-slot:title>
-                    <span class="text-orange-darken-3 font-weight-bold">
+                    <span class="text-primary font-weight-bold">
                         {{ title ? title : "StockCard" }}
                     </span>
                 </template>
