@@ -29,27 +29,31 @@ class UserController extends Controller
     }
 
     public function Dashboard(){
-        return Inertia::render('Dashboard', [
+        return Inertia::render('Admin/Dashboard', [
             'users' => User::with('role')->get(),
         ]);
     }
 
     public function In(Request $request){
 
-        $products = DB::table('product')
-                    ->when($request->code, function($query, $filter){
-                         $query->where('code', 'Like', '%'.$filter.'%');
-                    });
-
-        return Inertia::render('In', [
+        return Inertia::render('Admin/Transaction/In', [
             'users' => User::with('role')->get(),
-            'product' => $products->select('code','product_desc','unit')->limit(5)->get(),
+            'products' => DB::table('product')
+            ->select('code','product_desc','unit')
+            ->where('code', 'Like', '%'.$request->code.'%')
+            ->limit(5)
+            ->get(),
         ]);
     }
 
-    public function Out(){
-        return Inertia::render('In', [
+    public function Out(Request $request){
+        return Inertia::render('Admin/Transaction/Out', [
             'users' => User::with('role')->get(),
+            'products' => DB::table('product')
+            ->select('code','product_desc','unit')
+            ->where('code', 'Like', '%'.$request->code.'%')
+            ->limit(5)
+            ->get(),
         ]);
     }
 }

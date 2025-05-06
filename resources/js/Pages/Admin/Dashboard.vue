@@ -1,7 +1,6 @@
 <script setup>
-import Layout from "../Layout/Main.vue";
-
 import { ref } from "vue";
+import Layout from "../../Layout/Main.vue"
 
 const props = defineProps({ users: Object,})
 
@@ -41,7 +40,7 @@ const headers = [
 </script>
 
 <template>
-    <layout>
+    <Layout>
         <!-- Main -->
         <v-main class="pa-6">
             <v-container fluid>
@@ -122,5 +121,5 @@ const headers = [
                 </v-row>
             </v-container>
         </v-main>
-    </layout>
+    </Layout>
 </template>

@@ -1,15 +1,13 @@
 <script setup>
 import {  router, useForm } from '@inertiajs/vue3'
 import { reactive } from 'vue'
-import Layout from '../Layout/Main.vue'
-import Input from '../Layout/Input-In.vue'
-
+import Layout from "../../../Layout/Main.vue"
 
 import { ref, watch } from 'vue'
 
 const tab = ref(null)
 
-const props = defineProps({ users: Object, product: Object})
+const props = defineProps({ users: Object, products: Object})
 
 const search = ref("");
 
@@ -48,13 +46,17 @@ const headers = [
 
 let code = ref('');
 
+const form = reactive({
+    description: '',
+})
+
 watch(code, (newCode) => {
     router.get('/in',
         {
             code: newCode,
         },
         {
-            preserveState: true
+            preserveState: true,   
         }
     )
 })
@@ -92,9 +94,10 @@ watch(code, (newCode) => {
                                                 <v-autocomplete
                                                     label="Code"
                                                     v-model:search="code"
-                                                    :items="product"
+                                                    :items="products"
                                                     item-title="code"
                                                     variant="outlined" 
+                                                    @keyup.enter="submit()"
                                                 >
                                                 </v-autocomplete>
                                             </v-col>

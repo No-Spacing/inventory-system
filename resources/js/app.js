@@ -33,9 +33,9 @@ createInertiaApp({
     },
     setup({ el, App, props, plugin }) {
       createApp({ render: () => h(App, props) })
-        .use(plugin)
-        .use(vuetify)
-        .mount(el)
+      .use(plugin)
+      .use(vuetify)
+      .mount(el)
     },
   })
 

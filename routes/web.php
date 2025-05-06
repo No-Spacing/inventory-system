@@ -10,9 +10,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 use App\Model\User;
+use App\Policies\UserPolicy;
 
 Route::middleware(['user-group'])->group(function () {
-    Route::inertia('/login', 'Login');
+    Route::inertia('/login', 'Auth/Login');
 
     Route::get('/dashboard', [UserController::class, 'Dashboard']);
 
@@ -20,15 +21,15 @@ Route::middleware(['user-group'])->group(function () {
 
     Route::get('/out', [UserController::class, 'Out']);
 
-    Route::inertia('/reports', 'Reports');
+    Route::inertia('/reports', 'Admin/Reports');
 
-    Route::inertia('/maintenance', 'Maintenance')->can('view', User::class);
+    Route::inertia('/maintenance', 'Admin/Maintenance')->can('view', User::class);
 
     // Maintenance routes
-    Route::inertia('/units', 'maintenance/Units')->can('view', User::class);
-    Route::inertia('/category', 'maintenance/Category')->can('view', User::class);
-    Route::inertia('/lot', 'maintenance/Lot')->can('view', User::class);
-    Route::inertia('/serial', 'maintenance/Serial')->can('view', User::class);
+    Route::inertia('/units', 'Admin/Maintenance/Units')->can('view', User::class);
+    Route::inertia('/category', 'Admin/Maintenance/Category')->can('view', User::class);
+    Route::inertia('/lot', 'Admin/Maintenance/Lot')->can('view', User::class);
+    Route::inertia('/serial', 'Admin/Maintenance/Serial')->can('view', User::class);
 
     Route::get('/logout', function (Request $request) {
         Auth::logout();
