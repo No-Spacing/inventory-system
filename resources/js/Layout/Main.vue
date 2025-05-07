@@ -153,7 +153,7 @@ const cruds = [
                 </template>
             </v-navigation-drawer>
 
-            <v-app-bar :elevation="2">
+            <v-app-bar scroll-behavior="hide" :elevation="2">
                 <template v-slot:prepend>
                     <!-- <v-app-bar-nav-icon  @click.stop="rail = !rail; openGroup = ''"/> -->
                     <v-app-bar-nav-icon variant="text" @click="rail = !rail; openGroup = ''" v-if="mobile === false"></v-app-bar-nav-icon>

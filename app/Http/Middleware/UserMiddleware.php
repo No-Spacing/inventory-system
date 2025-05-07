@@ -22,7 +22,7 @@ class UserMiddleware
         }
 
         if(Auth::check() && $request->path() == 'login'){
-            return redirect('/maintenance');
+            return redirect('/dashboard');
         }
 
         return $next($request)->header('Cache-Control','no-cache, no-store, max-age=0, must-revalidate')
