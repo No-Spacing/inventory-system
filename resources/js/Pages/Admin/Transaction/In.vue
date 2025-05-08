@@ -196,7 +196,7 @@ function codeFilter() {
                                     </div>
                                     <v-row justify="start">
                                         <!-- Autocomplete -->
-                                        <v-col cols="12" sm="10">
+                                        <v-col cols="12" lg="10">
                                             <v-autocomplete
                                                 v-model:search="lot"
                                                 :items="[
@@ -222,7 +222,7 @@ function codeFilter() {
                                         <!-- Button -->
                                         <v-col
                                             cols="12"
-                                            sm="2"
+                                            lg="2"
                                             class="d-flex align-center"
                                         >
                                             <v-dialog
@@ -240,6 +240,7 @@ function codeFilter() {
                                                         color="green"
                                                         prepend-icon="mdi-plus"
                                                         v-bind="activatorProps"
+                                                        class="mx-n2"
                                                     >
                                                         Add New Lot
                                                     </v-btn>
