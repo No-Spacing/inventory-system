@@ -1,20 +1,19 @@
 <script setup>
 import { router, useForm } from "@inertiajs/vue3";
-import { reactive } from "vue";
 import Layout from "../../../Layout/Main.vue";
 
-import { ref, watch } from "vue";
+import { ref, watch, reactive } from "vue";
 
 const tab = ref(null);
 
-const props = defineProps({ products: Object });
+const props = defineProps({ products: Object, stockcards: Object });
 
 const search = ref("");
 
 const headers = [
     {
         align: "start",
-        key: "",
+        key: "id",
         sortable: true,
         title: "ID",
         headerProps: {
@@ -22,35 +21,51 @@ const headers = [
         },
     },
     {
-        key: "",
+        key: "code",
         title: "Code",
         headerProps: {
             style: "font-weight: 700",
         },
     },
     {
-        key: "",
+        key: "quantity",
         title: "Quantity",
         headerProps: {
             style: "font-weight: 700",
         },
     },
     {
-        key: "",
+        key: "expdate",
         title: "Expiration Date",
+        headerProps: {
+            style: "font-weight: 700",
+        },
+    },
+    {
+        key: "reference",
+        title: "Reference",
+        headerProps: {
+            style: "font-weight: 700",
+        },
+    },
+    {
+        key: "enduser",
+        title: "End User",
         headerProps: {
             style: "font-weight: 700",
         },
     },
 ];
 
-
-
 const expand = ref(false);
 const expand2 = ref(false);
 
 let lot = ref("");
-let code = ref("");
+let code = ref(""); 
+
+const form = reactive({
+    code: ''
+})
 
 const codeInput = () => {
     if(code.value === ''){
@@ -65,17 +80,18 @@ const lotInput = () => {
     }    
 };
 
-watch(code, (newCode) => {
+function codeFilter() {
     router.get(
         "/in",
         {
-            code: newCode,
+          code: form.code
         },
         {
             preserveState: true,
         }
     );
-});
+}
+
 
 // Expiration Date states
 const expirationMenu = ref(false);
@@ -128,6 +144,7 @@ const formattedPostingDate = ref(postingDate.toLocaleDateString());
                     <v-data-table
                         :headers="headers"
                         :search="search"
+                        :items="stockcards"
                     ></v-data-table>
                 </v-container>    
             </v-tabs-window-item>
@@ -140,7 +157,7 @@ const formattedPostingDate = ref(postingDate.toLocaleDateString());
                                     Code
                                 </div>
                                 <v-autocomplete
-                                    v-model:search="code"
+                                    v-model:search="form.code"
                                     :items="products"
                                     item-title="code"
                                     class="mx-2"
@@ -149,6 +166,8 @@ const formattedPostingDate = ref(postingDate.toLocaleDateString());
                                     menu-icon=""
                                     @update:modelValue="expand = true"
                                     @input="codeInput"
+                                    @keyup.enter="codeFilter"
+                                    :hide-no-data="true"
                                 ></v-autocomplete>
                             </v-col>  
                         </v-row>
