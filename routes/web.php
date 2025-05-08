@@ -29,6 +29,8 @@ Route::middleware(['user-group'])->group(function () {
 
     Route::inertia('/product_expiry', 'Admin/Report/ProductExpiry');
 
+    Route::inertia('/summary', 'Admin/Report/Summary');
+
     Route::inertia('/maintenance', 'Admin/Maintenance')->can('view', User::class);
 
     // Maintenance routes

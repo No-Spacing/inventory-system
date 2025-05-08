@@ -82,7 +82,7 @@ const cruds = [
                         <v-list-item title="Stocks (Batch/Lots)" href="stocks"></v-list-item>
                         <v-list-item title="Stocks with PR No." href="/stocks_with_pr"></v-list-item>
                         <v-list-item title="Product Expiry" href="/product_expiry"></v-list-item>
-                        <v-list-item title="Summary"></v-list-item>
+                        <v-list-item title="Summary" href="/summary"></v-list-item>
                         
                     </v-list-group>
                         

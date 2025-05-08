@@ -3,7 +3,7 @@ import Layout from "../../../Layout/Main.vue"
 </script>
 <template>
     <Layout title="Stocks (Batch/Lots)">
-        <v-container fluid>
+        <v-container max-width="1500" fluid>
             <form>
                 <v-autocomplete label="Code" variant="outlined"></v-autocomplete>
 

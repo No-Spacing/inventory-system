@@ -240,14 +240,12 @@ function codeFilter() {
                                                         color="green"
                                                         prepend-icon="mdi-plus"
                                                         v-bind="activatorProps"
-                                                        class="mx-n2"
                                                     >
                                                         Add New Lot
                                                     </v-btn>
                                                 </template>
 
                                                 <v-card
-                                                    prepend-icon="mdi-account"
                                                     title="Add New Lot"
                                                 >
                                                     <v-card-text>
