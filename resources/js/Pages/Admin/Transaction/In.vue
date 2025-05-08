@@ -1,8 +1,11 @@
 <script setup>
 import { router, useForm } from "@inertiajs/vue3";
 import Layout from "../../../Layout/Main.vue";
+import { VDateInput } from "vuetify/labs/VDateInput";
 
-import { ref, watch, reactive } from "vue";
+import { ref, watch, reactive, shallowRef } from "vue";
+
+const dialog = shallowRef(false); // Dialog for adding new lot
 
 const tab = ref(null);
 
@@ -57,34 +60,34 @@ const headers = [
     },
 ];
 
-const expand = ref(false);
-const expand2 = ref(false);
+const expand = ref(true);
+const expand2 = ref(true);
 
 let lot = ref("");
-let code = ref(""); 
+let code = ref("");
 
 const form = reactive({
-    code: ''
-})
+    code: "",
+});
 
 const codeInput = () => {
-    if(code.value === ''){
-        expand['value'] = false
-        lot['value'] = '';
-    }    
+    if (code.value === "") {
+        expand["value"] = false;
+        lot["value"] = "";
+    }
 };
 
 const lotInput = () => {
-    if(lot.value === ''){
-        expand2['value'] = false
-    }    
+    if (lot.value === "") {
+        expand2["value"] = false;
+    }
 };
 
 function codeFilter() {
     router.get(
         "/in",
         {
-          code: form.code
+            code: form.code,
         },
         {
             preserveState: true,
@@ -92,42 +95,15 @@ function codeFilter() {
     );
 }
 
-
-// Expiration Date states
-const expirationMenu = ref(false);
-const expirationDate = ref(null);
-const formattedExpirationDate = ref("");
-
-// Date of Transaction states
-const transactionMenu = ref(false);
-const transactionDate = ref(null);
-const formattedTransactionDate = ref("");
-
-// Format dates (MM/DD/YYYY)
-const formatDate = (date) => {
-    const d = new Date(date);
-    return d.toLocaleDateString();
-};
-
-// Handlers for date selection
-const onExpirationDateSelected = (val) => {
-    formattedExpirationDate.value = formatDate(val);
-    expirationMenu.value = false;
-};
-
-const onTransactionDateSelected = (val) => {
-    formattedTransactionDate.value = formatDate(val);
-    transactionMenu.value = false;
-};
-
-// Posting Date (Disabled)
-const postingDate = new Date(); // or any specific date you want
-const formattedPostingDate = ref(postingDate.toLocaleDateString());
 </script>
-
 <template>
     <Layout title="In Transaction">
-        <v-tabs v-model="tab" align-tabs="center" color="primary" bg-color="grey-lighten-4">
+        <v-tabs
+            v-model="tab"
+            align-tabs="center"
+            color="primary"
+            bg-color="grey-lighten-4"
+        >
             <v-tab :value="1">
                 <v-icon start icon="mdi-format-list-bulleted"></v-icon>
                 <p class="font-weight-bold">List</p>
@@ -146,30 +122,30 @@ const formattedPostingDate = ref(postingDate.toLocaleDateString());
                         :search="search"
                         :items="stockcards"
                     ></v-data-table>
-                </v-container>    
+                </v-container>
             </v-tabs-window-item>
             <v-tabs-window-item :value="2">
                 <v-container max-width="1500" fluid>
                     <v-form>
                         <v-row no-gutters>
                             <v-col cols="12">
-                                <div class="text-subtitle-1 text-medium-emphasis mx-2">
+                                <div
+                                    class="text-subtitle-1 text-medium-emphasis mx-2"
+                                >
                                     Code
                                 </div>
                                 <v-autocomplete
                                     v-model:search="form.code"
-                                    :items="products"
-                                    item-title="code"
+                                    :items="['Apple', 'Banana', 'Cherry']"
                                     class="mx-2"
                                     placeholder="Select..."
                                     variant="outlined"
                                     menu-icon=""
                                     @update:modelValue="expand = true"
                                     @input="codeInput"
-                                    @keyup.enter="codeFilter"
                                     :hide-no-data="true"
                                 ></v-autocomplete>
-                            </v-col>  
+                            </v-col>
                         </v-row>
                         <v-expand-transition>
                             <v-row no-gutters v-show="expand">
@@ -180,13 +156,12 @@ const formattedPostingDate = ref(postingDate.toLocaleDateString());
                                         Description
                                     </div>
                                     <v-text-field
-                                        v-model="products[0].product_desc"
                                         class="mx-2"
                                         placeholder="Description"
                                         variant="outlined"
                                         required
                                     ></v-text-field>
-                                </v-col>  
+                                </v-col>
                                 <v-col sm="4" cols="12">
                                     <div
                                         class="text-subtitle-1 text-medium-emphasis mx-2"
@@ -194,7 +169,6 @@ const formattedPostingDate = ref(postingDate.toLocaleDateString());
                                         Unit
                                     </div>
                                     <v-text-field
-                                        v-model="products[0].unit"
                                         class="mx-2"
                                         placeholder="Unit"
                                         prepend-inner-icon=""
@@ -208,40 +182,118 @@ const formattedPostingDate = ref(postingDate.toLocaleDateString());
                                         Total Items
                                     </div>
                                     <v-text-field
-                                        v-model="products[0].quantity"
                                         class="mx-2"
                                         placeholder="Total Items"
                                         prepend-inner-icon=""
                                         variant="outlined"
                                     ></v-text-field>
                                 </v-col>
-                                <v-col cols="12">
+                                <v-col cols="12" class="mb-5">
                                     <div
                                         class="text-subtitle-1 text-medium-emphasis mx-2"
                                     >
                                         Lot/Batch No.
                                     </div>
-                                    <v-autocomplete
-                                        v-model:search="lot"
-                                        :items="[
-                                            '1-BR-BD7800',
-                                            '9-IC-BABPA1',
-                                            '0-PM-104116',
-                                            '4-EP-ECGMS3',
-                                            'P-MC-000006',
-                                            '2-PP-KCPK24',
-                                        ]"
-                                        class="mx-2"
-                                        placeholder="Select..."
-                                        variant="outlined"
-                                        menu-icon=""
-                                        @update:modelValue="expand2 = true"
-                                        @input="lotInput"
-                                    ></v-autocomplete>
+                                    <v-row justify="start">
+                                        <!-- Autocomplete -->
+                                        <v-col cols="12" sm="10">
+                                            <v-autocomplete
+                                                v-model:search="lot"
+                                                :items="[
+                                                    '1-BR-BD7800',
+                                                    '9-IC-BABPA1',
+                                                    '0-PM-104116',
+                                                    '4-EP-ECGMS3',
+                                                    'P-MC-000006',
+                                                    '2-PP-KCPK24',
+                                                ]"
+                                                placeholder="Select..."
+                                                variant="outlined"
+                                                hide-details
+                                                menu-icon=""
+                                                @update:modelValue="
+                                                    expand2 = true
+                                                "
+                                                @input="lotInput"
+                                                class="mx-2"
+                                            ></v-autocomplete>
+                                        </v-col>
+
+                                        <!-- Button -->
+                                        <v-col
+                                            cols="12"
+                                            sm="2"
+                                            class="d-flex align-center"
+                                        >
+                                            <v-dialog
+                                                v-model="dialog"
+                                                max-width="600"
+                                                persistent
+                                            >
+                                                <template
+                                                    v-slot:activator="{
+                                                        props: activatorProps,
+                                                    }"
+                                                >
+                                                    <v-btn
+                                                        block
+                                                        color="green"
+                                                        prepend-icon="mdi-plus"
+                                                        v-bind="activatorProps"
+                                                    >
+                                                        Add New Lot
+                                                    </v-btn>
+                                                </template>
+
+                                                <v-card
+                                                    prepend-icon="mdi-account"
+                                                    title="Add New Lot"
+                                                >
+                                                    <v-card-text>
+                                                        <v-row dense>
+
+                                                            <v-col
+                                                                cols="12"
+                                                            >
+                                                                <v-text-field
+                                                                    label="Lot/Batch No."
+                                                                    required
+                                                                ></v-text-field>
+                                                            </v-col>
+                                                        </v-row>
+
+                                                    </v-card-text>
+
+                                                    <v-divider></v-divider>
+
+                                                    <v-card-actions>
+                                                        <v-spacer></v-spacer>
+
+                                                        <v-btn
+                                                            text="Close"
+                                                            variant="plain"
+                                                            @click="
+                                                                dialog = false
+                                                            "
+                                                        ></v-btn>
+
+                                                        <v-btn
+                                                        color="green"
+                                                            text="Save"
+                                                            variant="tonal"
+                                                            @click="
+                                                                dialog = false
+                                                            "
+                                                        ></v-btn>
+                                                    </v-card-actions>
+                                                </v-card>
+                                            </v-dialog>
+                                        </v-col>
+                                    </v-row>
                                 </v-col>
                             </v-row>
                         </v-expand-transition>
-                        
+
                         <v-expand-transition>
                             <v-row no-gutters v-show="expand2">
                                 <v-col sm="6" cols="12">
@@ -265,29 +317,13 @@ const formattedPostingDate = ref(postingDate.toLocaleDateString());
                                         Expiration Date
                                     </div>
 
-                                    <v-menu
-                                        v-model="expirationMenu"
-                                        :close-on-content-click="false"
-                                        transition="scale-transition"
-                                        offset-y
+                                    <v-date-input
+                                        placeholder="Date from"
+                                        prepend-icon=""
+                                        prepend-inner-icon="$calendar"
+                                        variant="outlined"
                                         class="mx-2"
-                                    >
-                                        <template v-slot:activator="{ props }">
-                                            <v-text-field
-                                                class="mx-2"
-                                                v-model="formattedExpirationDate"
-                                                v-bind="props"
-                                                readonly
-                                                variant="outlined"
-                                                placeholder="Select Expiration Date"
-                                            ></v-text-field>
-                                        </template>
-
-                                        <v-date-picker
-                                            v-model="expirationDate"
-                                            @update:model-value="onExpirationDateSelected"
-                                        ></v-date-picker>
-                                    </v-menu>
+                                    ></v-date-input>
                                 </v-col>
                             </v-row>
                         </v-expand-transition>
@@ -341,31 +377,13 @@ const formattedPostingDate = ref(postingDate.toLocaleDateString());
                                         Date of Transaction
                                     </div>
 
-                                    <v-menu
-                                        v-model="transactionMenu"
-                                        :close-on-content-click="false"
-                                        transition="scale-transition"
-                                        offset-y
+                                    <v-date-input
+                                        placeholder="Date from"
+                                        prepend-icon=""
+                                        prepend-inner-icon="$calendar"
+                                        variant="outlined"
                                         class="mx-2"
-                                    >
-                                        <template v-slot:activator="{ props }">
-                                            <v-text-field
-                                                class="mx-2"
-                                                v-model="formattedTransactionDate"
-                                                v-bind="props"
-                                                readonly
-                                                variant="outlined"
-                                                placeholder="Select Transaction Date"
-                                            ></v-text-field>
-                                        </template>
-
-                                        <v-date-picker
-                                            v-model="transactionDate"
-                                            @update:model-value="
-                                                onTransactionDateSelected
-                                            "
-                                        ></v-date-picker>
-                                    </v-menu>
+                                    ></v-date-input>
                                 </v-col>
                                 <!-- Date of Posting (Disabled) -->
                                 <v-col sm="6" cols="12">
@@ -375,13 +393,14 @@ const formattedPostingDate = ref(postingDate.toLocaleDateString());
                                         Date of Posting
                                     </div>
 
-                                    <v-text-field
-                                        class="mx-2"
-                                        v-model="formattedPostingDate"
+                                    <v-date-input
+                                        placeholder="Date from"
+                                        prepend-icon=""
+                                        prepend-inner-icon="$calendar"
                                         variant="outlined"
-                                        readonly
+                                        class="mx-2"
                                         disabled
-                                    ></v-text-field>
+                                    ></v-date-input>
                                 </v-col>
                                 <v-col sm="12" cols="12">
                                     <div
@@ -390,13 +409,22 @@ const formattedPostingDate = ref(postingDate.toLocaleDateString());
                                         Remarks
                                     </div>
 
-                                    <v-textarea clearable class="mx-2" placeholder="Write a comment.." variant="outlined"></v-textarea>
+                                    <v-textarea
+                                        clearable
+                                        class="mx-2"
+                                        placeholder="Write a comment.."
+                                        variant="outlined"
+                                    ></v-textarea>
                                 </v-col>
                             </v-row>
-                       </v-expand-transition>
-                        
+                        </v-expand-transition>
+
                         <div class="d-flex justify-end" v-if="expand">
-                            <v-btn append-icon="mdi-send" color="primary" class="me-2">
+                            <v-btn
+                                append-icon="mdi-send"
+                                color="primary"
+                                class="me-2"
+                            >
                                 Submit
                             </v-btn>
                         </div>
