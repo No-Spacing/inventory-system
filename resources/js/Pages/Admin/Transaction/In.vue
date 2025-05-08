@@ -236,10 +236,11 @@ function codeFilter() {
                                                     }"
                                                 >
                                                     <v-btn
-                                                        block
+                                                        :width="$vuetify.display.mobile ? '98.5%' : '90%'"
                                                         color="green"
-                                                        prepend-icon="mdi-plus"
+                                                        :prepend-icon="$vuetify.display.mobile ? 'mdi-plus' : ''"
                                                         v-bind="activatorProps"
+                                                        class="mx-2"
                                                     >
                                                         Add New Lot
                                                     </v-btn>

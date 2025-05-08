@@ -12,7 +12,7 @@ import Layout from "../../../Layout/Main.vue";
 
                 <v-divider class="mb-6" />
 
-                <v-row align="center" justify="space-between">
+                <v-row justify="space-between">
                     <v-col cols="12" md="6">
                         <v-card class="pa-4" color="grey-lighten-4">
                             <v-card-title
