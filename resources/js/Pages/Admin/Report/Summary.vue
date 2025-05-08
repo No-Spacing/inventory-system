@@ -4,6 +4,10 @@ import Layout from "../../../Layout/Main.vue";
 
 <template>
     <Layout title="Summary">
+      <div
+            class="d-flex flex-column fill-height bg-brown-lighten-5"
+            style="min-height: 94vh"
+        >
         <v-container max-width="1000" class="py-10">
             <v-card elevation="2" class="pa-8">
                 <v-card-title class="text-h5 font-weight-bold mb-4">
@@ -14,7 +18,7 @@ import Layout from "../../../Layout/Main.vue";
 
                 <v-row justify="space-between">
                     <v-col cols="12" md="6">
-                        <v-card class="pa-4" color="grey-lighten-4">
+                        <v-card class="pa-4" color="grey-lighten-5">
                             <v-card-title
                                 class="text-subtitle-1 font-weight-bold"
                                 >Generate Overall Report</v-card-title
@@ -44,7 +48,7 @@ import Layout from "../../../Layout/Main.vue";
                     <v-col cols="12" md="6">
                         <v-card
                             class="pa-4"
-                            color="grey-lighten-4"
+                            color="grey-lighten-5"
                         >
                             <v-card-title
                                 class="text-subtitle-1 font-weight-bold"
@@ -74,5 +78,6 @@ import Layout from "../../../Layout/Main.vue";
                 </v-row>
             </v-card>
         </v-container>
+      </div>
     </Layout>
 </template>
