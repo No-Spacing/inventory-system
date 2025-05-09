@@ -1,10 +1,11 @@
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useDisplay } from 'vuetify'
-import { Head, router } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
 
 defineProps({
     title: String,
+    loading: Boolean
 })
 
 const { mobile } = useDisplay()
@@ -153,7 +154,8 @@ const cruds = [
                 </template>
             </v-navigation-drawer>
 
-            <v-app-bar scroll-behavior="hide" :elevation="2">
+
+            <v-app-bar :elevation="2" app>
                 <template v-slot:prepend>
                     <!-- <v-app-bar-nav-icon  @click.stop="rail = !rail; openGroup = ''"/> -->
                     <v-app-bar-nav-icon variant="text" @click="rail = !rail; openGroup = ''" v-if="mobile === false"></v-app-bar-nav-icon>
@@ -165,6 +167,17 @@ const cruds = [
                         {{ title ? title : "StockCard" }}
                     </span>
                 </template>
+
+                
+                <v-progress-linear
+                    v-if="loading"
+                    :active="true"
+                    :indeterminate="true"
+                    color="primary"
+                    location="bottom"
+                    absolute
+                ></v-progress-linear>
+                
             </v-app-bar>
 
             <v-main>
