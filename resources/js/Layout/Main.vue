@@ -31,21 +31,24 @@ const cruds = [
     <Head title="StockCard" />
         <v-layout>
             <v-navigation-drawer v-model="drawer" :rail="rail" @click="rail = false">
-                <!-- Company Logo -->
-                <div class="pt-4 pb-2 d-flex justify-center" v-if="!rail">
-                    <v-img
-                        src="images/inmed-logo.png"
-                        alt="Company Logo"
-                        width="120"
-                        height="60"
-                        contain
-                    ></v-img>
-                </div>
 
-                <div class="d-flex text-center" v-if="!rail">
-                    <v-app-bar-title>
-                        <span class="text-subtitle-1 text-grey">StockCard</span>
-                    </v-app-bar-title>
+                <div class="py-4" v-if="!rail">
+                    <!-- Company Logo -->
+                    <div class="pt-4 pb-2 d-flex justify-center">
+                        <v-img
+                            src="images/inmed-logo.png"
+                            alt="Company Logo"
+                            width="120"
+                            height="60"
+                            contain
+                        ></v-img>
+                    </div>
+
+                    <div class="d-flex text-center">
+                        <v-app-bar-title>
+                            <span class="text-subtitle-1 text-grey">StockCard</span>
+                        </v-app-bar-title>
+                    </div>
                 </div>
 
                 <v-divider></v-divider>
@@ -114,7 +117,9 @@ const cruds = [
                     
                 </v-list>
 
+                
                 <template v-slot:append>
+                    <v-divider></v-divider>
                     <v-list density="compact" nav>
                         <!-- User Info -->
                         <v-list-item
@@ -180,8 +185,13 @@ const cruds = [
                 
             </v-app-bar>
 
-            <v-main>
+            <v-main >
+                <div
+            class="d-flex flex-column fill-height bg-grey-lighten-4"
+            style="min-height: 94vh"
+        >
                 <slot />
+            </div>
             </v-main>
         </v-layout>
 
