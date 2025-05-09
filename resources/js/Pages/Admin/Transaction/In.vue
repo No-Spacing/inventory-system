@@ -445,7 +445,7 @@ watchDebounced(
                                                 prepend-inner-icon="$calendar"
                                                 variant="outlined"
                                                 class="mx-2"
-                                                disabled
+                                                readonly
                                             ></v-date-input>
                                         </v-col>
                                         <v-col sm="12" cols="12">
