@@ -1,20 +1,16 @@
 <script setup>
 import Layout from "../../../Layout/Main.vue";
-import { ref } from "vue"
+import { ref } from "vue";
 
-const loading = ref(false)
-  function load () {
-    loading.value = true
-    setTimeout(() => (loading.value = false), 2000)
-  }
+const loading = ref(false);
+function load() {
+    loading.value = true;
+    setTimeout(() => (loading.value = false), 2000);
+}
 </script>
 
 <template>
     <Layout title="Summary">
-      <div
-            class="d-flex flex-column fill-height bg-brown-lighten-5"
-            style="min-height: 94vh"
-        >
         <v-container max-width="1000" class="py-10">
             <v-card elevation="2" class="pa-8">
                 <v-card-title class="text-h5 font-weight-bold mb-4">
@@ -52,10 +48,7 @@ const loading = ref(false)
                     </v-col>
 
                     <v-col cols="12" md="6">
-                        <v-card
-                            class="pa-4"
-                            color="grey-lighten-5"
-                        >
+                        <v-card class="pa-4" color="grey-lighten-5">
                             <v-card-title
                                 class="text-subtitle-1 font-weight-bold"
                                 >Generate Products with Lot
@@ -66,7 +59,7 @@ const loading = ref(false)
                                 products that include lot or batch numbers.
                             </v-card-text>
                             <v-card-actions>
-                              <v-btn
+                                <v-btn
                                     class="text-none mb-4"
                                     color="orange-darken-3"
                                     size="x-large"
@@ -83,6 +76,5 @@ const loading = ref(false)
                 </v-row>
             </v-card>
         </v-container>
-      </div>
     </Layout>
 </template>

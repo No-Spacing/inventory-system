@@ -73,7 +73,7 @@ const cruds = [
                         <v-list-item title="Out" href="/out"></v-list-item>
                     </v-list-group>
 
-                    <v-list-group value="Reports" v-if="$page.props.user.can.view">
+                    <v-list-group value="Reports">
                         <template v-slot:activator="{ props }">
                             <v-list-item
                                 v-bind="props"
