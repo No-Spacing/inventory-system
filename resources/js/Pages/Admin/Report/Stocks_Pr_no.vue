@@ -1,6 +1,9 @@
 <script setup>
 import Layout from "../../../Layout/Main.vue";
 import { VDateInput } from "vuetify/labs/VDateInput";
+import { ref } from "vue"
+
+const loading = ref(false);
 </script>
 <template>
     <Layout title="Stocks with PR No.">

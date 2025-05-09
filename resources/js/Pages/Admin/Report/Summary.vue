@@ -1,5 +1,12 @@
 <script setup>
 import Layout from "../../../Layout/Main.vue";
+import { ref } from "vue"
+
+const loading = ref(false)
+  function load () {
+    loading.value = true
+    setTimeout(() => (loading.value = false), 2000)
+  }
 </script>
 
 <template>
@@ -30,14 +37,13 @@ import Layout from "../../../Layout/Main.vue";
                             </v-card-text>
                             <v-card-actions>
                                 <v-btn
-                                    :disabled="loading"
-                                    :loading="loading"
                                     class="text-none mb-4"
                                     color="orange-darken-1"
                                     size="x-large"
                                     variant="flat"
                                     block
-                                    @click="loading = !loading"
+                                    @click="load"
+                                    :loading="loading"
                                 >
                                     Export to Excel
                                 </v-btn>
@@ -61,14 +67,13 @@ import Layout from "../../../Layout/Main.vue";
                             </v-card-text>
                             <v-card-actions>
                               <v-btn
-                                    :disabled="loading"
-                                    :loading="loading"
                                     class="text-none mb-4"
                                     color="orange-darken-3"
                                     size="x-large"
                                     variant="flat"
                                     block
-                                    @click="loading = !loading"
+                                    @click="load"
+                                    :loading="loading"
                                 >
                                     Export to Excel
                                 </v-btn>

@@ -19,14 +19,10 @@ import { VDateInput } from "vuetify/labs/VDateInput";
                                     Product
                                 </div>
                                 <v-autocomplete
-                                    v-model:search="code"
-                                    :items="products"
                                     item-title="product"
                                     placeholder="Select..."
                                     variant="outlined"
                                     menu-icon=""
-                                    @update:modelValue="expand = true"
-                                    @input="codeInput"
                                 ></v-autocomplete>
                             </v-col>
                         </v-row>
@@ -38,20 +34,16 @@ import { VDateInput } from "vuetify/labs/VDateInput";
                                     Lot/Batch No.
                                 </div>
                                 <v-autocomplete
-                                    v-model:search="lot"
                                     :items="[
-                                        '1-BR-BD7800',
-                                        '9-IC-BABPA1',
-                                        '0-PM-104116',
-                                        '4-EP-ECGMS3',
-                                        'P-MC-000006',
-                                        '2-PP-KCPK24',
+                                        '001',
+                                        '002',
+                                        '003',
+                                        '004',
+                                        '005',
                                     ]"
                                     placeholder="Select..."
                                     variant="outlined"
                                     menu-icon=""
-                                    @update:modelValue="expand2 = true"
-                                    @input="lotInput"
                                 ></v-autocomplete>
                             </v-col>
                         </v-row>
