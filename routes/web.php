@@ -39,6 +39,8 @@ Route::middleware(['user-group'])->group(function () {
     Route::inertia('/lot', 'Admin/Maintenance/Lot')->can('view', User::class);
     Route::inertia('/serial', 'Admin/Maintenance/Serial')->can('view', User::class);
 
+    Route::inertia('/forgot-password', 'Auth/ForgotPassword');
+
     Route::get('/logout', function (Request $request) {
         Auth::logout();
 

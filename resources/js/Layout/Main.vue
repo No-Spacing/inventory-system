@@ -139,7 +139,7 @@ const cruds = [
                                         <v-list-item
                                             title="Change Password"
                                             prepend-icon="mdi-lock-reset"
-                                            href="/change-password"
+                                            href="/forgot-password"
                                         ></v-list-item>
                                         <v-list-item
                                             title="Logout"
