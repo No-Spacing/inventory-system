@@ -19,11 +19,10 @@ let lot = ref("");
 let code = ref("");
 
 const codeInput = () => {
-    emit('loading', true);
-    // if (code.value === "") {
-    //     expand["value"] = false;
-    //     lot["value"] = "";
-    // }
+    if (code.value === "") {
+        expand["value"] = false;
+    }
+    
 };
 
 const lotInput = () => {
@@ -34,11 +33,9 @@ const lotInput = () => {
 
 const data = computed(() => {
     return {
-        description: products[0]?.product_desc
-            ? products[0].product_desc
-            : "",
-        unit: products[0]?.unit ? products[0].unit : "",
-        quantity: products[0]?.quantity ? products[0].quantity : "",
+        description: page.props.products[0].product_desc ? page.props.products[0].product_desc : "",
+        unit: products._value[0].unit ? products._value[0].unit : "",
+        quantity: products._value[0].quantity ? products._value[0].quantity : "",
     };
 });
 
@@ -159,11 +156,11 @@ watchDebounced(
                                 variant="outlined"
                                 hide-details
                                 menu-icon=""
-                                @update:modelValue="
-                                    expand2 = true
-                                "
+                                @update:modelValue="expand2 = true"
                                 @input="lotInput"
                                 class="mx-2"
+                                ref="lotAutoComplete"
+                                :hide-no-data="true"
                             ></v-autocomplete>
                         </v-col>
 
@@ -184,24 +181,10 @@ watchDebounced(
                                     }"
                                 >
                                     <v-btn
-                                        :width="
-                                            $vuetify
-                                                .display
-                                                .mobile
-                                                ? '98.5%'
-                                                : '90%'
-                                        "
+                                        :width="$vuetify.display.mobile ? '98.5%' : '90%'"
                                         color="green"
-                                        :prepend-icon="
-                                            $vuetify
-                                                .display
-                                                .mobile
-                                                ? 'mdi-plus'
-                                                : ''
-                                        "
-                                        v-bind="
-                                            activatorProps
-                                        "
+                                        :prepend-icon="$vuetify.display.mobile? 'mdi-plus': ''"
+                                        v-bind="activatorProps"
                                         class="mx-2"
                                     >
                                         Add New Lot

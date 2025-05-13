@@ -124,13 +124,18 @@ const cruds = [
                     <v-divider></v-divider>
                     <v-list density="compact" nav>
                         <!-- User Info -->
-                        <v-list-item
-                            prepend-icon="mdi-account-circle"
-                        >
-                            <div class="d-flex align-center px-4">
-                                <v-row class="mr-5">
-                                    <v-list-item-title>{{ $page.props.user.name }}</v-list-item-title>
-                                    <v-list-item-subtitle>{{ $page.props.user.email }}</v-list-item-subtitle>
+                        <v-list-item>
+                            <!-- <template v-slot:prepend>
+                                <v-icon icon="mdi-account-circle"></v-icon>
+                            </template> -->
+                            <div class="d-flex align-center">
+                                <v-row class="mr-1" no-gutters>
+                                    <v-col>
+                                        <v-list-item-title>{{ $page.props.user.name }}</v-list-item-title>
+                                    </v-col>
+                                    <v-col>
+                                        <v-list-item-subtitle>{{ $page.props.user.email }}</v-list-item-subtitle>
+                                    </v-col>
                                 </v-row>
                                 <v-menu location="top start" offset="4">
                                     <template #activator="{ props }">
@@ -143,6 +148,10 @@ const cruds = [
                                     </template>
 
                                     <v-list>
+                                        <v-list-item
+                                            title="Account"
+                                            prepend-icon="mdi-account-circle"
+                                        ></v-list-item>
                                         <v-list-item
                                             title="Change Password"
                                             prepend-icon="mdi-lock-reset"
