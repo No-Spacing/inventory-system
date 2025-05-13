@@ -1,5 +1,12 @@
 <script setup>
 import Layout from "../../../Layout/Main.vue";
+import { ref } from "vue";
+
+const loading = ref(false);
+function load() {
+    loading.value = true;
+    setTimeout(() => (loading.value = false), 2000);
+}
 </script>
 <template>
     <Layout title="Stocks (Batch/Lots)">
@@ -13,12 +20,12 @@ import Layout from "../../../Layout/Main.vue";
 
                     <v-row justify="center">
                         <v-col cols="12" sm="auto" class="text-center">
-                            <v-btn class="me-4" color="green" size="large">
+                            <v-btn class="me-4" @click="load" :loading="loading" color="green" size="large">
                                 Generate PDF
                             </v-btn>
                         </v-col>
                         <v-col cols="12" sm="auto" class="text-center">
-                            <v-btn class="me-4" color="primary" size="large">
+                            <v-btn class="me-4" @click="load" :loading="loading" color="primary" size="large">
                                 Export to Excel
                             </v-btn>
                         </v-col>

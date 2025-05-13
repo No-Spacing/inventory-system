@@ -35,25 +35,32 @@ class UserController extends Controller
     }
 
     public function In(Request $request){
-
+    
         return Inertia::render('Admin/Transaction/In', [
             'users' => User::with('role')->get(),
-            // 'products' => DB::table('product')
-            // ->select('code','product_desc','unit')
-            // ->where('code', 'Like', '%'.$request->code.'%')
-            // ->limit(5)
-            // ->get(),
+            'stockcards' => DB::table('stockcard')->where('stocktype', 'in')->join('product', 'product.id', '=', 'stockcard.code')->get(),
+            'products' => DB::table('product')
+            ->select('code','product_desc','unit', 'quantity')
+            ->where('code', 'Like', '%'.$request->code.'%')
+            ->limit(5)
+            ->get(),
         ]);
+
     }
 
     public function Out(Request $request){
         return Inertia::render('Admin/Transaction/Out', [
             'users' => User::with('role')->get(),
-            // 'products' => DB::table('product')
-            // ->select('code','product_desc','unit')
-            // ->where('code', 'Like', '%'.$request->code.'%')
-            // ->limit(5)
-            // ->get(),
+            'stockcards' => DB::table('stockcard')->where('stocktype', 'out')->join('product', 'product.id', '=', 'stockcard.code')->get(),
+            'products' => DB::table('product')
+            ->select('code','product_desc','unit', 'quantity')
+            ->where('code', 'Like', '%'.$request->code.'%')
+            ->limit(5)
+            ->get(),
         ]);
+    }
+
+    public function SubmitPassword(Request $request){
+        
     }
 }

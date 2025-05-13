@@ -1,6 +1,13 @@
 <script setup>
 import Layout from "../../../Layout/Main.vue";
 import { VDateInput } from "vuetify/labs/VDateInput";
+import { ref } from "vue";
+
+const loading = ref(false);
+function load() {
+    loading.value = true;
+    setTimeout(() => (loading.value = false), 2000);
+}
 </script>
 <template>
     <Layout title="Product Expiry">
@@ -38,12 +45,12 @@ import { VDateInput } from "vuetify/labs/VDateInput";
 
                     <v-row justify="center">
                         <v-col cols="12" sm="auto" class="text-center">
-                            <v-btn class="me-4" color="green" size="large">
+                            <v-btn class="me-4" color="green" size="large" @click="load" :loading="loading">
                                 Generate PDF
                             </v-btn>
                         </v-col>
                         <v-col cols="12" sm="auto" class="text-center">
-                            <v-btn class="me-4" color="primary" size="large">
+                            <v-btn class="me-4" color="primary" size="large" @click="load" :loading="loading">
                                 Export to Excel
                             </v-btn>
                         </v-col>

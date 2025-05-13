@@ -34,12 +34,12 @@ function submit(){
         </v-card-subtitle>
 
         <v-alert
-          v-if="$page.props.flash.message"
+          v-if="$page.props.message"
           density="compact"
           type="error"
           class="mb-4"
           variant="outlined"
-        > {{ $page.props.flash.message }}</v-alert>
+        > {{ $page.props.message }}</v-alert>
 
         <v-form @submit.prevent="submit">
           <v-text-field

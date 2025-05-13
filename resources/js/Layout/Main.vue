@@ -3,7 +3,7 @@ import { ref, computed } from "vue";
 import { useDisplay } from 'vuetify'
 import { Head, usePage } from '@inertiajs/vue3';
 
-defineProps({
+const props = defineProps({
     title: String,
     loading: Boolean
 })
@@ -13,6 +13,7 @@ const { mobile } = useDisplay()
 const drawer = ref(true);
 const rail = ref(false);
 const openGroup = ref(['']);
+
 
 function navigationRail () {
     this.drawer = !this.drawer;
@@ -25,6 +26,7 @@ const cruds = [
     ["Update", "mdi-update"],
     ["Delete", "mdi-delete"],
 ];
+
 
 </script>
 <template>
@@ -175,7 +177,7 @@ const cruds = [
 
                 
                 <v-progress-linear
-                    v-if="loading"
+                    v-if="props.loading"
                     :active="true"
                     :indeterminate="true"
                     color="primary"
@@ -186,10 +188,10 @@ const cruds = [
             </v-app-bar>
 
             <v-main >
-                <div
-            class="d-flex flex-column fill-height bg-grey-lighten-4"
-            style="min-height: 94vh"
-        >
+            <div
+                class="d-flex flex-column fill-height bg-grey-lighten-4"
+                style="min-height: 94vh"
+            >
                 <slot />
             </div>
             </v-main>

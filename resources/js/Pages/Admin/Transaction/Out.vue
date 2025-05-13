@@ -318,18 +318,14 @@ watchDebounced(
                                                                 <v-btn
                                                                     text="Close"
                                                                     variant="plain"
-                                                                    @click="
-                                                                        dialog = false
-                                                                    "
+                                                                    @click="dialog = false"
                                                                 ></v-btn>
 
                                                                 <v-btn
                                                                     color="green"
                                                                     text="Save"
                                                                     variant="tonal"
-                                                                    @click="
-                                                                        dialog = false
-                                                                    "
+                                                                    @click="dialog = false"
                                                                 ></v-btn>
                                                             </v-card-actions>
                                                         </v-card>

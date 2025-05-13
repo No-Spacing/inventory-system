@@ -1,6 +1,13 @@
 <script setup>
 import Layout from "../../../Layout/Main.vue";
 import { VDateInput } from "vuetify/labs/VDateInput";
+import { ref } from "vue";
+
+const loading = ref(false);
+function load() {
+    loading.value = true;
+    setTimeout(() => (loading.value = false), 2000);
+}
 </script>
 <template>
     <Layout title="Stockcard">
@@ -72,9 +79,7 @@ import { VDateInput } from "vuetify/labs/VDateInput";
                                 prepend-icon=""
                                 prepend-inner-icon="$calendar"
                                 variant="outlined"
-                                :class="
-                                    $vuetify.display.mobile ? 'mx-0' : 'mx-2'
-                                "
+                                :class="$vuetify.display.mobile ? 'mx-0' : 'mx-2'"
                             ></v-date-input>
                         </v-col>
                         <v-col cols="12" sm="4">
@@ -94,12 +99,12 @@ import { VDateInput } from "vuetify/labs/VDateInput";
 
                     <v-row justify="center">
                         <v-col cols="12" sm="auto" class="text-center">
-                            <v-btn class="me-4" color="green" size="large">
+                            <v-btn class="me-4" color="green" @click="load" :loading="loading" size="large">
                                 Generate PDF
                             </v-btn>
                         </v-col>
                         <v-col cols="12" sm="auto" class="text-center">
-                            <v-btn class="me-4" color="primary" size="large">
+                            <v-btn class="me-4" color="primary" :loading="loading" size="large">
                                 Export to Excel
                             </v-btn>
                         </v-col>

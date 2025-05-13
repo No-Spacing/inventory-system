@@ -15,7 +15,6 @@ const form = useForm({
                         variant="outlined"
                         label="Password"
                     ></v-text-field>
-
                     <v-sheet class="d-flex align-end flex-column">
                         <v-btn type="submit" color="primary">Change pass</v-btn>
                     </v-sheet>
