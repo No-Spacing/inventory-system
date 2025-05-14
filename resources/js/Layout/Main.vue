@@ -124,19 +124,11 @@ const cruds = [
                     <v-divider></v-divider>
                     <v-list density="compact" nav>
                         <!-- User Info -->
-                        <v-list-item>
-                            <!-- <template v-slot:prepend>
+                        <v-list-item :title="$page.props.user.name" :subtitle="$page.props.user.email">
+                            <template v-slot:prepend>
                                 <v-icon icon="mdi-account-circle"></v-icon>
-                            </template> -->
-                            <div class="d-flex align-center">
-                                <v-row class="mr-1" no-gutters>
-                                    <v-col>
-                                        <v-list-item-title>{{ $page.props.user.name }}</v-list-item-title>
-                                    </v-col>
-                                    <v-col>
-                                        <v-list-item-subtitle>{{ $page.props.user.email }}</v-list-item-subtitle>
-                                    </v-col>
-                                </v-row>
+                            </template>
+                            <template v-slot:append>
                                 <v-menu location="top start" offset="4">
                                     <template #activator="{ props }">
                                         <v-btn
@@ -146,12 +138,7 @@ const cruds = [
                                             size="small"
                                         ></v-btn>
                                     </template>
-
                                     <v-list>
-                                        <v-list-item
-                                            title="Account"
-                                            prepend-icon="mdi-account-circle"
-                                        ></v-list-item>
                                         <v-list-item
                                             title="Change Password"
                                             prepend-icon="mdi-lock-reset"
@@ -164,12 +151,11 @@ const cruds = [
                                         ></v-list-item>
                                     </v-list>
                                 </v-menu>
-                            </div>
+                            </template>
                         </v-list-item>
                     </v-list>
                 </template>
             </v-navigation-drawer>
-
 
             <v-app-bar :elevation="2" app>
                 <template v-slot:prepend>
