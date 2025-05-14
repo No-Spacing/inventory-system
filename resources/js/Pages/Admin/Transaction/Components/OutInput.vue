@@ -33,9 +33,9 @@ const lotInput = () => {
 
 const data = computed(() => {
     return {
-        description: page.props.products[0].product_desc ? page.props.products[0].product_desc : "",
-        unit: page.props.products[0].unit ? page.props.products[0].unit : "",
-        quantity: page.props.products[0].quantity ? page.props.products[0].quantity : "",
+        description: page.props.products[0]?.product_desc || "",
+        unit: page.props.products[0]?.unit || "",
+        quantity: page.props.products[0]?.quantity || "",
     };
 });
 

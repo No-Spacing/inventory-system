@@ -8,6 +8,7 @@ const page = usePage();
 
 const products = computed(() => page.props.products)
 
+
 const emit = defineEmits(['loading']);
 
 const dialog = ref(false); // Dialog for adding new lot
@@ -15,8 +16,8 @@ const dialog = ref(false); // Dialog for adding new lot
 const expand = ref(false);
 const expand2 = ref(false);
 
-let lot = ref("");
-let code = ref("");
+const lot = ref("");
+const code = ref("");
 
 const codeInput = () => {
     if (code.value === "") {
@@ -33,9 +34,9 @@ const lotInput = () => {
 
 const data = computed(() => {
     return {
-        description: page.props.products[0].product_desc ? page.props.products[0].product_desc : "",
-        unit: page.props.products[0].unit ? page.props.products[0].unit : "",
-        quantity: page.props.products[0].quantity ? page.props.products[0].quantity : "",
+        description: page.props.products[0]?.product_desc || "",
+        unit: page.props.products[0]?.unit || "",
+        quantity: page.props.products[0]?.quantity || "",
     };
 });
 
