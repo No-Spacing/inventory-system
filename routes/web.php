@@ -36,6 +36,7 @@ Route::middleware(['user-group'])->group(function () {
     // Maintenance routes
     Route::inertia('/units', 'Admin/Maintenance/Units')->can('view', User::class);
     Route::inertia('/category', 'Admin/Maintenance/Category')->can('view', User::class);
+    Route::inertia('/product', 'Admin/Maintenance/Product')->can('view', User::class);
     Route::inertia('/lot', 'Admin/Maintenance/Lot')->can('view', User::class);
     Route::inertia('/serial', 'Admin/Maintenance/Serial')->can('view', User::class);
 
