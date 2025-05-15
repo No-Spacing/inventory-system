@@ -155,12 +155,13 @@ const cruds = [
                 <v-divider></v-divider>
                 <v-list density="compact" nav>
                     <!-- User Info -->
-                    <v-list-item
-                        :title="$page.props.user.name"
-                        :subtitle="$page.props.user.email"
-                    >
+                    <v-list-item>
                         <template v-slot:prepend>
                             <v-icon icon="mdi-account-circle"></v-icon>
+                            <v-col v-if="!rail">
+                                <v-list-item-title>{{ $page.props.user.name }}</v-list-item-title>
+                                <v-list-item-subtitle>{{ $page.props.user.email }}</v-list-item-subtitle>
+                            </v-col>
                         </template>
                         <template v-slot:append>
                             <v-menu location="top start" offset="4">
@@ -173,6 +174,11 @@ const cruds = [
                                     ></v-btn>
                                 </template>
                                 <v-list>
+                                    <v-list-item
+                                        title="View"
+                                        prepend-icon="mdi-lock-reset"
+                                        href="/view"
+                                    ></v-list-item>
                                     <v-list-item
                                         title="Change Password"
                                         prepend-icon="mdi-lock-reset"

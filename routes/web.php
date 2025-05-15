@@ -52,6 +52,7 @@ Route::middleware(['user-group'])->group(function () {
         return redirect('/login');
     });
 
+    Route::inertia('view', 'Admin/Transaction/View');
 });
 
 Route::post('/submit-login', [UserController::class, 'SubmitLogin']);
