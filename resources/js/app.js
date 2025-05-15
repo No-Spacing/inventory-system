@@ -8,6 +8,8 @@ import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 
+import { VueQrcodeReader } from 'vue-qrcode-reader'
+
 import colors from 'vuetify/util/colors'
 
 const vuetify = createVuetify({
@@ -34,6 +36,7 @@ createInertiaApp({
     setup({ el, App, props, plugin }) {
       createApp({ render: () => h(App, props) })
       .use(plugin)
+      .use(VueQrcodeReader)
       .use(vuetify)
       .mount(el)
     },
