@@ -9,8 +9,8 @@ import Layout from '../../../Layout/Main.vue'
                 Message
             </v-card-text>
             <v-divider></v-divider>
-            <v-card-actions class="d-flex justify-end">
-                <v-btn class="bg-primary">Submit</v-btn>
+            <v-card-actions>
+                <v-btn class="bg-primary" size="large" block>Submit</v-btn>
             </v-card-actions>
         </v-card>
     </Layout>
