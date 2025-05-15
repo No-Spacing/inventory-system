@@ -1,7 +1,7 @@
 <script setup>
 import { router, usePage } from "@inertiajs/vue3";
 import { watchDebounced } from "@vueuse/core";
-import { ref, computed, watch, defineEmits } from "vue";
+import { ref, computed, watch } from "vue";
 import { VDateInput } from 'vuetify/labs/VDateInput'
 
 const page = usePage();
