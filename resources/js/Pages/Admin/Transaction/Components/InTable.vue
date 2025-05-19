@@ -61,5 +61,6 @@ const headers = [
         :search="search"
         :items="$page.props.stockcards"
         item-value="uniqueId"
-    ></v-data-table>
+    >
+    </v-data-table>
 </template>

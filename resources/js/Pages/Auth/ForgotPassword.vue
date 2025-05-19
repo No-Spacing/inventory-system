@@ -9,7 +9,7 @@ const form = useForm({
     <Layout title="Forgot Password">
         <v-container max-width="700" fluid>
             <v-card elevation="2" class="pa-8 my-5">
-                <v-form @submit.prevent="form.post('/submit-forgot-password')">
+                <v-form @submit.prevent="form.post('/submit-forgot-password')" v-if="$page.props.user.can.view">
                     <v-text-field
                         type="password"
                         variant="outlined"
@@ -19,6 +19,9 @@ const form = useForm({
                         <v-btn type="submit" color="primary">Change pass</v-btn>
                     </v-sheet>
                 </v-form>
+                <div class="d-flex justify-center" v-if="!$page.props.user.can.view">
+                    <v-btn type="submit" color="primary">Request to Change Password</v-btn>
+                </div>
             </v-card>
         </v-container>
     </Layout>
