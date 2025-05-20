@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CategoryController;
 use Illuminate\Support\Facades\Route;
 
 use Inertia\Inertia;
@@ -35,7 +36,10 @@ Route::middleware(['user-group'])->group(function () {
 
     // Maintenance routes
     Route::inertia('/units', 'Admin/Maintenance/Units')->can('view', User::class);
-    Route::inertia('/category', 'Admin/Maintenance/Category')->can('view', User::class);
+
+    Route::get('/category', [CategoryController::class, 'index'])->can('view', User::class)->name('products.index');
+    Route::post('/category/store', [CategoryController::class, 'store'])->can('view', User::class)->name('products.create');
+
     Route::inertia('/product', 'Admin/Maintenance/Product')->can('view', User::class);
     Route::inertia('/lot', 'Admin/Maintenance/Lot')->can('view', User::class);
     Route::inertia('/serial', 'Admin/Maintenance/Serial')->can('view', User::class);
