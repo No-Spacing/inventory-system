@@ -79,7 +79,9 @@ function load() {
                                 prepend-icon=""
                                 prepend-inner-icon="$calendar"
                                 variant="outlined"
-                                :class="$vuetify.display.mobile ? 'mx-0' : 'mx-2'"
+                                :class="
+                                    $vuetify.display.mobile ? 'mx-0' : 'mx-2'
+                                "
                             ></v-date-input>
                         </v-col>
                         <v-col cols="12" sm="4">
@@ -99,12 +101,23 @@ function load() {
 
                     <v-row justify="center">
                         <v-col cols="12" sm="auto" class="text-center">
-                            <v-btn class="me-4" color="green" @click="load" :loading="loading" size="large">
+                            <v-btn
+                                class="me-4"
+                                color="green"
+                                @click="load"
+                                :loading="loading"
+                                size="large"
+                            >
                                 Generate PDF
                             </v-btn>
                         </v-col>
                         <v-col cols="12" sm="auto" class="text-center">
-                            <v-btn class="me-4" color="primary" :loading="loading" size="large">
+                            <v-btn
+                                class="me-4"
+                                color="primary"
+                                :loading="loading"
+                                size="large"
+                            >
                                 Export to Excel
                             </v-btn>
                         </v-col>
