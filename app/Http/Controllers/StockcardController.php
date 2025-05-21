@@ -10,6 +10,9 @@ use Inertia\Inertia;
 
 use App\Models\User;
 use App\Models\Role;
+use App\Models\Product;
+use App\Models\Stockcard;
+
 
 class StockcardController extends Controller
 {
@@ -22,24 +25,24 @@ class StockcardController extends Controller
     public function In(Request $request){
         return Inertia::render('Admin/Transaction/In', [
             'users' => User::with('role')->get(),
-            'stockcards' => DB::table('stockcard')->where('stocktype', 'in')->join('product', 'product.id', '=', 'stockcard.code')->get(),
-            'products' => DB::table('product')
-            ->select('code','product_desc','unit', 'quantity')
-            ->where('code', 'Like', '%'.$request->code.'%')
-            ->limit(5)
-            ->get(),
+            'stockcards' => Stockcard::all(),
+            'products' => Product::select('products.code as code','products.description as description','units.unit as unit', 'products.quantity as quantity')
+                                ->join('units', 'units.id', '=', 'products.unit_id')
+                                ->where('products.code', 'Like', '%'.$request->code.'%')
+                                ->limit(5)
+                                ->get()
         ]);
     }
 
     public function Out(Request $request){
         return Inertia::render('Admin/Transaction/Out', [
             'users' => User::with('role')->get(),
-            'stockcards' => DB::table('stockcard')->where('stocktype', 'out')->join('product', 'product.id', '=', 'stockcard.code')->get(),
-            'products' => DB::table('product')
-            ->select('code','product_desc','unit', 'quantity')
-            ->where('code', 'Like', '%'.$request->code.'%')
+            'stockcards' => Stockcard::all(),
+            'products' => Product::select('products.code as code','products.description as description','units.unit as unit', 'products.quantity as quantity')
+            ->join('units', 'units.id', '=', 'products.unit_id')
+            ->where('products.code', 'Like', '%'.$request->code.'%')
             ->limit(5)
-            ->get(),
+            ->get()
         ]);
     }
 }

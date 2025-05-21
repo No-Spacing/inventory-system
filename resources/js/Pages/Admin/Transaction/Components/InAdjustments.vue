@@ -40,7 +40,7 @@ const lotInput = () => {
 
 const data = computed(() => {
     return {
-        description: page.props.products[0]?.product_desc || "",
+        description: page.props.products[0]?.description || "",
         unit: page.props.products[0]?.unit || "",
         quantity: page.props.products[0]?.quantity || "",
     };

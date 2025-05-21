@@ -5,8 +5,6 @@ import { usePage, useForm } from '@inertiajs/vue3';
 
 const page = usePage();
 const snackbar = ref(false)
-const timeout = ref(2000)
-const message = ref('')
 
 defineProps({
     categories: Object
@@ -14,14 +12,14 @@ defineProps({
 
 // Create Inertia form object
 const form = useForm({
-    product_code: '',
+    // product_code: '',
     category_name: '',
     slug: ''
 })
 
 const updateForm = useForm({
     id: '',
-    product_code: '',
+    // product_code: '',
     category_name: '',
     slug: ''
 })
@@ -117,8 +115,8 @@ function update() {
                 <v-form @submit.prevent="submit">
                     <v-card-text>
                         <form>
-                            <v-text-field label="Product Code" v-model="form.product_code"
-                                :error-messages="form.errors.product_code"></v-text-field>
+                            <!-- <v-text-field label="Product Code" v-model="form.product_code"
+                                :error-messages="form.errors.product_code"></v-text-field> -->
 
                             <v-text-field label="Category" v-model="form.category_name"
                                 :error-messages="form.errors.category_name"></v-text-field>
@@ -146,15 +144,15 @@ function update() {
             <v-card title="Edit Category">
                 <v-form @submit.prevent="update">
                     <v-card-text>
-                        <form>
-                            <v-text-field label="Product Code" v-model="updateForm.product_code"
-                                :error-messages="form.errors.product_code"></v-text-field>
+                     
+                        <v-text-field label="Product Code" v-model="updateForm.product_code"
+                            :error-messages="form.errors.product_code"></v-text-field>
 
-                            <v-text-field label="Category" v-model="updateForm.category_name"
-                                :error-messages="form.errors.category_name"></v-text-field>
+                        <v-text-field label="Category" v-model="updateForm.category_name"
+                            :error-messages="form.errors.category_name"></v-text-field>
 
-                            <v-text-field label="Slug" v-model="updateForm.slug" outlined disabled></v-text-field>
-                        </form>
+                        <v-text-field label="Slug" v-model="updateForm.slug" outlined disabled></v-text-field>
+                   
                     </v-card-text>
                     
                     <v-card-actions>
@@ -164,21 +162,26 @@ function update() {
                             close
                         </v-btn>
 
-                        <v-btn class="ma-2 pa-2 bg-primary" type="submit">
+                        <v-btn 
+                        class="ma-2 pa-2 bg-primary" 
+                        type="submit" 
+                        :loading="form.processing"
+                        >
                             submit
                         </v-btn>
                     </v-card-actions>
                 </v-form>
             </v-card>
         </v-dialog>
-
-        <v-snackbar v-model="snackbar" :timeout="timeout">
-            {{ $page.props.flash.message }}
-            <template v-slot:actions>
-                <v-btn color="blue" variant="text" @click="snackbar = false">
-                    Close
-                </v-btn>
-            </template>
-        </v-snackbar>
     </Layout>
+    <v-snackbar
+        v-model="snackbar" 
+        :timeout="2000"
+        color="success"
+        variant="elevated"
+        location="top"
+        class="text"
+    >
+        {{ $page.props.flash.message }}
+    </v-snackbar>
 </template>

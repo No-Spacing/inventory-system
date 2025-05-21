@@ -53,10 +53,6 @@ const addLotDialog = ref(false);
                         <v-card-text>
                             <form>
                                 <v-text-field
-                                    label="Product Code"
-                                ></v-text-field>
-
-                                <v-text-field
                                     label="Lot/Batch No."
                                 ></v-text-field>
                             </form>

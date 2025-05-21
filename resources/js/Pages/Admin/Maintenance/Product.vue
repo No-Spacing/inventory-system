@@ -1,39 +1,65 @@
 <script setup>
 import Layout from "../../../Layout/Main.vue";
 import { ref } from "vue";
+import { useForm } from '@inertiajs/vue3';
+
+defineProps({
+    categories: Object,
+    units: Object,
+    products: Object,
+})
 const headers = [
     {
         title: "Code",
+        key: 'code',
         headerProps: {
             style: "font-weight: 700",
-        },
+        }
+
     },
     {
         title: "Product Description",
+        key: 'description',
         headerProps: {
             style: "font-weight: 700",
         },
     },
     {
         title: "Product Type",
-        headerProps: {
-            style: "font-weight: 700",
-        },
-    },
-    {
-        title: "Expiration Date",
+        key: 'type',
         headerProps: {
             style: "font-weight: 700",
         },
     },
 ];
 const addProductDialog = ref(false);
+const snackbar = ref(false);
+
+const form = useForm({
+    code: '',
+    description: '',
+    category: '',
+    unit: '',
+    type: '',
+});
+
+function submit() {
+    form.post('/store-product', {
+        onSuccess: () => {
+            addProductDialog.value = false;
+            snackbar.value = true;
+            form.reset();
+        },
+        onError: () => {
+        }
+    })
+}
 </script>
 <template>
     <Layout title="Product">
         <v-container max-width="1500" fluid>
             <v-card elevation="2" class="pa-8 my-5">
-                <v-data-table :headers="headers">
+                <v-data-table :headers="headers" :items="products">
                     <template
                         v-slot:bottom="{
                             page,
@@ -65,53 +91,73 @@ const addProductDialog = ref(false);
                 </v-data-table>
                 <v-dialog v-model="addProductDialog" max-width="500">
                     <v-card title="Add Product">
-                        <v-card-text>
-                            <form>
-                                <v-select
-                                    label="Category"
-                                    :items="[
-                                        'MEDICAL EQUIPMENT',
-                                        'MEDICAL SUPPLY',
-                                        'OFFICE SUPPLY',
-                                    ]"
-                                ></v-select>
-
+                        <v-form @submit.prevent="submit">
+                            <v-card-text>
                                 <v-text-field
+                                    v-model="form.code"
                                     label="Product Code"
+                                    :error-messages="form.errors.code"
                                 ></v-text-field>
 
                                 <v-text-field
-                                    label="Product Name"
+                                    v-model="form.description"
+                                    label="Product Description"
+                                    :error-messages="form.errors.description"
                                 ></v-text-field>
 
                                 <v-select
-                                    label="Unit"
-                                    :items="['Bottle', 'Box', 'Each', 'Gallon']"
+                                    v-model="form.category"
+                                    label="Category"
+                                    :error-messages="form.errors.category"
+                                    :items="categories"
+                                    item-value="id"
+                                    item-title="category_name"
                                 ></v-select>
+
                                 <v-select
-                                    label="Product Type"
-                                    :items="['Track by Lot', 'Serial']"
+                                    v-model="form.unit"
+                                    :error-messages="form.errors.unit"
+                                    label="Unit"
+                                    :items="units"
+                                    item-value="id"
+                                    item-title="unit"
                                 ></v-select>
-                            </form>
-                        </v-card-text>
 
-                        <v-card-actions>
-                            <v-spacer></v-spacer>
+                                <v-select
+                                    v-model="form.type"
+                                    :error-messages="form.errors.type"
+                                    label="Product Type"
+                                    :items="['Track by Lot', 'Track by Serial']"
+                                ></v-select>
+                            </v-card-text>
+                            <v-card-actions>
+                                <v-spacer></v-spacer>
 
-                            <v-btn
-                                class="ma-2 pa-2"
-                                @click="addProductDialog = false"
-                            >
-                                close
-                            </v-btn>
+                                <v-btn
+                                    class="ma-2 pa-2"
+                                    @click="addProductDialog = false"
+                                >
+                                    close
+                                </v-btn>
 
-                            <v-btn class="ma-2 pa-2 bg-primary" type="submit">
-                                submit
-                            </v-btn>
-                        </v-card-actions>
+                                <v-btn class="ma-2 pa-2 bg-primary" type="submit">
+                                    submit
+                                </v-btn>
+                            </v-card-actions>
+                        </v-form>
                     </v-card>
                 </v-dialog>
             </v-card>
         </v-container>
     </Layout>
+    <v-snackbar
+        v-model="snackbar" 
+        :timeout="2000"
+        color="success"
+        variant="elevated"
+        location="top"
+        class="text"
+    >
+        {{ $page.props.flash.message }}
+    </v-snackbar>
 </template>

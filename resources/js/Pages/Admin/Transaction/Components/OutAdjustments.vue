@@ -38,7 +38,7 @@ const lotInput = () => {
 
 const data = computed(() => {
     return {
-        description: page.props.products[0]?.product_desc || "",
+        description: page.props.products[0]?.description || "",
         unit: page.props.products[0]?.unit || "",
         quantity: page.props.products[0]?.quantity || "",
     };
@@ -91,8 +91,14 @@ watchDebounced(() => form.code,
                     menu-icon=""
                     @update:modelValue="expand = true"
                     @input="codeInput"
-                    :hide-no-data="true"
-                ></v-autocomplete>
+                >
+                    <template v-slot:no-data>
+                        <v-container fluid>
+                            <span v-if="preload">Loading...</span>
+                            <span v-else>No results found</span>
+                        </v-container>
+                    </template>
+                </v-autocomplete>
             </v-col>
         </v-row>
         <v-expand-transition>
