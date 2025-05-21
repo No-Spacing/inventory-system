@@ -1,6 +1,6 @@
 <script setup>
 import Layout from "../../../Layout/Main.vue";
-import OutInput from "./Components/OutInput.vue";
+import OutAdjustments from "./Components/OutAdjustments.vue";
 import OutTable from "./Components/OutTable.vue";
 import { ref } from "vue";
 
@@ -16,7 +16,7 @@ const handleData = (data) => {
 
 </script>
 <template>
-    <Layout title="In Transaction" :loading="loading">
+    <Layout title="Out Transaction" :loading="loading">
         <v-container max-width="1600" class="mt-5" fluid>
             <v-tabs v-model="tab" align-tabs="center" bg-color="primary">
                 <v-tab :value="1">
@@ -38,7 +38,7 @@ const handleData = (data) => {
                     </v-tabs-window-item>
                     <v-tabs-window-item :value="2">
                         <v-container max-width="1500" fluid>
-                            <OutInput @loading="handleData"></OutInput>
+                            <OutAdjustments @loading="handleData"></OutAdjustments>
                         </v-container>
                     </v-tabs-window-item>
                 </v-tabs-window>

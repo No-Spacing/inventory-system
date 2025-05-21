@@ -1,6 +1,6 @@
 <script setup>
 import Layout from "../../../Layout/Main.vue";
-import InInput from "./Components/InInput.vue";
+import InAdjustments from "./Components/InAdjustments.vue";
 import InTable from "./Components/InTable.vue";
 import { ref } from "vue";
 
@@ -38,7 +38,7 @@ const handleData = (data) => {
                     </v-tabs-window-item>
                     <v-tabs-window-item :value="2">
                         <v-container max-width="1500" fluid>
-                            <InInput @loading="handleData"></InInput>
+                            <InAdjustments @loading="handleData"></InAdjustments>
                         </v-container>
                     </v-tabs-window-item>
                 </v-tabs-window>

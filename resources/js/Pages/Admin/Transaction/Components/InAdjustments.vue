@@ -1,13 +1,15 @@
 <script setup>
-import { router, usePage } from "@inertiajs/vue3";
+import { router, usePage, useForm } from "@inertiajs/vue3";
 import { watchDebounced } from "@vueuse/core";
 import { ref, computed, watch } from "vue";
 import { VDateInput } from 'vuetify/labs/VDateInput'
+import CurrentTime from "./CurrentTime.vue"
 
 const page = usePage();
 
 const products = computed(() => page.props.products)
 
+const preload = ref(true);
 
 const emit = defineEmits(['loading']);
 
@@ -16,18 +18,22 @@ const dialog = ref(false); // Dialog for adding new lot
 const expand = ref(false);
 const expand2 = ref(false);
 
-const lot = ref("");
-const code = ref("");
+const todaysDate = ref(new Date().toLocaleString());
+
+const form = useForm({
+    code: '',
+    lot: ''
+})
 
 const codeInput = () => {
-    if (code.value === "") {
+    if (form.code === "") {
         expand["value"] = false;
     }
     
 };
 
 const lotInput = () => {
-    if (lot.value === "") {
+    if (form.lot === "") {
         expand2["value"] = false;
     }
 };
@@ -40,23 +46,24 @@ const data = computed(() => {
     };
 });
 
-watch(code, () => {
+watch(() => form.code, () => {
     emit('loading', true);
-});
+    preload['value'] = true;
+})
 
-watchDebounced(
-    code,
-    () => {
+watchDebounced(() => form.code,
+    (value) => {
         router.get(
             "/in",
             {
-                code: code.value,
+                code: value,
             },
             {
                 preserveState: true,
                 preserveScroll: true,
                 onSuccess: () => {
                     emit('loading', false);
+                    preload['value'] = false;
                 },
             }
         );
@@ -66,6 +73,9 @@ watchDebounced(
 </script>
 <template>
     <v-form>
+        <div class="d-flex justify-center">
+            <CurrentTime></CurrentTime> 
+        </div>
         <v-row no-gutters>
             <v-col cols="12">
                 <div
@@ -74,7 +84,7 @@ watchDebounced(
                     Code
                 </div>
                 <v-autocomplete
-                    v-model:search="code"
+                    v-model:search="form.code"
                     :items="products"
                     item-title="code"
                     class="mx-2"
@@ -83,8 +93,14 @@ watchDebounced(
                     menu-icon=""
                     @update:modelValue="expand = true"
                     @input="codeInput"
-                    :hide-no-data="true"
-                ></v-autocomplete>
+                >
+                    <template v-slot:no-data>
+                        <v-container fluid>
+                            <span v-if="preload">Loading...</span>
+                            <span v-else>No results found</span>
+                        </v-container>
+                    </template>
+                </v-autocomplete>
             </v-col>
         </v-row>
         <v-expand-transition>
@@ -123,7 +139,7 @@ watchDebounced(
                     <div
                         class="text-subtitle-1 text-medium-emphasis mx-2"
                     >
-                        Total Items
+                        Remaining Items
                     </div>
                     <v-text-field
                         v-model="data.quantity"
@@ -144,7 +160,7 @@ watchDebounced(
                         <!-- Autocomplete -->
                         <v-col cols="12" lg="10">
                             <v-autocomplete
-                                v-model:search="lot"
+                                v-model:search="form.lot"
                                 :items="[
                                     '001',
                                     '002',
@@ -274,46 +290,23 @@ watchDebounced(
 
         <v-expand-transition>
             <v-row no-gutters v-show="expand">
-                <v-col sm="4" cols="12">
-                    <div
-                        class="text-subtitle-1 text-medium-emphasis mx-2"
-                    >
-                        Serial No.
-                    </div>
-                    <v-text-field
-                        class="mx-2"
-                        placeholder="Serial No."
-                        variant="outlined"
-                        required
-                    ></v-text-field>
-                </v-col>
-                <v-col sm="4" cols="12">
-                    <div
-                        class="text-subtitle-1 text-medium-emphasis mx-2"
-                    >
-                        Reference
-                    </div>
-                    <v-text-field
-                        class="mx-2"
-                        placeholder="Ref"
-                        prepend-inner-icon=""
-                        variant="outlined"
-                    ></v-text-field>
-                </v-col>
-                <v-col sm="4" cols="12">
-                    <div
-                        class="text-subtitle-1 text-medium-emphasis mx-2"
-                    >
-                        Quantity
-                    </div>
-                    <v-text-field
-                        class="mx-2"
-                        placeholder="Qty"
-                        prepend-inner-icon=""
-                        variant="outlined"
-                    ></v-text-field>
-                </v-col>
+                
                 <!-- Date of Transaction -->
+                <v-col sm="6" cols="12">
+                    <div
+                        class="text-subtitle-1 text-medium-emphasis mx-2"
+                    >
+                        Date of Purchase
+                    </div>
+
+                    <v-date-input
+                        placeholder="Date from"
+                        prepend-icon=""
+                        prepend-inner-icon="$calendar"
+                        variant="outlined"
+                        class="mx-2"
+                    ></v-date-input>
+                </v-col>
                 <v-col sm="6" cols="12">
                     <div
                         class="text-subtitle-1 text-medium-emphasis mx-2"
@@ -329,22 +322,58 @@ watchDebounced(
                         class="mx-2"
                     ></v-date-input>
                 </v-col>
-                <!-- Date of Posting (Disabled) -->
                 <v-col sm="6" cols="12">
                     <div
                         class="text-subtitle-1 text-medium-emphasis mx-2"
                     >
-                        Date of Posting
+                        Serial No.
+                    </div>
+                    <v-text-field
+                        class="mx-2"
+                        placeholder="Serial No."
+                        variant="outlined"
+                        required
+                    ></v-text-field>
+                </v-col>
+                <v-col sm="6" cols="12">
+                    <div
+                        class="text-subtitle-1 text-medium-emphasis mx-2"
+                    >
+                        Quantity
+                    </div>
+                    <v-text-field
+                        class="mx-2"
+                        placeholder="Qty"
+                        prepend-inner-icon=""
+                        variant="outlined"
+                    ></v-text-field>
+                </v-col>
+                <v-col sm="12" cols="12">
+                    <div
+                        class="text-subtitle-1 text-medium-emphasis mx-2"
+                    >
+                        Reference
+                    </div>
+                    <v-text-field
+                        class="mx-2"
+                        placeholder="Ref"
+                        prepend-inner-icon=""
+                        variant="outlined"
+                    ></v-text-field>
+                </v-col>
+                <v-col sm="12" cols="12">
+                    <div
+                        class="text-subtitle-1 text-medium-emphasis mx-2"
+                    >
+                        Warehouse
                     </div>
 
-                    <v-date-input
-                        placeholder="Date from"
-                        prepend-icon=""
-                        prepend-inner-icon="$calendar"
-                        variant="outlined"
+                    <v-text-field
+                        clearable
                         class="mx-2"
-                        readonly
-                    ></v-date-input>
+                        variant="outlined"
+                        placeholder="Warehouse"
+                    ></v-text-field>
                 </v-col>
                 <v-col sm="12" cols="12">
                     <div
