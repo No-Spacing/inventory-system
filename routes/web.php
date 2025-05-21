@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\StockcardController;
+use App\Http\Controllers\MaintenanceController;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,11 +18,11 @@ use App\Policies\UserPolicy;
 Route::middleware(['user-group'])->group(function () {
     Route::inertia('/login', 'Auth/Login');
 
-    Route::get('/dashboard', [UserController::class, 'Dashboard']);
-
-    Route::get('/in', [UserController::class, 'In']);
-
-    Route::get('/out', [UserController::class, 'Out']);
+    Route::controller(StockcardController::class)->group(function () {
+        Route::get('/dashboard', 'Dashboard');
+        Route::get('/in', 'In');
+        Route::get('out', 'Out');
+    });
 
     Route::inertia('/stockcard', 'Admin/Report/Stockcard');
 
@@ -37,8 +39,13 @@ Route::middleware(['user-group'])->group(function () {
     // Maintenance routes
     Route::inertia('/units', 'Admin/Maintenance/Units')->can('view', User::class);
 
-    Route::get('/category', [CategoryController::class, 'index'])->can('view', User::class)->name('products.index');
-    Route::post('/category/store', [CategoryController::class, 'store'])->can('view', User::class)->name('products.create');
+    Route::controller(MaintenanceController::class)->group(function () {
+        Route::get('/category', 'IndexCategory');
+        Route::post('/store-category', 'StoreCategory');
+    });
+
+    //Route::get('/category', [CategoryController::class, 'index'])->can('view', User::class)->name('products.index');
+    //Route::post('/category/store', [CategoryController::class, 'store'])->can('view', User::class)->name('products.create');
 
     Route::inertia('/product', 'Admin/Maintenance/Product')->can('view', User::class);
     Route::inertia('/lot', 'Admin/Maintenance/Lot')->can('view', User::class);

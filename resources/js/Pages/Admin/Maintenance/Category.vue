@@ -54,15 +54,15 @@ const editCategoryDialog = ref();
 // Watch category and generate slug dynamically
 watch(() => form.category_name, (value) => {
     form.slug = value
-        .toLowerCase()
-        .trim()
-        .replace(/[^a-z0-9\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
 })
 
 function submit() {
-    form.post('/category/store', {
+    form.post('/store-category', {
         onSuccess: () => {
             addCategoryDialog.value = false;
             snackbar.value = true;
@@ -123,7 +123,7 @@ function update() {
                             <v-text-field label="Category" v-model="form.category_name"
                                 :error-messages="form.errors.category_name"></v-text-field>
                                 
-                            <v-text-field label="Slug" v-model="form.slug" outlined disabled></v-text-field>
+                            <v-text-field label="Slug" v-model="form.slug" disabled></v-text-field>
                         </form>
                     </v-card-text>
 
