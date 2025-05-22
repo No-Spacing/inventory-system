@@ -22,7 +22,7 @@ const headers = [
         uniqueId: 2,
     },
     {
-        key: "quantity",
+    //    key: "quantity",
         title: "Quantity",
         headerProps: {
             style: "font-weight: 700",
@@ -38,7 +38,7 @@ const headers = [
         uniqueId: 4,
     },
     {
-        key: "reference",
+    //    key: "reference",
         title: "Reference",
         headerProps: {
             style: "font-weight: 700",

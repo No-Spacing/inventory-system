@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Category;
 use App\Models\Unit;
 use App\Models\Product;
+use App\Models\Lot;
 
 use Inertia\Inertia;
 
@@ -79,6 +80,22 @@ class MaintenanceController extends Controller
 
         // Redirect back to the categories index with a success message
         return redirect('/product')->with('message', 'Product created successfully!');
+    }
+
+    public function IndexLot() {
+        return Inertia::render('Admin/Maintenance/Lot', [
+            'lots' => Lot::all(),
+        ]);
+    }
+
+    public function StoreLot(Request $request) {
+        $validated = $request->validate([
+            'lot' => 'required'
+        ]);
+
+        Lot::create($validated);
+          
+        return redirect('/lot')->with('message', 'Lot created successfully!');
     }
 
 }

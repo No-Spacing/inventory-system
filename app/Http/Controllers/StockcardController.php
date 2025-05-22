@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Models\Role;
 use App\Models\Product;
 use App\Models\Stockcard;
+use App\Models\Lot;
 
 
 class StockcardController extends Controller
@@ -26,11 +27,8 @@ class StockcardController extends Controller
         return Inertia::render('Admin/Transaction/In', [
             'users' => User::with('role')->get(),
             'stockcards' => Stockcard::all(),
-            'products' => Product::select('products.code as code','products.description as description','units.unit as unit', 'products.quantity as quantity')
-                                ->join('units', 'units.id', '=', 'products.unit_id')
-                                ->where('products.code', 'Like', '%'.$request->code.'%')
-                                ->limit(5)
-                                ->get()
+            'products' => Product::all(),
+            'lots' => Lot::all(),
         ]);
     }
 
@@ -38,11 +36,7 @@ class StockcardController extends Controller
         return Inertia::render('Admin/Transaction/Out', [
             'users' => User::with('role')->get(),
             'stockcards' => Stockcard::all(),
-            'products' => Product::select('products.code as code','products.description as description','units.unit as unit', 'products.quantity as quantity')
-            ->join('units', 'units.id', '=', 'products.unit_id')
-            ->where('products.code', 'Like', '%'.$request->code.'%')
-            ->limit(5)
-            ->get()
+            'products' => Product::all(),
         ]);
     }
 }
