@@ -9,6 +9,8 @@ const page = usePage();
 
 const products = computed(() => page.props.products)
 
+const lots = computed(() => page.props.lots)
+
 const preload = ref(true);
 
 const emit = defineEmits(['loading']);
@@ -40,9 +42,9 @@ const lotInput = () => {
 
 const data = computed(() => {
     return {
-        description: page.props.products[0]?.product_desc || "",
+        description: page.props.products[0]?.description || "",
         unit: page.props.products[0]?.unit || "",
-        quantity: page.props.products[0]?.quantity || "",
+        // quantity: page.props.products[0]?.quantity || "",
     };
 });
 
@@ -87,6 +89,7 @@ watchDebounced(() => form.code,
                     v-model:search="form.code"
                     :items="products"
                     item-title="code"
+                    item-key="id"
                     class="mx-2"
                     placeholder="Select..."
                     variant="outlined"
@@ -160,25 +163,24 @@ watchDebounced(() => form.code,
                         <!-- Autocomplete -->
                         <v-col cols="12" lg="10">
                             <v-autocomplete
-                                v-model:search="form.lot"
-                                :items="[
-                                    '001',
-                                    '002',
-                                    '003',
-                                    '004',
-                                    '005',
-                                    '006',
-                                ]"
-                                placeholder="Select..."
-                                variant="outlined"
-                                hide-details
-                                menu-icon=""
-                                @update:modelValue="expand2 = true"
-                                @input="lotInput"
-                                class="mx-2"
-                                ref="lotAutoComplete"
-                                :hide-no-data="true"
-                            ></v-autocomplete>
+                            v-model:search="form.lot"
+                            :items="lots"
+                            item-title="lot"
+                            item-key="id"
+                            class="mx-2"
+                            placeholder="Select..."
+                            variant="outlined"
+                            menu-icon=""
+                            @update:modelValue="expand2 = true"
+                            @input="lotInput"
+                        >
+                            <template v-slot:no-data>
+                                <v-container fluid>
+                                    <span v-if="preload">Loading...</span>
+                                    <span v-else>No results found</span>
+                                </v-container>
+                            </template>
+                        </v-autocomplete>
                         </v-col>
 
                         <!-- Button -->

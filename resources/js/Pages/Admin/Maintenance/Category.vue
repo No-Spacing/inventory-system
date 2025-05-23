@@ -264,4 +264,14 @@ function update() {
             </v-card>
         </v-container>
     </Layout>
+    <v-snackbar
+        v-model="snackbar" 
+        :timeout="2000"
+        color="success"
+        variant="elevated"
+        location="top"
+        class="text"
+    >
+        {{ $page.props.flash.message }}
+    </v-snackbar>
 </template>

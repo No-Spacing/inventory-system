@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class StockcardIn extends Model
+class Serial extends Model
 {
     //
 }

@@ -42,13 +42,22 @@ Route::middleware(['user-group'])->group(function () {
     Route::controller(MaintenanceController::class)->group(function () {
         Route::get('/category', 'IndexCategory');
         Route::post('/store-category', 'StoreCategory');
+
+        Route::get('/units', 'IndexUnit');
+        Route::post('/store-unit', 'StoreUnit');
+
+        Route::get('/product', 'IndexProduct');
+        Route::post('/store-product', 'StoreProduct');
+
+        Route::get('/lot', 'IndexLot');
+        Route::post('/store-lot', 'StoreLot');
     });
 
-    //Route::get('/category', [CategoryController::class, 'index'])->can('view', User::class)->name('products.index');
-    //Route::post('/category/store', [CategoryController::class, 'store'])->can('view', User::class)->name('products.create');
+    // Route::get('/category', [CategoryController::class, 'index'])->can('view', User::class)->name('products.index');
+    // Route::post('/category/store', [CategoryController::class, 'store'])->can('view', User::class)->name('products.create');
 
-    Route::inertia('/product', 'Admin/Maintenance/Product')->can('view', User::class);
-    Route::inertia('/lot', 'Admin/Maintenance/Lot')->can('view', User::class);
+    // Route::inertia('/product', 'Admin/Maintenance/Product')->can('view', User::class);
+    // Route::inertia('/lot', 'Admin/Maintenance/Lot')->can('view', User::class);
     Route::inertia('/serial', 'Admin/Maintenance/Serial')->can('view', User::class);
 
     Route::inertia('/forgot-password', 'Auth/ForgotPassword');

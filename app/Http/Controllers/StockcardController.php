@@ -10,6 +10,10 @@ use Inertia\Inertia;
 
 use App\Models\User;
 use App\Models\Role;
+use App\Models\Product;
+use App\Models\Stockcard;
+use App\Models\Lot;
+
 
 class StockcardController extends Controller
 {
@@ -22,24 +26,17 @@ class StockcardController extends Controller
     public function In(Request $request){
         return Inertia::render('Admin/Transaction/In', [
             'users' => User::with('role')->get(),
-            'stockcards' => DB::table('stockcard')->where('stocktype', 'in')->join('product', 'product.id', '=', 'stockcard.code')->get(),
-            'products' => DB::table('product')
-            ->select('code','product_desc','unit', 'quantity')
-            ->where('code', 'Like', '%'.$request->code.'%')
-            ->limit(5)
-            ->get(),
+            'stockcards' => Stockcard::all(),
+            'products' => Product::all(),
+            'lots' => Lot::all(),
         ]);
     }
 
     public function Out(Request $request){
         return Inertia::render('Admin/Transaction/Out', [
             'users' => User::with('role')->get(),
-            'stockcards' => DB::table('stockcard')->where('stocktype', 'out')->join('product', 'product.id', '=', 'stockcard.code')->get(),
-            'products' => DB::table('product')
-            ->select('code','product_desc','unit', 'quantity')
-            ->where('code', 'Like', '%'.$request->code.'%')
-            ->limit(5)
-            ->get(),
+            'stockcards' => Stockcard::all(),
+            'products' => Product::all(),
         ]);
     }
 }
