@@ -10,7 +10,7 @@ defineProps({
 const headers = [
     {
         title: "Id",
-        key: "lot",
+        key: "id",
         headerProps: {
             style: "font-weight: 700",
         },

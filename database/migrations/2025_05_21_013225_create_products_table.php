@@ -17,6 +17,7 @@ return new class extends Migration
             $table->longText('description');
             $table->bigInteger('unit_id')->references('id')->on('units')->onDelete('cascade');
             $table->bigInteger('category_id')->references('id')->on('categories')->onDelete('cascade');
+            $table->bigInteger('remaining_items');
             $table->longText('type');
             $table->timestamps();
         });

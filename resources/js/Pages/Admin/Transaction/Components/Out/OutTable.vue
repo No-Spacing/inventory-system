@@ -11,39 +11,31 @@ const headers = [
         headerProps: {
             style: "font-weight: 700",
         },
-        uniqueId: 1,
+
     },
     {
-        key: "product_desc",
+        key: "description",
         title: "Description",
         headerProps: {
             style: "font-weight: 700",
         },
-        uniqueId: 2,
+
     },
     {
-    //    key: "quantity",
+        key: "quantity",
         title: "Quantity",
         headerProps: {
             style: "font-weight: 700",
         },
-        uniqueId: 3,
+
     },
     {
-        key: "expdate",
-        title: "Expiration Date",
+        key: "created_at",
+        title: "Created At",
         headerProps: {
             style: "font-weight: 700",
         },
-        uniqueId: 4,
-    },
-    {
-    //    key: "reference",
-        title: "Reference",
-        headerProps: {
-            style: "font-weight: 700",
-        },
-        uniqueId: 5,
+
     },
 ];
 </script>
@@ -61,6 +53,5 @@ const headers = [
         :search="search"
         :items="$page.props.stockcards"
         item-value="uniqueId"
-    >
-    </v-data-table>
+    ></v-data-table>
 </template>

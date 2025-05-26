@@ -31,6 +31,13 @@ const headers = [
             style: "font-weight: 700",
         },
     },
+    {
+        title: "Remaining Items",
+        key: 'remaining_items',
+        headerProps: {
+            style: "font-weight: 700",
+        },
+    },
 ];
 const addProductDialog = ref(false);
 const snackbar = ref(false);
@@ -41,6 +48,7 @@ const form = useForm({
     category: '',
     unit: '',
     type: '',
+    remaining_items: ''
 });
 
 function submit() {
@@ -129,6 +137,12 @@ function submit() {
                                     label="Product Type"
                                     :items="['Track by Lot', 'Track by Serial']"
                                 ></v-select>
+
+                                <v-text-field
+                                    v-model="form.remaining_items"
+                                    label="Remaining Items"
+                                    :error-messages="form.errors.remaining_items"
+                                ></v-text-field>
                             </v-card-text>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
@@ -140,7 +154,7 @@ function submit() {
                                     close
                                 </v-btn>
 
-                                <v-btn class="ma-2 pa-2 bg-primary" type="submit">
+                                <v-btn class="ma-2 pa-2 bg-primary" type="submit" :loading="form.processing">
                                     submit
                                 </v-btn>
                             </v-card-actions>

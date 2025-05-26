@@ -20,8 +20,13 @@ Route::middleware(['user-group'])->group(function () {
 
     Route::controller(StockcardController::class)->group(function () {
         Route::get('/dashboard', 'Dashboard');
+        
         Route::get('/in', 'In');
+        Route::post('/create-stockcard-in', 'CreateStockcardIn');
+
         Route::get('out', 'Out');
+        Route::post('/create-stockcard-out', 'CreateStockcardOut');
+
     });
 
     Route::inertia('/stockcard', 'Admin/Report/Stockcard');

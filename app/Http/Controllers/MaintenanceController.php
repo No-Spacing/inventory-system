@@ -25,10 +25,8 @@ class MaintenanceController extends Controller
             'unit' => 'required|string|max:255',
         ]);
 
-        // Create a new category
         Unit::create($validated);
 
-        // Redirect back to the categories index with a success message
         return redirect('/units')->with('message', 'Unit created successfully!');
     }
 
@@ -45,10 +43,8 @@ class MaintenanceController extends Controller
             'slug' => 'required|string|max:255|unique:categories,slug',
         ]);
 
-        // Create a new category
         Category::create($validated);
 
-        // Redirect back to the categories index with a success message
         return redirect('/category')->with('message', 'Category created successfully!');
     }
 
@@ -62,23 +58,23 @@ class MaintenanceController extends Controller
 
     public function StoreProduct (Request $request) {
         $validated = $request->validate([
-            'code' => 'required',
+            'code' => 'required|unique:products',
             'description' => 'required',
             'category' => 'required',
             'unit' => 'required',
             'type' => 'required',
+            'remaining_items' => 'required'
         ]);
 
-        // Create a new category
         Product::create([
             'code' => $request->code,
             'description' => $request->description,
             'category_id' => $request->category,
             'unit_id' => $request->unit,
             'type' => $request->type,
+            'remaining_items' => $request->remaining_items,
         ]);
 
-        // Redirect back to the categories index with a success message
         return redirect('/product')->with('message', 'Product created successfully!');
     }
 
@@ -87,15 +83,16 @@ class MaintenanceController extends Controller
             'lots' => Lot::all(),
         ]);
     }
-
+    
     public function StoreLot(Request $request) {
         $validated = $request->validate([
-            'lot' => 'required'
+            'lot' => 'required|unique:lots'
         ]);
 
         Lot::create($validated);
           
-        return redirect('/lot')->with('message', 'Lot created successfully!');
+        // return redirect('/lot')->with('message', 'Lot created successfully!');
+        return back()->with('message', 'Lot created successfully!');
     }
 
 }

@@ -3,8 +3,34 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+
+use App\Models\Product;
 
 class Stockcard extends Model
 {
-    //
+    protected $fillable = [
+        'product_id',
+        'lot_id',
+        'serial_id',
+        'approver_id',
+        'enduser_id',
+        'transaction_type',
+        'quantity',
+        'item_balance',
+        'transaction_date',
+        'purchase_date',
+        'expire_date',
+        'oeno',
+        'proe',
+        'warehouse',
+        'reference',
+        'remarks',
+    ];
+
+    public function product(): HasOne
+    {
+        return $this->hasOne(Product::class, 'id', 'product_id');
+    }
+
 }
