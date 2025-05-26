@@ -10,6 +10,8 @@
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
+/* Login Section */
+
 .fill-height {
     min-height: 100vh;
 }
@@ -25,3 +27,5 @@
     backdrop-filter: blur(10px); /* optional: glass effect */
     background-color: rgba(255, 255, 255, 0.85); /* slight transparency */
 }
+
+/* End Login Section */
