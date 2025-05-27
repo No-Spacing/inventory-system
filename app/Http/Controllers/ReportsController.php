@@ -8,10 +8,13 @@ use Spatie\LaravelPdf\Facades\Pdf;
 class ReportsController extends Controller
 {
     public function index() {
-        return view('pdf.invoice', ['items' => 'item']);
+        return view('pdf.invoice');
     }
 
     public function GenerateStockcardPdf(){
-        Pdf::view('pdf.invoice', ['invoice' => 'Items']);
+         return redirect('index-pdf');
+        Pdf::view('pdf.invoice')
+        ->format('a4')
+        ->name('invoice.pdf');
     }
 }
