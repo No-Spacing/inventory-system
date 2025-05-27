@@ -31,11 +31,13 @@ Route::middleware(['user-group'])->group(function () {
     });
 
     Route::controller(ReportsController::class)->group(function () {
-        Route::get('/generate-stockcard-pdf', 'GenerateStockcardPdf');
-        Route::get('index-pdf', 'index');
+        Route::get('/stockcard', 'IndexStockcard');
+
+        Route::get('/generate-stockcard-pdf', 'GenerateStockcardPdf')->name('show.stockcard.pdf');
+        Route::post('index-pdf', 'IndexPdf');
     });
 
-    Route::inertia('/stockcard', 'Admin/Report/Stockcard');
+    // Route::inertia('/stockcard', 'Admin/Report/Stockcard');
 
     Route::inertia('/stocks', 'Admin/Report/Stocks');
 

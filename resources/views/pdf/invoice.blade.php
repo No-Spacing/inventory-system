@@ -26,7 +26,6 @@ body {
     text-align: right;
 }
 .download-btn {
-    text-align: center;
     font-weight: bold;
     background-color: #4CAF50;
     border-radius: 5px;
@@ -67,10 +66,11 @@ body {
 </style>
 <div class="container">
     <div class="title">STOCK CARD</div>
-    <div class="btn-container">
-        <button class="download-btn">Download PDF</button>
-    </div>
-
+    @if(!Route::is('show.stockcard.pdf') )
+       <div class="btn-container">
+            <a href="/generate-stockcard-pdf" target='_blank' class="download-btn">Download PDF</a>
+        </div>
+    @endif
     <table class="info-table">
         <tr>
             <td><strong>Product:</strong> 1-BR-BD7800 (BREMED Electric Heat Pad)</td>

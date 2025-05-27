@@ -4,7 +4,6 @@ import { watchDebounced } from "@vueuse/core";
 import { ref, computed, watch } from "vue";
 import { VDateInput } from 'vuetify/labs/VDateInput'
 import CurrentTime from "../CurrentTime.vue"
-import { errorMessages } from "vue/compiler-sfc";
 
 const page = usePage();
 
@@ -239,18 +238,18 @@ function addLot() {
                         <!-- Autocomplete -->
                         <v-col cols="12" lg="10">
                             <v-autocomplete
-                            v-model="form.lot"
-                            v-model:search="searchLot"
-                            :items="lots"
-                            item-title="lot"
-                            item-value="id"
-                            class="mx-2"
-                            placeholder="Select..."
-                            variant="outlined"
-                            menu-icon=""
-                            @update:modelValue="expand2 = true"
-                            @input="lotInput"
-                        >
+                                v-model="form.lot"
+                                v-model:search="searchLot"
+                                :items="lots"
+                                item-title="lot"
+                                item-value="id"
+                                class="mx-2"
+                                placeholder="Select..."
+                                variant="outlined"
+                                menu-icon=""
+                                @update:modelValue="expand2 = true"
+                                @input="lotInput"
+                            >
                             <template v-slot:no-data>
                                 <v-container fluid>
                                     <span v-if="preload">Loading...</span>

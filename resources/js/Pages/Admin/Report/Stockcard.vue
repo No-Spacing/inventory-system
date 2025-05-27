@@ -1,8 +1,14 @@
 <script setup>
 import Layout from "../../../Layout/Main.vue";
 import { VDateInput } from "vuetify/labs/VDateInput";
-import { ref } from "vue";
-import { useForm } from "@inertiajs/vue3"
+import { ref, watch } from "vue";
+import { watchDebounced } from "@vueuse/core";
+import { useForm, router } from "@inertiajs/vue3"
+
+defineProps({
+    products: Object,
+    lots: Object
+})
 
 const loading = ref(false);
 function load() {
@@ -10,29 +16,100 @@ function load() {
     setTimeout(() => (loading.value = false), 2000);
 }
 
+const searchCode = ref();
+const searchLot = ref();
+
+const preload = ref(false);
+
 const form = useForm({
     
 })
-function submit() {
-    form.get('/generate-stockcard-pdf')
+
+watch(() => searchCode.value, () => {
+    loading.value = true
+    preload['value'] = true;
+})
+
+watchDebounced(() => searchCode.value,
+    (value) => {
+        router.get(
+            "/stockcard",
+            {
+                code: value,
+                lot: searchLot.value
+            },
+            {
+                preserveState: true,
+                preserveScroll: true,
+                onSuccess: () => {
+                    loading.value = false
+                    preload['value'] = false;
+                },
+            }
+        );
+    },
+    { debounce: 1000, maxWait: 5000 }
+);
+
+watch(() => searchLot.value, () => {
+    loading.value = true;
+    preload['value'] = true;
+})
+
+watchDebounced(() => searchLot.value,
+    (value) => {
+        router.get(
+            "/stockcard",
+            {
+                code: searchCode.value,
+                lot: value,
+            },
+            {
+                preserveState: true,
+                preserveScroll: true,
+                onSuccess: () => {
+                    loading.value = false;
+                    preload['value'] = false;
+                },
+            }
+        );
+    },
+    { debounce: 1000, maxWait: 5000 }
+);
+
+function submit(){
+    form.post('index-pdf')
 }
 </script>
 <template>
-    <Layout title="Stockcard">
+    <Layout title="Stockcard" :loading="loading">
         <v-container max-width="1500" fluid>
             <v-card elevation="2" class="pa-8 my-5">
                 <v-form @submit.prevent="submit">
                     <v-row no-gutters>
                         <v-col cols="12">
-                            <div class="text-subtitle-1 text-medium-emphasis">
-                                Product
+                            <div
+                                class="text-subtitle-1 text-medium-emphasis"
+                            >
+                                Code
                             </div>
                             <v-autocomplete
-                                item-title="product"
+                                v-model="form.code"
+                                v-model:search="searchCode"
+                                :items="products"
+                                item-title="code"
+                                item-value="id"
                                 placeholder="Select..."
                                 variant="outlined"
                                 menu-icon=""
-                            ></v-autocomplete>
+                            >
+                                <template v-slot:no-data>
+                                    <v-container fluid>
+                                        <span v-if="preload">Loading...</span>
+                                        <span v-else>No results found</span>
+                                    </v-container>
+                                </template>
+                            </v-autocomplete>
                         </v-col>
                     </v-row>
                     <v-row no-gutters>
@@ -41,11 +118,22 @@ function submit() {
                                 Lot/Batch No.
                             </div>
                             <v-autocomplete
-                                :items="['001', '002', '003', '004', '005']"
+                                v-model="form.lot"
+                                v-model:search="searchLot"
+                                :items="lots"
+                                item-title="lot"
+                                item-value="id"
                                 placeholder="Select..."
                                 variant="outlined"
                                 menu-icon=""
-                            ></v-autocomplete>
+                            >
+                            <template v-slot:no-data>
+                                <v-container fluid>
+                                    <span v-if="preload">Loading...</span>
+                                    <span v-else>No results found</span>
+                                </v-container>
+                            </template>
+                            </v-autocomplete>
                         </v-col>
                     </v-row>
 
@@ -87,9 +175,7 @@ function submit() {
                                 prepend-icon=""
                                 prepend-inner-icon="$calendar"
                                 variant="outlined"
-                                :class="
-                                    $vuetify.display.mobile ? 'mx-0' : 'mx-2'
-                                "
+                                :class="$vuetify.display.mobile ? 'mx-0' : 'mx-2'"
                             ></v-date-input>
                         </v-col>
                         <v-col cols="12" sm="4">
