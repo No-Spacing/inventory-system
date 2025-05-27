@@ -2,18 +2,26 @@
 import Layout from "../../../Layout/Main.vue";
 import { VDateInput } from "vuetify/labs/VDateInput";
 import { ref } from "vue";
+import { useForm } from "@inertiajs/vue3"
 
 const loading = ref(false);
 function load() {
     loading.value = true;
     setTimeout(() => (loading.value = false), 2000);
 }
+
+const form = useForm({
+    
+})
+function submit() {
+    form.get('/generate-stockcard-pdf')
+}
 </script>
 <template>
     <Layout title="Stockcard">
         <v-container max-width="1500" fluid>
             <v-card elevation="2" class="pa-8 my-5">
-                <v-form>
+                <v-form @submit.prevent="submit">
                     <v-row no-gutters>
                         <v-col cols="12">
                             <div class="text-subtitle-1 text-medium-emphasis">
@@ -107,6 +115,7 @@ function load() {
                                 @click="load"
                                 :loading="loading"
                                 size="large"
+                                type="submit"
                             >
                                 Generate PDF
                             </v-btn>

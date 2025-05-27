@@ -8,6 +8,7 @@ use Inertia\Inertia;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\StockcardController;
 use App\Http\Controllers\MaintenanceController;
+use App\Http\Controllers\ReportsController;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -27,6 +28,11 @@ Route::middleware(['user-group'])->group(function () {
         Route::get('out', 'Out');
         Route::post('/create-stockcard-out', 'CreateStockcardOut');
 
+    });
+
+    Route::controller(ReportsController::class)->group(function () {
+        Route::get('/generate-stockcard-pdf', 'GenerateStockcardPdf');
+        Route::get('index-pdf', 'index');
     });
 
     Route::inertia('/stockcard', 'Admin/Report/Stockcard');
