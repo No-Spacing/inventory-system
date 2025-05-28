@@ -25,7 +25,9 @@ class ReportsController extends Controller
         ]);
     }
 
-    public function IndexPdf() {
+    public function IndexPdf(Request $request) {
+        // $request->validate([
+        // ]);
         return view('pdf.invoice');
     }
 

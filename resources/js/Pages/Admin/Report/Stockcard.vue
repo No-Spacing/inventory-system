@@ -11,10 +11,6 @@ defineProps({
 })
 
 const loading = ref(false);
-function load() {
-    loading.value = true;
-    setTimeout(() => (loading.value = false), 2000);
-}
 
 const searchCode = ref();
 const searchLot = ref();
@@ -22,7 +18,8 @@ const searchLot = ref();
 const preload = ref(false);
 
 const form = useForm({
-    
+    code: null,
+    lot: null,
 })
 
 watch(() => searchCode.value, () => {
@@ -196,12 +193,11 @@ function submit(){
                     <v-row justify="center">
                         <v-col cols="12" sm="auto" class="text-center">
                             <v-btn
+                                type="submit"
                                 class="me-4"
                                 color="green"
-                                @click="load"
                                 :loading="loading"
                                 size="large"
-                                type="submit"
                             >
                                 Generate PDF
                             </v-btn>

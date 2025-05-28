@@ -1,12 +1,18 @@
 <script setup>
 import Layout from "../../../Layout/Main.vue";
 import { ref } from "vue";
+import { useForm } from "@inertiajs/vue3"
 
 const loading = ref(false);
+
 function load() {
     loading.value = true;
     setTimeout(() => (loading.value = false), 2000);
 }
+
+const form = useForm({
+    code: null,
+})
 </script>
 <template>
     <Layout title="Stocks (Batch/Lots)">
@@ -14,9 +20,13 @@ function load() {
             <v-card elevation="2" class="pa-8 my-5">
                 <v-form>
                     <v-autocomplete
+                        v-model="form.code"
+                        :error-messages="form.errors.code"
                         label="Code"
                         variant="outlined"
                     ></v-autocomplete>
+
+                    <v-text-field label="Description" readonly></v-text-field>
 
                     <v-row justify="center">
                         <v-col cols="12" sm="auto" class="text-center">
