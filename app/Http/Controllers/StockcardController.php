@@ -24,6 +24,8 @@ class StockcardController extends Controller
     public function Dashboard(){
         return Inertia::render('Admin/Dashboard', [
             'users' => User::with('role')->get(),
+            'products' => Product::get(),
+            'lots' => Lot::get(),
         ]);
     }
 
