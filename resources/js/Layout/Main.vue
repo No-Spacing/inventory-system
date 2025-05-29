@@ -185,7 +185,7 @@ onMounted(() => {
             </template>
         </v-navigation-drawer>
 
-        <v-app-bar :elevation="2" app>
+        <v-app-bar :elevation="2" app :scroll-behavior="$vuetify.display.mobile ? 'hide' : ''" scroll-threshold="1">
             <template v-slot:prepend>
                 <!-- <v-app-bar-nav-icon  @click.stop="rail = !rail; openGroup = ''"/> -->
                 <v-app-bar-nav-icon
