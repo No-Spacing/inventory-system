@@ -137,16 +137,11 @@ onMounted(() => {
                         ></v-list-item>
                     </template>
                     <v-list-item title="Units" href="/units"></v-list-item>
-                    <v-list-item
-                        title="Category"
-                        href="/category"
-                    ></v-list-item>
+                    <v-list-item title="Category" href="/category"></v-list-item>
                     <v-list-item title="Product" href="/product"></v-list-item>
                     <v-list-item title="Lot Number" href="/lot"></v-list-item>
-                    <v-list-item
-                        title="Serial Number"
-                        href="/serial"
-                    ></v-list-item>
+                    <v-list-item title="Serial Number" href="/serial"></v-list-item>
+                    <v-list-item v-if="$page.props.user.can.create" title="Users" href="/users"></v-list-item>
                 </v-list-group>
             </v-list>
 

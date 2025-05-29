@@ -2,7 +2,11 @@
 import { ref } from "vue";
 import Layout from "../../Layout/Main.vue";
 
-const props = defineProps({ users: Object });
+const props = defineProps({ 
+    users: Object, 
+    products: Object ,
+    lots: Object,
+});
 
 const search = ref("");
 const headers = [
@@ -61,9 +65,7 @@ const headers = [
                             <template v-slot:title>
                                 <span class="">Users</span>
                                 <br />
-                                <span class="text-h4 mt-2">{{
-                                    props.users.length
-                                }}</span>
+                                <span class="text-h4 mt-2">{{ props.users.length }}</span>
                             </template>
                         </v-card>
                     </v-col>
@@ -84,7 +86,7 @@ const headers = [
                             <template v-slot:title>
                                 <span class="">Products</span>
                                 <br />
-                                <span class="text-h4 mt-2">200</span>
+                                <span class="text-h4 mt-2">{{ props.products.length }}</span>
                             </template>
                         </v-card>
                     </v-col>
@@ -101,7 +103,7 @@ const headers = [
                             <template v-slot:title>
                                 <span class="">Lot No.</span>
                                 <br />
-                                <span class="text-h4 mt-2">200</span>
+                                <span class="text-h4 mt-2">{{ props.lots.length }}</span>
                             </template>
                         </v-card>
                     </v-col>

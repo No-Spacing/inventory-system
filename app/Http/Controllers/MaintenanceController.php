@@ -8,6 +8,10 @@ use App\Models\Category;
 use App\Models\Unit;
 use App\Models\Product;
 use App\Models\Lot;
+use App\Models\User;
+use App\Models\Role;
+
+use Illuminate\Support\Facades\Hash;
 
 use Inertia\Inertia;
 
@@ -93,6 +97,41 @@ class MaintenanceController extends Controller
           
         // return redirect('/lot')->with('message', 'Lot created successfully!');
         return back()->with('message', 'Lot created successfully!');
+    }
+
+    public function IndexUsers(){
+        return Inertia::render('Admin/Maintenance/Users', [
+            'users' => User::with('role')
+            ->get()
+            ->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $user->role->name,
+                    'created_at' => \Carbon\Carbon::parse($user->created_at)->format('Y-m-d g:i a')
+                ];
+            }),
+            'roles' => Role::all(),
+        ]);
+    }
+
+    public function StoreUser(Request $request) {
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required|unique:users',
+            'password' => 'required',
+            'role' => 'required',
+        ]);
+
+        User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role_id' => $request->role 
+        ]);
+
+        return back()->with('message', 'User created successfully!');
     }
 
 }
