@@ -30,7 +30,7 @@ class UserPolicy
      */
     public function create(User $user): bool
     {
-        return $user->role_id == Role::IS_ADMIN || $user->role_id == Role::IS_SUPERVISOR || $user->role_id == Role::IS_ENCODER;
+        return $user->role_id == Role::IS_ADMIN;
     }
 
     /**
