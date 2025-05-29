@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { useDisplay } from "vuetify";
-import { Head, usePage } from "@inertiajs/vue3";
+import { Head } from "@inertiajs/vue3";
 
 const props = defineProps({
     title: String,
@@ -20,7 +20,9 @@ function navigationRail() {
 }
 
 onMounted(() => {
-    drawer.value = false
+    if(mobile.value == true){
+        drawer.value = false
+    }
 })
 </script>
 <template>
