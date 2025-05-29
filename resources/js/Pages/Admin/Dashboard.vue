@@ -34,7 +34,7 @@ const headers = [
         },
     },
     {
-        key: "role.name",
+        key: "role",
         title: "Roles",
         headerProps: {
             style: "font-weight: 700",

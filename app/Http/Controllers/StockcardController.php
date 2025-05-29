@@ -23,7 +23,17 @@ class StockcardController extends Controller
 {
     public function Dashboard(){
         return Inertia::render('Admin/Dashboard', [
-            'users' => User::with('role')->get(),
+            'users' => User::with('role')
+            ->get()
+            ->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $user->role->name,
+                    'created_at' => \Carbon\Carbon::parse($user->created_at)->format('Y-m-d g:i a')
+                ];
+            }),
             'products' => Product::get(),
             'lots' => Lot::get(),
         ]);

@@ -94,8 +94,7 @@ class MaintenanceController extends Controller
         ]);
 
         Lot::create($validated);
-          
-        // return redirect('/lot')->with('message', 'Lot created successfully!');
+        
         return back()->with('message', 'Lot created successfully!');
     }
 
