@@ -16,6 +16,18 @@ use Illuminate\Support\Facades\Auth;
 use App\Model\User;
 use App\Policies\UserPolicy;
 
+Route::get('pr-pdf', function () {
+    return view('pdf.pr-pdf');
+});
+
+Route::get('stock-pdf', function () {
+    return view('pdf.stock-pdf');
+});
+
+Route::get('stockcard-pdf', function () {
+    return view('pdf.stockcard-pdf');
+});
+
 Route::middleware(['user-group'])->group(function () {
     Route::inertia('/login', 'Auth/Login');
 

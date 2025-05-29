@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from "vue";
+import { ref, onMounted } from "vue";
 import { useDisplay } from "vuetify";
 import { Head, usePage } from "@inertiajs/vue3";
 
@@ -19,12 +19,9 @@ function navigationRail() {
     this.rail = false;
 }
 
-const cruds = [
-    ["Create", "mdi-plus-outline"],
-    ["Read", "mdi-file-outline"],
-    ["Update", "mdi-update"],
-    ["Delete", "mdi-delete"],
-];
+onMounted(() => {
+    drawer.value = false
+})
 </script>
 <template>
     <Head title="StockCard" />
