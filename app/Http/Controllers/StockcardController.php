@@ -34,7 +34,15 @@ class StockcardController extends Controller
                     'created_at' => \Carbon\Carbon::parse($user->created_at)->format('Y-m-d g:i a')
                 ];
             }),
-            'products' => Product::get(),
+            'products' => Product::get()
+            ->map(function ($product) {
+                return [
+                    'code' => $product->code,
+                    'description' => $product->description,
+                    'remaining_items' => $product->remaining_items,
+                    'created_at' => \Carbon\Carbon::parse($product->created_at)->format('Y-m-d g:i a')
+                ];
+            }),
             'lots' => Lot::get(),
         ]);
     }
