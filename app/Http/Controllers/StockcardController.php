@@ -108,6 +108,7 @@ class StockcardController extends Controller
             'warehouse' => 'required',
             'purchaseDate' => 'required',
             'transactionDate' => 'required',
+            'expirationDate' => 'required',
         ]);
 
         Stockcard::create([

@@ -228,13 +228,16 @@ function addLot() {
                         readonly
                     ></v-text-field>
                 </v-col>
+            </v-row>
+            </v-expand-transition>
+            <v-row no-gutters>
                 <v-col cols="12" class="mb-5">
                     <div
                         class="text-subtitle-1 text-medium-emphasis mx-2"
                     >
                         Lot/Batch No.
                     </div>
-                    <v-row justify="start">
+                    <v-row no-gutters justify="start">
                         <!-- Autocomplete -->
                         <v-col cols="12" lg="10">
                             <v-autocomplete
@@ -263,14 +266,15 @@ function addLot() {
                         <v-col
                             cols="12"
                             lg="2"
-                            class="d-flex align-center"
                         >
                             <v-btn
                                 :width="$vuetify.display.mobile ? '98.5%' : '90%'"
                                 color="green"
                                 :prepend-icon="$vuetify.display.mobile? 'mdi-plus': ''"
-                                class="mx-2"
+                                class="mx-2 h-70"
+                                style="height:53px"
                                 @click="dialog = true"
+                                
                             >
                                 Add New Lot
                             </v-btn>
@@ -278,11 +282,11 @@ function addLot() {
                     </v-row>
                 </v-col>
             </v-row>
-        </v-expand-transition>
+        
 
-        <v-expand-transition v-show="expand2">
+        <!-- <v-expand-transition v-show="expand2">
             <v-row no-gutters>
-                <!-- <v-col sm="6" cols="12">
+                <v-col sm="6" cols="12">
                     <div
                         class="text-subtitle-1 text-medium-emphasis mx-2"
                     >
@@ -294,144 +298,142 @@ function addLot() {
                         prepend-inner-icon=""
                         variant="outlined"
                     ></v-text-field>
-                </v-col> -->
-            </v-row>
-        </v-expand-transition>
-
-        <v-expand-transition>
-            <v-row no-gutters v-show="expand">
-                <!-- Expiration Date -->
-                <v-col sm="4" cols="12">
-                    <div
-                        class="text-subtitle-1 text-medium-emphasis mx-2"
-                    >
-                        Expiration Date
-                    </div>
-
-                    <v-date-input
-                        v-model="form.expirationDate"
-                        :error-messages="form.errors.expirationDate"
-                        placeholder="Date from"
-                        prepend-icon=""
-                        prepend-inner-icon="$calendar"
-                        variant="outlined"
-                        class="mx-2"
-                    ></v-date-input>
-                </v-col>
-                
-                <!-- Date of Transaction -->
-                <v-col sm="4" cols="12">
-                    <div
-                        class="text-subtitle-1 text-medium-emphasis mx-2"
-                    >
-                        Date of Purchase
-                    </div>
-
-                    <v-date-input
-                        v-model="form.purchaseDate"
-                        :error-messages="form.errors.purchaseDate"
-                        placeholder="Date from"
-                        prepend-icon=""
-                        prepend-inner-icon="$calendar"
-                        variant="outlined"
-                        class="mx-2"
-                    ></v-date-input>
-                </v-col>
-                <v-col sm="4" cols="12">
-                    <div
-                        class="text-subtitle-1 text-medium-emphasis mx-2"
-                    >
-                        Date of Transaction
-                    </div>
-
-                    <v-date-input
-                        v-model="form.transactionDate"
-                        :error-messages="form.errors.transactionDate"
-                        placeholder="Date from"
-                        prepend-icon=""
-                        prepend-inner-icon="$calendar"
-                        variant="outlined"
-                        class="mx-2"
-                    ></v-date-input>
-                </v-col>
-
-                <v-col sm="6" cols="12">
-                    <div
-                        class="text-subtitle-1 text-medium-emphasis mx-2"
-                    >
-                        Quantity
-                    </div>
-                    <v-text-field
-                        v-model="form.quantity"
-                        class="mx-2"
-                        :error-messages="form.errors.quantity"
-                        placeholder="Qty"
-                        prepend-inner-icon=""
-                        variant="outlined"
-                    ></v-text-field>
-                </v-col>
-
-                <v-col sm="6" cols="12">
-                    <div
-                        class="text-subtitle-1 text-medium-emphasis mx-2"
-                    >
-                        Serial No.
-                    </div>
-                    <v-text-field
-                        class="mx-2"
-                        placeholder="Serial No."
-                        variant="outlined"
-                        required
-                    ></v-text-field>
-                </v-col>
-               
-                <v-col sm="12" cols="12">
-                    <div
-                        class="text-subtitle-1 text-medium-emphasis mx-2"
-                    >
-                        Reference
-                    </div>
-                    <v-text-field
-                        v-model="form.reference"
-                        class="mx-2"
-                        placeholder="Ref"
-                        prepend-inner-icon=""
-                        variant="outlined"
-                    ></v-text-field>
-                </v-col>
-                <v-col sm="12" cols="12">
-                    <div
-                        class="text-subtitle-1 text-medium-emphasis mx-2"
-                    >
-                        Warehouse
-                    </div>
-
-                    <v-text-field
-                        v-model="form.warehouse"
-                        :error-messages="form.errors.warehouse"
-                        clearable
-                        class="mx-2"
-                        variant="outlined"
-                        placeholder="Warehouse"
-                    ></v-text-field>
-                </v-col>
-                <v-col sm="12" cols="12">
-                    <div
-                        class="text-subtitle-1 text-medium-emphasis mx-2"
-                    >
-                        Remarks
-                    </div>
-
-                    <v-textarea
-                        v-model="form.remarks"
-                        clearable
-                        class="mx-2"
-                        placeholder="Write a comment.."
-                        variant="outlined"
-                    ></v-textarea>
                 </v-col>
             </v-row>
-        </v-expand-transition>
+        </v-expand-transition> -->
+
+        <v-row no-gutters>
+            <!-- Expiration Date -->
+            <v-col sm="4" cols="12">
+                <div
+                    class="text-subtitle-1 text-medium-emphasis mx-2"
+                >
+                    Expiration Date
+                </div>
+
+                <v-date-input
+                    v-model="form.expirationDate"
+                    :error-messages="form.errors.expirationDate"
+                    placeholder="Date from"
+                    prepend-icon=""
+                    prepend-inner-icon="$calendar"
+                    variant="outlined"
+                    class="mx-2"
+                ></v-date-input>
+            </v-col>
+            
+            <!-- Date of Transaction -->
+            <v-col sm="4" cols="12">
+                <div
+                    class="text-subtitle-1 text-medium-emphasis mx-2"
+                >
+                    Date of Purchase
+                </div>
+
+                <v-date-input
+                    v-model="form.purchaseDate"
+                    :error-messages="form.errors.purchaseDate"
+                    placeholder="Date from"
+                    prepend-icon=""
+                    prepend-inner-icon="$calendar"
+                    variant="outlined"
+                    class="mx-2"
+                ></v-date-input>
+            </v-col>
+            <v-col sm="4" cols="12">
+                <div
+                    class="text-subtitle-1 text-medium-emphasis mx-2"
+                >
+                    Date of Transaction
+                </div>
+
+                <v-date-input
+                    v-model="form.transactionDate"
+                    :error-messages="form.errors.transactionDate"
+                    placeholder="Date from"
+                    prepend-icon=""
+                    prepend-inner-icon="$calendar"
+                    variant="outlined"
+                    class="mx-2"
+                ></v-date-input>
+            </v-col>
+
+            <v-col sm="6" cols="12">
+                <div
+                    class="text-subtitle-1 text-medium-emphasis mx-2"
+                >
+                    Quantity
+                </div>
+                <v-text-field
+                    v-model="form.quantity"
+                    class="mx-2"
+                    :error-messages="form.errors.quantity"
+                    placeholder="Qty"
+                    prepend-inner-icon=""
+                    variant="outlined"
+                ></v-text-field>
+            </v-col>
+
+            <v-col sm="6" cols="12">
+                <div
+                    class="text-subtitle-1 text-medium-emphasis mx-2"
+                >
+                    Serial No.
+                </div>
+                <v-text-field
+                    class="mx-2"
+                    placeholder="Serial No."
+                    variant="outlined"
+                    required
+                ></v-text-field>
+            </v-col>
+            
+            <v-col sm="12" cols="12">
+                <div
+                    class="text-subtitle-1 text-medium-emphasis mx-2"
+                >
+                    Reference
+                </div>
+                <v-text-field
+                    v-model="form.reference"
+                    class="mx-2"
+                    placeholder="Ref"
+                    prepend-inner-icon=""
+                    variant="outlined"
+                ></v-text-field>
+            </v-col>
+            <v-col sm="12" cols="12">
+                <div
+                    class="text-subtitle-1 text-medium-emphasis mx-2"
+                >
+                    Warehouse
+                </div>
+
+                <v-text-field
+                    v-model="form.warehouse"
+                    :error-messages="form.errors.warehouse"
+                    clearable
+                    class="mx-2"
+                    variant="outlined"
+                    placeholder="Warehouse"
+                ></v-text-field>
+            </v-col>
+            <v-col sm="12" cols="12">
+                <div
+                    class="text-subtitle-1 text-medium-emphasis mx-2"
+                >
+                    Remarks
+                </div>
+
+                <v-textarea
+                    v-model="form.remarks"
+                    clearable
+                    class="mx-2"
+                    placeholder="Write a comment.."
+                    variant="outlined"
+                ></v-textarea>
+            </v-col>
+        </v-row>
 
         <div class="d-flex justify-end" v-if="expand">
             <v-btn
