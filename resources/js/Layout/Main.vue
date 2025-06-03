@@ -209,6 +209,36 @@ onMounted(() => {
                 </span>
             </template>
 
+            <v-menu :close-on-content-click="false">
+                <template v-slot:activator="{ props }">
+                    <v-btn v-bind="props" icon>
+                        <v-badge
+                            color="primary"
+                            dot
+                        >
+                            <v-icon>mdi-bell-outline</v-icon>
+                        </v-badge>
+                    </v-btn>
+                </template>
+
+                <v-card width="500">
+                    <v-card-title>Notifications</v-card-title>
+
+                    <v-divider></v-divider>
+
+                    <v-list>
+                        <v-list-item title="The Supervisor wants to update an Item."></v-list-item>
+                        <v-list-item title="The Encoder wants to update an Item."></v-list-item>
+                        <v-list-item title="The Admin wants to update password."></v-list-item>
+                    </v-list>
+
+                    <v-card-actions class="d-flex justify-end">
+                        <v-btn size="small">Mark as read</v-btn>
+                        <v-btn size="small">Mark as unread</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-menu>
+
             <v-progress-linear
                 v-if="props.loading"
                 :active="true"
