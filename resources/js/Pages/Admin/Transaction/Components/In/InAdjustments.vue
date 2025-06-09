@@ -370,7 +370,7 @@ function addLot() {
                 ></v-text-field>
             </v-col>
             
-            <v-col sm="12" cols="12">
+            <!-- <v-col sm="12" cols="12">
                 <div
                     class="text-subtitle-1 text-medium-emphasis mx-2"
                 >
@@ -383,8 +383,22 @@ function addLot() {
                     prepend-inner-icon=""
                     variant="outlined"
                 ></v-text-field>
+            </v-col> -->
+            <v-col sm="6" cols="6">
+                <div
+                    class="text-subtitle-1 text-medium-emphasis mx-2"
+                >
+                    Supplier Name
+                </div>
+                <v-text-field
+                    v-model="form.reference"
+                    class="mx-2"
+                    placeholder="Supplier Name"
+                    prepend-inner-icon=""
+                    variant="outlined"
+                ></v-text-field>
             </v-col>
-            <v-col sm="12" cols="12">
+            <v-col sm="6" cols="6">
                 <div
                     class="text-subtitle-1 text-medium-emphasis mx-2"
                 >
@@ -394,7 +408,7 @@ function addLot() {
                 <v-select
                     v-model="form.warehouse"
                     :error-messages="form.errors.warehouse"
-                    :items="['SIP', 'Kalye', ]"
+                    :items="['SIP', 'Calle', ]"
                     clearable
                     class="mx-2"
                     variant="outlined"

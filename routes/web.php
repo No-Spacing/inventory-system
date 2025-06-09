@@ -44,18 +44,13 @@ Route::middleware(['user-group'])->group(function () {
 
     Route::controller(ReportsController::class)->group(function () {
         Route::get('/stockcard', 'IndexStockcard');
-
         Route::get('/generate-stockcard-pdf', 'GenerateStockcardPdf')->name('show.stockcard.pdf');
         Route::post('index-pdf', 'IndexPdf');
+
+        Route::get('/summary', 'IndexSummary');
     });
 
     // Route::inertia('/stockcard', 'Admin/Report/Stockcard');
-
-    Route::inertia('/stocks', 'Admin/Report/Stocks');
-
-    Route::inertia('/stocks_with_pr', 'Admin/Report/Stocks_Pr_no');
-
-    Route::inertia('/product_expiry', 'Admin/Report/ProductExpiry');
 
     Route::inertia('/summary', 'Admin/Report/Summary');
 

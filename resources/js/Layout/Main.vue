@@ -86,8 +86,8 @@ onMounted(() => {
                         ></v-list-item>
                     </template>
 
-                    <v-list-item title="In" href="/in"></v-list-item>
-                    <v-list-item title="Out" href="/out"></v-list-item>
+                    <v-list-item title="Inbound" href="/in"></v-list-item>
+                    <v-list-item title="Outbound" href="/out"></v-list-item>
                 </v-list-group>
 
                 <v-list-group value="Reports">
@@ -102,22 +102,7 @@ onMounted(() => {
                             "
                         ></v-list-item>
                     </template>
-                    <v-list-item
-                        title="Stockcard"
-                        href="stockcard"
-                    ></v-list-item>
-                    <v-list-item
-                        title="Stocks (Batch/Lots)"
-                        href="stocks"
-                    ></v-list-item>
-                    <v-list-item
-                        title="Stocks with PR No."
-                        href="/stocks_with_pr"
-                    ></v-list-item>
-                    <v-list-item
-                        title="Product Expiry"
-                        href="/product_expiry"
-                    ></v-list-item>
+                    <v-list-item title="Stockcard" href="stockcard"></v-list-item>
                     <v-list-item title="Summary" href="/summary"></v-list-item>
                 </v-list-group>
 

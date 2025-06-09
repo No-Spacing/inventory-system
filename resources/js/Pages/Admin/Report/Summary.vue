@@ -1,5 +1,6 @@
 <script setup>
 import Layout from "../../../Layout/Main.vue";
+import { VDateInput } from "vuetify/labs/VDateInput";
 import { ref } from "vue";
 
 const loading = ref(false);
@@ -8,72 +9,53 @@ function load() {
     setTimeout(() => (loading.value = false), 2000);
 }
 </script>
-
 <template>
     <Layout title="Summary">
-        <v-container max-width="1000" class="py-10">
-            <v-card elevation="2" class="pa-8">
-                <v-card-title class="text-h5 font-weight-bold mb-4">
-                    Reports & Export Options
-                </v-card-title>
-
-                <v-divider class="mb-6" />
-
-                <v-row justify="space-between">
-                    <v-col cols="12" md="6">
-                        <v-card class="pa-4" color="grey-lighten-5">
-                            <v-card-title
-                                class="text-subtitle-1 font-weight-bold"
-                                >Generate Overall Report</v-card-title
+        <v-container max-width="1500" fluid>
+            <v-card elevation="2" class="pa-8 my-5">
+                <v-form>
+                    <v-row no-gutters>
+                        <v-col cols="12">
+                            <div
+                                class="text-subtitle-1 text-medium-emphasis mx-2"
                             >
-                            <v-card-text>
-                                Export a full summary of all transactions,
-                                items, and product data into a consolidated
-                                Excel report.
-                            </v-card-text>
-                            <v-card-actions>
-                                <v-btn
-                                    class="text-none mb-4"
-                                    color="orange-darken-1"
-                                    size="x-large"
-                                    variant="flat"
-                                    block
-                                    @click="load"
-                                    :loading="loading"
-                                >
-                                    Export to Excel
-                                </v-btn>
-                            </v-card-actions>
-                        </v-card>
-                    </v-col>
-
-                    <v-col cols="12" md="6">
-                        <v-card class="pa-4" color="grey-lighten-5">
-                            <v-card-title
-                                class="text-subtitle-1 font-weight-bold"
-                                >Generate Products with Lot
-                                Numbers</v-card-title
+                                Date From
+                            </div>
+                            <v-date-input
+                                prepend-icon=""
+                                prepend-inner-icon="$calendar"
+                                variant="outlined"
+                                class="mx-2"
+                            ></v-date-input>
+                        </v-col>
+                        <v-col cols="12">
+                            <div
+                                class="text-subtitle-1 text-medium-emphasis mx-2"
                             >
-                            <v-card-text>
-                                Export a filtered Excel report showing only
-                                products that include lot or batch numbers.
-                            </v-card-text>
-                            <v-card-actions>
-                                <v-btn
-                                    class="text-none mb-4"
-                                    color="orange-darken-3"
-                                    size="x-large"
-                                    variant="flat"
-                                    block
-                                    @click="load"
-                                    :loading="loading"
-                                >
-                                    Export to Excel
-                                </v-btn>
-                            </v-card-actions>
-                        </v-card>
-                    </v-col>
-                </v-row>
+                                Date to
+                            </div>
+                            <v-date-input
+                                prepend-icon=""
+                                prepend-inner-icon="$calendar"
+                                variant="outlined"
+                                class="mx-2"
+                            ></v-date-input>
+                        </v-col>
+                    </v-row>
+
+                    <v-row justify="center">
+                        <v-col cols="12" sm="auto" class="text-center">
+                            <v-btn class="me-4" color="green" size="large" @click="load" :loading="loading">
+                                Generate PDF
+                            </v-btn>
+                        </v-col>
+                        <v-col cols="12" sm="auto" class="text-center">
+                            <v-btn class="me-4" color="primary" size="large" @click="load" :loading="loading">
+                                Export to Excel
+                            </v-btn>
+                        </v-col>
+                    </v-row>
+                </v-form>
             </v-card>
         </v-container>
     </Layout>

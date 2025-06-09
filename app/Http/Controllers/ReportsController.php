@@ -28,7 +28,7 @@ class ReportsController extends Controller
     public function IndexPdf(Request $request) {
         // $request->validate([
         // ]);
-        return view('pdf.invoice');
+        return view('pdf.stockcard-pdf');
     }
 
     public function GenerateStockcardPdf(){
@@ -36,5 +36,9 @@ class ReportsController extends Controller
             ->format('a4')
             ->landscape()
             ->name('invoice.pdf');
+    }
+
+    public function IndexSummary() {
+        return Inertia::render('Admin/Report/Summary');
     }
 }

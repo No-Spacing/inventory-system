@@ -16,7 +16,7 @@ const handleData = (data) => {
 
 </script>
 <template>
-    <Layout title="In Transaction" :loading="loading">
+    <Layout title="Inbound" :loading="loading">
         <v-container max-width="1600" class="mt-5" fluid>
             <v-tabs v-model="tab" align-tabs="center" bg-color="primary">
                 <v-tab :value="1">
@@ -25,7 +25,7 @@ const handleData = (data) => {
                 </v-tab>
                 <v-tab :value="2">
                     <v-icon start icon="mdi-plus"></v-icon>
-                    <p class="font-weight-bold">Adjustments</p>
+                    <p class="font-weight-bold">Create</p>
                 </v-tab>
             </v-tabs>
 

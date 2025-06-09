@@ -43,18 +43,7 @@ const headers = [
 ];
 
 const icons = ['mdi-rewind', 'mdi-play', 'mdi-fast-forward']
-const items = [
-    {
-        img: 'images/inmed-website.png',
-    },
-    {
 
-        img: 'images/inmed-retail.png',
-    },
-    {
-        img: 'images/inmed-wholesale.png',
-    },
-]
 const transparent = 'rgba(255, 255, 255, 0)'
 </script>
 
@@ -126,52 +115,13 @@ const transparent = 'rgba(255, 255, 255, 0)'
             </v-card>
 
             <!-- Table content  -->
-            <v-card elevation="2" class="pa-8 my-5">
+            <!-- <v-card elevation="2" class="pa-8 my-5">
                 <v-card-title class="mb-2">
-                    Websites
+                    Statistic
                     <v-divider></v-divider>
                 </v-card-title>
                 
-                <v-row>
-                    <template v-for="(item, i) in items" :key="i">
-                        <v-col
-                        cols="12"
-                        md="4"
-                        >
-                            <v-hover v-slot="{ isHovering, props }">
-                                <v-card
-                                class="v-card-foreground"
-                                :class="{ 'on-hover': isHovering }"
-                                :elevation="isHovering ? 12 : 2"
-                                v-bind="props"
-                                >
-                                    <v-img
-                                        :src="item.img"
-                                        height="auto"
-                                        cover
-                                    >
-                                        <v-card-title class="text-h6 text-white d-flex flex-column">
-                                        <p class="mt-4">
-                                            {{ item.title }}
-                                        </p>
-
-                                        <div>
-                                            <p class="ma-0 text-body-1 font-weight-bold">
-                                            {{ item.text }}
-                                            </p>
-                                            <p class="text-caption font-weight-medium">
-                                            {{ item.subtext }}
-                                            </p>
-                                        </div>
-                                        </v-card-title>
-                                        
-                                    </v-img>
-                                </v-card>
-                            </v-hover>
-                        </v-col>
-                    </template>
-                </v-row>
-            </v-card>
+            </v-card> -->
             <v-card title="Products" elevation="2" class="pa-8 my-5">
             <template v-slot:text>
                 <v-text-field

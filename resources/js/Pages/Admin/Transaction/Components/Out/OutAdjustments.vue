@@ -303,7 +303,7 @@ function addLot() {
 
         <v-row no-gutters>
             <!-- Expiration Date -->
-            <v-col sm="4" cols="12">
+            <v-col sm="6" cols="12">
                 <div
                     class="text-subtitle-1 text-medium-emphasis mx-2"
                 >
@@ -321,25 +321,8 @@ function addLot() {
                 ></v-date-input>
             </v-col>
             
-            <!-- Date of Transaction -->
-            <v-col sm="4" cols="12">
-                <div
-                    class="text-subtitle-1 text-medium-emphasis mx-2"
-                >
-                    Date of Purchase
-                </div>
-
-                <v-date-input
-                    v-model="form.purchaseDate"
-                    :error-messages="form.errors.purchaseDate"
-                    placeholder="Date from"
-                    prepend-icon=""
-                    prepend-inner-icon="$calendar"
-                    variant="outlined"
-                    class="mx-2"
-                ></v-date-input>
-            </v-col>
-            <v-col sm="4" cols="12">
+            
+            <v-col sm="6" cols="12">
                 <div
                     class="text-subtitle-1 text-medium-emphasis mx-2"
                 >
@@ -387,11 +370,11 @@ function addLot() {
                 ></v-text-field>
             </v-col>
             
-            <v-col sm="12" cols="12">
+            <v-col sm="6" cols="6">
                 <div
                     class="text-subtitle-1 text-medium-emphasis mx-2"
                 >
-                    Reference
+                    Customer
                 </div>
                 <v-text-field
                     v-model="form.reference"
@@ -401,21 +384,22 @@ function addLot() {
                     variant="outlined"
                 ></v-text-field>
             </v-col>
-            <v-col sm="12" cols="12">
+            <v-col sm="6" cols="6">
                 <div
                     class="text-subtitle-1 text-medium-emphasis mx-2"
                 >
                     Warehouse
                 </div>
 
-                <v-text-field
+                <v-select
                     v-model="form.warehouse"
                     :error-messages="form.errors.warehouse"
+                    :items="['Calle', 'SIP' ]"
                     clearable
                     class="mx-2"
                     variant="outlined"
                     placeholder="Warehouse"
-                ></v-text-field>
+                ></v-select>
             </v-col>
             <v-col sm="12" cols="12">
                 <div
