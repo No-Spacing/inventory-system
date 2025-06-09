@@ -30,6 +30,21 @@ const headers = [
 
     },
     {
+        key: "warehouse",
+        title: "Warehouse",
+        headerProps: {
+            style: "font-weight: 700",
+        },
+
+    },
+    {
+        key: "expiration_date",
+        title: "Expired At",
+        headerProps: {
+            style: "font-weight: 700",
+        },
+    },
+    {
         key: "created_at",
         title: "Created At",
         headerProps: {

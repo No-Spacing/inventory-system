@@ -4,6 +4,9 @@ import { watchDebounced } from "@vueuse/core";
 import { ref, computed, watch } from "vue";
 import { VDateInput } from 'vuetify/labs/VDateInput'
 import CurrentTime from "../CurrentTime.vue"
+import { useDate } from 'vuetify'
+
+const adapter = useDate()
 
 const page = usePage();
 
@@ -18,7 +21,6 @@ const emit = defineEmits(['loading']);
 const dialog = ref(false); // Dialog for adding new lot
 
 const expand = ref(false);
-const expand2 = ref(false);
 
 const todaysDate = ref(new Date().toLocaleString());
 
@@ -34,7 +36,7 @@ const form = useForm({
     quantity: '',
     warehouse: '',
     expirationDate: '',
-    transactionDate: '',
+    transactionDate: new Date().toISOString(),
     reference: '',
     remarks: '',
 })
@@ -48,7 +50,7 @@ const codeInput = () => {
 
 const lotInput = () => {
     if (searchLot.value === "") {
-        expand2["value"] = false;
+        // expand2["value"] = false;
     }
 };
 
@@ -57,6 +59,7 @@ const data = computed(() => {
         description: page.props.products[0]?.description || "",
         unit: page.props.products[0]?.unit.unit || "",
         remaining_items: page.props.products[0]?.remaining_items || "",
+        product_type: page.props.products[0]?.type || "",
     };
 });
 
@@ -86,10 +89,10 @@ watchDebounced(() => searchCode.value,
     { debounce: 1000, maxWait: 5000 }
 );
 
-watch(() => searchLot.value, () => {
-    emit('loading', true);
-    preload['value'] = true;
-})
+// watch(() => searchLot.value, () => {
+//     emit('loading', true);
+//     preload['value'] = true;
+// })
 
 watchDebounced(() => searchLot.value,
     (value) => {
@@ -113,6 +116,7 @@ watchDebounced(() => searchLot.value,
 );
 
 function submit() {
+    console.log(form.transactionDate);
     form.post('/create-stockcard-in', {
         preserveState: true,
         preserveScroll: true,
@@ -145,6 +149,22 @@ function addLot() {
         }
     })
 }
+const lot_expand = ref(false);
+const serial_expand = ref(false);
+
+function type() {
+    if(this.data.product_type === "Track by Lot"){
+        serial_expand.value = false;
+        lot_expand.value = true;
+    }else if(this.data.product_type === "Track by Serial"){
+        console.log("Hello")
+        serial_expand.value = true;
+        lot_expand.value = false;
+    }else{
+        lot_expand.value = false;
+        serial_expand.value = false;
+    }
+}
 </script>
 <template>
     <v-form @submit.prevent="submit">
@@ -168,7 +188,7 @@ function addLot() {
                     placeholder="Select..."
                     variant="outlined"
                     menu-icon=""
-                    @update:modelValue="expand = true;"
+                    @update:modelValue="expand = true; type()"
                     @input="codeInput"
                 >
                     <template v-slot:no-data>
@@ -182,7 +202,7 @@ function addLot() {
         </v-row>
         <v-expand-transition>
             <v-row no-gutters v-show="expand">
-                <v-col sm="4" cols="12">
+                <v-col sm="3" cols="12">
                     <div
                         class="text-subtitle-1 text-medium-emphasis mx-2"
                     >
@@ -197,7 +217,7 @@ function addLot() {
                         readonly
                     ></v-text-field>
                 </v-col>
-                <v-col sm="4" cols="12">
+                <v-col sm="3" cols="12">
                     <div
                         class="text-subtitle-1 text-medium-emphasis mx-2"
                     >
@@ -212,7 +232,7 @@ function addLot() {
                         readonly
                     ></v-text-field>
                 </v-col>
-                <v-col sm="4" cols="12">
+                <v-col sm="3" cols="12">
                     <div
                         class="text-subtitle-1 text-medium-emphasis mx-2"
                     >
@@ -227,100 +247,108 @@ function addLot() {
                         readonly
                     ></v-text-field>
                 </v-col>
+                <v-col sm="3" cols="12">
+                    <div
+                        class="text-subtitle-1 text-medium-emphasis mx-2"
+                    >
+                        Product Type
+                    </div>
+                    <v-text-field
+                        v-model="data.product_type"
+                        class="mx-2"
+                        placeholder="Total Items"
+                        prepend-inner-icon=""
+                        variant="outlined"
+                        readonly
+                    ></v-text-field>
+                </v-col>
+               
             </v-row>
+        </v-expand-transition>
+        <v-row no-gutters>
+            <v-expand-transition>
+                <v-col md="12" cols="12" v-show="serial_expand">
+                    <div
+                        class="text-subtitle-1 text-medium-emphasis mx-2"
+                    >
+                        Serial No.
+                    </div>
+                    <v-text-field
+                        class="mx-2"
+                        placeholder="Serial No."
+                        variant="outlined"
+                        required
+                    ></v-text-field>
+                </v-col>
             </v-expand-transition>
-            <v-row no-gutters>
-                <v-col cols="12" class="mb-5">
+        </v-row>
+        <v-expand-transition>
+            <v-row no-gutters v-show="lot_expand">
+                <v-col md="6" cols="12">
+                    <div
+                        class="text-subtitle-1 text-medium-emphasis mx-2"
+                    >
+                        Expiration Date
+                    </div>
+
+                    <v-date-input
+                        v-model="form.expirationDate"
+                        :error-messages="form.errors.expirationDate"
+                        placeholder="Date from"
+                        prepend-icon=""
+                        prepend-inner-icon="$calendar"
+                        variant="outlined"
+                        class="mx-2"
+                    ></v-date-input>
+                </v-col>
+                <v-col md="4" cols="12">
                     <div
                         class="text-subtitle-1 text-medium-emphasis mx-2"
                     >
                         Lot/Batch No.
                     </div>
-                    <v-row no-gutters justify="start">
-                        <!-- Autocomplete -->
-                        <v-col cols="12" lg="10">
-                            <v-autocomplete
-                                v-model="form.lot"
-                                v-model:search="searchLot"
-                                :items="lots"
-                                item-title="lot"
-                                item-value="id"
-                                class="mx-2"
-                                placeholder="Select..."
-                                variant="outlined"
-                                menu-icon=""
-                                @update:modelValue="expand2 = true"
-                                @input="lotInput"
-                            >
-                            <template v-slot:no-data>
-                                <v-container fluid>
-                                    <span v-if="preload">Loading...</span>
-                                    <span v-else>No results found</span>
-                                </v-container>
-                            </template>
-                        </v-autocomplete>
-                        </v-col>
-
-                        <!-- Button -->
-                        <v-col
-                            cols="12"
-                            lg="2"
-                        >
-                            <v-btn
-                                :width="$vuetify.display.mobile ? '98.5%' : '90%'"
-                                color="green"
-                                :prepend-icon="$vuetify.display.mobile? 'mdi-plus': ''"
-                                class="mx-2 h-70"
-                                style="height:53px"
-                                @click="dialog = true"
-                                
-                            >
-                                Add New Lot
-                            </v-btn>
-                        </v-col>
-                    </v-row>
-                </v-col>
-            </v-row>
-        
-
-        <!-- <v-expand-transition v-show="expand2">
-            <v-row no-gutters>
-                <v-col sm="6" cols="12">
-                    <div
-                        class="text-subtitle-1 text-medium-emphasis mx-2"
-                    >
-                        Total Items per Lot
-                    </div>
-                    <v-text-field
+                        
+                    <v-autocomplete
+                        v-model="form.lot"
+                        v-model:search="searchLot"
+                        :items="lots"
+                        item-title="lot"
+                        item-value="id"
                         class="mx-2"
-                        placeholder="Per Lot"
-                        prepend-inner-icon=""
+                        placeholder="Select..."
                         variant="outlined"
-                    ></v-text-field>
+                        menu-icon=""
+                        @input="lotInput"
+                    >
+                        <template v-slot:no-data>
+                            <v-container fluid>
+                                <span v-if="preload">Loading...</span>
+                                <span v-else>No results found</span>
+                            </v-container>
+                        </template>
+                    </v-autocomplete>
+                </v-col>
+                <!-- Button -->
+                <v-col md="2" cols="12">
+                    <v-btn
+                        :width="$vuetify.display.smAndDown  ? '100%' : '90%'"
+                        color="green"
+                        :prepend-icon="$vuetify.display.smAndDown  ? 'mdi-plus': ''"
+                        :class="$vuetify.display.smAndDown  ? 'mb-6' : 'mx-2 mt-7'"
+                        style="height:53px"
+                        @click="dialog = true"
+                    >
+                        Add Lot
+                    </v-btn>
                 </v-col>
             </v-row>
-        </v-expand-transition> -->
+        </v-expand-transition>
+      
 
         <v-row no-gutters>
             <!-- Expiration Date -->
-            <v-col sm="6" cols="12">
-                <div
-                    class="text-subtitle-1 text-medium-emphasis mx-2"
-                >
-                    Expiration Date
-                </div>
-
-                <v-date-input
-                    v-model="form.expirationDate"
-                    :error-messages="form.errors.expirationDate"
-                    placeholder="Date from"
-                    prepend-icon=""
-                    prepend-inner-icon="$calendar"
-                    variant="outlined"
-                    class="mx-2"
-                ></v-date-input>
-            </v-col>
             
+    
             <!-- Date of Transaction -->
             <v-col sm="6" cols="12">
                 <div
@@ -332,6 +360,7 @@ function addLot() {
                 <v-date-input
                     v-model="form.transactionDate"
                     :error-messages="form.errors.transactionDate"
+                    input-format="yyyy-mm-dd"
                     placeholder="Date from"
                     prepend-icon=""
                     prepend-inner-icon="$calendar"
@@ -356,20 +385,6 @@ function addLot() {
                 ></v-text-field>
             </v-col>
 
-            <v-col sm="6" cols="12">
-                <div
-                    class="text-subtitle-1 text-medium-emphasis mx-2"
-                >
-                    Serial No.
-                </div>
-                <v-text-field
-                    class="mx-2"
-                    placeholder="Serial No."
-                    variant="outlined"
-                    required
-                ></v-text-field>
-            </v-col>
-            
             <!-- <v-col sm="12" cols="12">
                 <div
                     class="text-subtitle-1 text-medium-emphasis mx-2"
@@ -408,7 +423,7 @@ function addLot() {
                 <v-select
                     v-model="form.warehouse"
                     :error-messages="form.errors.warehouse"
-                    :items="['SIP', 'Calle', ]"
+                    :items="['SIP', 'Calle']"
                     clearable
                     class="mx-2"
                     variant="outlined"

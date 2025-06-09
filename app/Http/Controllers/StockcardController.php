@@ -51,14 +51,16 @@ class StockcardController extends Controller
         return Inertia::render('Admin/Transaction/In', [
             'users' => User::with('role')->get(),
             'stockcards' => Stockcard::with('product')
-            ->where('transaction_type', 'in')
+            ->where('transaction_type', 'inbound')
             ->get()
             ->map(function ($product) {
                 return [
                     'code' => $product->product->code,
                     'description' => $product->product->description,
                     'quantity' => $product->quantity,
-                    'created_at' => \Carbon\Carbon::parse($product->created_at)->format('Y-m-d g:i a')
+                    'warehouse' => $product->warehouse,
+                    'created_at' => \Carbon\Carbon::parse($product->transaction_date)->format('Y-m-d'),
+                    'expiration_date' => \Carbon\Carbon::parse($product->expiration_date)->format('Y-m-d')
                 ];
             }),
             'products' => Product::with('unit')
@@ -70,26 +72,25 @@ class StockcardController extends Controller
     }
 
     public function CreateStockcardIn(Request $request){
-
+        
         $request->validate([
             'code' => 'required',
             'quantity' => 'required',
             'warehouse' => 'required',
-            'purchaseDate' => 'required',
             'transactionDate' => 'required', 
             'expirationDate' => 'required',
+            'reference' => 'required'
         ]);
 
         Stockcard::create([
             'product_id' => $request->code,
             'lot_id' => $request->lot,
-            'transaction_type' => 'in',
+            'transaction_type' => 'inbound',
             'quantity' => $request->quantity,
-            'warehouse' => $request->warehouse,
             'enduser_id' => Auth::user()->id,
-            'purchase_date' => \Carbon\Carbon::parse($request->purchaseDate)->format('Y-m-d'),
-            'transaction_date' => \Carbon\Carbon::parse($request->transactionDate)->format('Y-m-d'),
-            'expire_date' => \Carbon\Carbon::parse($request->expirationDate)->format('Y-m-d'),
+            'expiration_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->expirationDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
+            'transaction_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->transactionDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
+            'warehouse' => $request->warehouse,
             'reference' => $request->reference,
             'remarks' => $request->remarks,
         ]);
@@ -103,14 +104,16 @@ class StockcardController extends Controller
         return Inertia::render('Admin/Transaction/Out', [
             'users' => User::with('role')->get(),
             'stockcards' => Stockcard::with('product')
-            ->where('transaction_type', 'out')
+            ->where('transaction_type', 'outbound')
             ->get()
             ->map(function ($product) {
                 return [
                     'code' => $product->product->code,
                     'description' => $product->product->description,
                     'quantity' => $product->quantity,
-                    'created_at' => \Carbon\Carbon::parse($product->created_at)->format('Y-m-d g:i a')
+                    'warehouse' => $product->warehouse,
+                    'created_at' => \Carbon\Carbon::parse($product->transaction_date)->format('Y-m-d'),
+                    'expiration_date' => \Carbon\Carbon::parse($product->expiration_date)->format('Y-m-d')
                 ];
             }),
             'products' => Product::with('unit')
@@ -126,21 +129,20 @@ class StockcardController extends Controller
             'code' => 'required',
             'quantity' => 'required',
             'warehouse' => 'required',
-            'purchaseDate' => 'required',
-            'transactionDate' => 'required',
+            'transactionDate' => 'required', 
             'expirationDate' => 'required',
+            'reference' => 'required',
         ]);
 
         Stockcard::create([
             'product_id' => $request->code,
             'lot_id' => $request->lot,
-            'transaction_type' => 'out',
+            'transaction_type' => 'outbound',
             'quantity' => $request->quantity,
-            'warehouse' => $request->warehouse,
             'enduser_id' => Auth::user()->id,
-            'purchase_date' => \Carbon\Carbon::parse($request->purchaseDate)->format('Y-m-d'),
-            'transaction_date' => \Carbon\Carbon::parse($request->transactionDate)->format('Y-m-d'),
-            'expire_date' => \Carbon\Carbon::parse($request->expirationDate)->format('Y-m-d'),
+            'expiration_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->expirationDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
+            'transaction_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->transactionDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
+            'warehouse' => $request->warehouse,
             'reference' => $request->reference,
             'remarks' => $request->remarks,
         ]);

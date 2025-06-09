@@ -22,10 +22,7 @@ return new class extends Migration
             $table->bigInteger('quantity')->nullable();
             $table->bigInteger('item_balance')->nullable();
             $table->date('transaction_date')->nullable();
-            $table->date('purchase_date')->nullable();
-            $table->date('expire_date')->nullable();
-            $table->string('oeno')->nullable();
-            $table->string('proe')->nullable();
+            $table->date('expiration_date')->nullable();
             $table->longText('warehouse')->nullable();
             $table->string('reference')->nullable();
             $table->longText('remarks')->nullable();

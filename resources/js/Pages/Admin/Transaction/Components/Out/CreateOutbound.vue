@@ -35,7 +35,6 @@ const form = useForm({
     quantity: '',
     warehouse: '',
     expirationDate: '',
-    purchaseDate: '',
     transactionDate: '',
     reference: '',
     remarks: '',

@@ -45,7 +45,7 @@ const headers = [
         headerProps: {
             style: "font-weight: 700",
         },
-        align: "end",
+        align: "center",
         sortable: false,
     },
 ];
@@ -103,20 +103,13 @@ function update() {
                     :items="categories"
                 >
                     <template v-slot:item.actions="{ item }">
-                        <div class="d-flex ga-2 justify-end">
-                            <v-icon
-                                color="medium-emphasis"
-                                icon="mdi-pencil"
-                                size="small"
-                                @click="editCategoryDialog = true"
-                            ></v-icon>
-
-                            <v-icon
-                                color="medium-emphasis"
-                                icon="mdi-delete"
-                                size="small"
-                                @click="remove(item.id)"
-                            ></v-icon>
+                        <div class="d-flex justify-center ga-2">
+                            <v-btn prepend-icon="mdi-pencil"  @click="editCategoryDialog = true">
+                                Edit
+                            </v-btn>
+                            <v-btn prepend-icon="mdi-delete">
+                                Delete
+                            </v-btn>
                         </div>
                     </template>
 

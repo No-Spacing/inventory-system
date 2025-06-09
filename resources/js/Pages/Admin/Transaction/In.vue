@@ -1,7 +1,7 @@
 <script setup>
 import Layout from "../../../Layout/Main.vue";
-import InAdjustments from "./Components/In/InAdjustments.vue";
-import InTable from "./Components/In/InTable.vue";
+import InAdjustments from "./Components/In/CreateInbound.vue";
+import InTable from "./Components/In/TableInbound.vue";
 import { ref } from "vue";
 
 const tab = ref(null);
