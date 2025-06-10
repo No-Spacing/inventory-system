@@ -22,17 +22,18 @@ const dialog = ref(false); // Dialog for adding new lot
 
 const expand = ref(false);
 
-const todaysDate = ref(new Date().toLocaleString());
-
 const searchCode = ref();
 
 const searchLot = ref();
 
 const snackbar = ref(false);
 
+const buttonLoading = ref(false);
+
 const form = useForm({
     code: '',
     lot: '',
+    serialNo: '',
     quantity: '',
     warehouse: '',
     expirationDate: '',
@@ -48,33 +49,28 @@ const codeInput = () => {
     
 };
 
-const lotInput = () => {
-    if (searchLot.value === "") {
-        // expand2["value"] = false;
-    }
-};
-
 const data = computed(() => {
     return {
         description: page.props.products[0]?.description || "",
         unit: page.props.products[0]?.unit.unit || "",
         remaining_items: page.props.products[0]?.remaining_items || "",
-        product_type: page.props.products[0]?.type || "",
+        product_type: page.props.products[0]?.type || '',
     };
 });
 
-watch(() => searchCode.value, () => {
+watch(() => [searchCode.value, searchLot.value], () => {
     emit('loading', true);
     preload['value'] = true;
+    buttonLoading.value = true;
 })
 
-watchDebounced(() => searchCode.value,
-    (value) => {
+watchDebounced(() => [searchCode.value, searchLot.value],
+    ([newInput1, newInput2]) => {
         router.get(
             "/in",
             {
-                code: value,
-                lot: searchLot.value
+                code: newInput1,
+                lot: newInput2,
             },
             {
                 preserveState: true,
@@ -82,32 +78,7 @@ watchDebounced(() => searchCode.value,
                 onSuccess: () => {
                     emit('loading', false);
                     preload['value'] = false;
-                },
-            }
-        );
-    },
-    { debounce: 1000, maxWait: 5000 }
-);
-
-// watch(() => searchLot.value, () => {
-//     emit('loading', true);
-//     preload['value'] = true;
-// })
-
-watchDebounced(() => searchLot.value,
-    (value) => {
-        router.get(
-            "/in",
-            {
-                code: searchCode.value,
-                lot: value,
-            },
-            {
-                preserveState: true,
-                preserveScroll: true,
-                onSuccess: () => {
-                    emit('loading', false);
-                    preload['value'] = false;
+                    buttonLoading.value = false;
                 },
             }
         );
@@ -116,7 +87,6 @@ watchDebounced(() => searchLot.value,
 );
 
 function submit() {
-    console.log(form.transactionDate);
     form.post('/create-stockcard-in', {
         preserveState: true,
         preserveScroll: true,
@@ -134,6 +104,7 @@ function submit() {
 const formLot = useForm({
     lot: null,
 })
+
 function addLot() {
     formLot.post('/store-lot', {
         preserveState: true,
@@ -149,22 +120,20 @@ function addLot() {
         }
     })
 }
-const lot_expand = ref(false);
-const serial_expand = ref(false);
 
-function type() {
-    if(this.data.product_type === "Track by Lot"){
-        serial_expand.value = false;
-        lot_expand.value = true;
-    }else if(this.data.product_type === "Track by Serial"){
-        console.log("Hello")
-        serial_expand.value = true;
-        lot_expand.value = false;
-    }else{
-        lot_expand.value = false;
-        serial_expand.value = false;
+const product_type = ref();
+watch(() => page.props.products, (newProducts) => {
+    product_type.value = newProducts[0]?.type || '';
+    if(product_type.value === "Track by Serial"){
+        form.quantity = 1;
+        form.expirationDate = '';
+        form.lot = '';
+    }else if (product_type.value === "Track by Lot"){
+        form.quantity = '';
+        form.serialNo = '';
     }
-}
+}, { deep: true });
+
 </script>
 <template>
     <v-form @submit.prevent="submit">
@@ -188,7 +157,7 @@ function type() {
                     placeholder="Select..."
                     variant="outlined"
                     menu-icon=""
-                    @update:modelValue="expand = true; type()"
+                    @update:modelValue="expand = true;"
                     @input="codeInput"
                 >
                     <template v-slot:no-data>
@@ -267,13 +236,14 @@ function type() {
         </v-expand-transition>
         <v-row no-gutters>
             <v-expand-transition>
-                <v-col md="12" cols="12" v-show="serial_expand">
+                <v-col md="12" cols="12" v-show="data.product_type === 'Track by Serial'">
                     <div
                         class="text-subtitle-1 text-medium-emphasis mx-2"
                     >
                         Serial No.
                     </div>
                     <v-text-field
+                        v-model="form.serialNo"
                         class="mx-2"
                         placeholder="Serial No."
                         variant="outlined"
@@ -283,7 +253,7 @@ function type() {
             </v-expand-transition>
         </v-row>
         <v-expand-transition>
-            <v-row no-gutters v-show="lot_expand">
+            <v-row no-gutters v-show="data.product_type === 'Track by Lot'">
                 <v-col md="6" cols="12">
                     <div
                         class="text-subtitle-1 text-medium-emphasis mx-2"
@@ -293,7 +263,6 @@ function type() {
 
                     <v-date-input
                         v-model="form.expirationDate"
-                        :error-messages="form.errors.expirationDate"
                         placeholder="Date from"
                         prepend-icon=""
                         prepend-inner-icon="$calendar"
@@ -318,7 +287,6 @@ function type() {
                         placeholder="Select..."
                         variant="outlined"
                         menu-icon=""
-                        @input="lotInput"
                     >
                         <template v-slot:no-data>
                             <v-container fluid>
@@ -331,10 +299,10 @@ function type() {
                 <!-- Button -->
                 <v-col md="2" cols="12">
                     <v-btn
-                        :width="$vuetify.display.smAndDown  ? '100%' : '90%'"
+                        :width="$vuetify.display.smAndDown ? '100%' : '90%'"
                         color="green"
-                        :prepend-icon="$vuetify.display.smAndDown  ? 'mdi-plus': ''"
-                        :class="$vuetify.display.smAndDown  ? 'mb-6' : 'mx-2 mt-7'"
+                        :prepend-icon="$vuetify.display.smAndDown ? 'mdi-plus': ''"
+                        :class="$vuetify.display.smAndDown ? 'mb-6' : 'mx-2 mt-7'"
                         style="height:53px"
                         @click="dialog = true"
                     >
@@ -369,10 +337,22 @@ function type() {
                 ></v-date-input>
             </v-col>
 
-            <v-col sm="6" cols="12">
-                <div
-                    class="text-subtitle-1 text-medium-emphasis mx-2"
-                >
+            <v-col sm="6" cols="12" v-if="data.product_type === 'Track by Serial'">
+                <div class="text-subtitle-1 text-medium-emphasis mx-2">
+                    Quantity
+                </div>
+                <v-text-field
+                    v-model="form.quantity"
+                    class="mx-2"
+                    :error-messages="form.errors.quantity"
+                    placeholder="Qty"
+                    prepend-inner-icon=""
+                    variant="outlined"
+                    readonly
+                ></v-text-field>
+            </v-col>
+            <v-col sm="6" cols="12" v-if="data.product_type === 'Track by Lot'">
+                <div class="text-subtitle-1 text-medium-emphasis mx-2">
                     Quantity
                 </div>
                 <v-text-field
@@ -384,21 +364,6 @@ function type() {
                     variant="outlined"
                 ></v-text-field>
             </v-col>
-
-            <!-- <v-col sm="12" cols="12">
-                <div
-                    class="text-subtitle-1 text-medium-emphasis mx-2"
-                >
-                    Reference
-                </div>
-                <v-text-field
-                    v-model="form.reference"
-                    class="mx-2"
-                    placeholder="Ref"
-                    prepend-inner-icon=""
-                    variant="outlined"
-                ></v-text-field>
-            </v-col> -->
             <v-col sm="6" cols="6">
                 <div
                     class="text-subtitle-1 text-medium-emphasis mx-2"
@@ -453,7 +418,7 @@ function type() {
                 color="primary"
                 class="me-2"
                 type="submit"
-                :loading="form.processing"
+                :loading="form.processing || buttonLoading"
             >
                 Submit
             </v-btn>

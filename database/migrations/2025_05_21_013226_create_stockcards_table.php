@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->bigInteger('product_id')->references('id')->on('products')->onDelete('cascade');
             $table->bigInteger('lot_id')->references('id')->on('lots')->onDelete('cascade')->nullable();
-            $table->bigInteger('serial_id')->references('id')->on('serials')->onDelete('cascade')->nullable();
+            $table->longText('serial_no')->nullable();
             $table->bigInteger('approver_id')->references('id')->on('users')->onDelete('cascade')->nullable();
             $table->bigInteger('enduser_id')->references('id')->on('users')->onDelete('cascade')->nullable();
             $table->string('transaction_type')->nullable();

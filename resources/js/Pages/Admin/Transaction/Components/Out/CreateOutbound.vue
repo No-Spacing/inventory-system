@@ -19,9 +19,6 @@ const emit = defineEmits(['loading']);
 const dialog = ref(false); // Dialog for adding new lot
 
 const expand = ref(false);
-const expand2 = ref(false);
-
-const todaysDate = ref(new Date().toLocaleString());
 
 const searchCode = ref();
 
@@ -29,13 +26,16 @@ const searchLot = ref();
 
 const snackbar = ref(false);
 
+const buttonLoading = ref(false);
+
 const form = useForm({
     code: '',
     lot: '',
+    serialNo: '',
     quantity: '',
     warehouse: '',
     expirationDate: '',
-    transactionDate: '',
+    transactionDate: new Date().toISOString(),
     reference: '',
     remarks: '',
 })
@@ -44,13 +44,6 @@ const codeInput = () => {
     if (searchCode.value === "") {
         expand["value"] = false;
     }
-    
-};
-
-const lotInput = () => {
-    if (searchLot.value === "") {
-        expand2["value"] = false;
-    }
 };
 
 const data = computed(() => {
@@ -58,21 +51,23 @@ const data = computed(() => {
         description: page.props.products[0]?.description || "",
         unit: page.props.products[0]?.unit.unit || "",
         remaining_items: page.props.products[0]?.remaining_items || "",
+        product_type: page.props.products[0]?.type || '',
     };
 });
 
-watch(() => searchCode.value, () => {
+watch(() => [searchCode.value, searchLot.value], () => {
     emit('loading', true);
     preload['value'] = true;
+    buttonLoading.value = true;
 })
 
-watchDebounced(() => searchCode.value,
-    (value) => {
+watchDebounced(() => [searchCode.value, searchLot.value],
+    ([newInput1, newInput2]) => {
         router.get(
             "/out",
             {
-                code: value,
-                lot: searchLot.value
+                code: newInput1,
+                lot: newInput2,
             },
             {
                 preserveState: true,
@@ -80,32 +75,8 @@ watchDebounced(() => searchCode.value,
                 onSuccess: () => {
                     emit('loading', false);
                     preload['value'] = false;
-                },
-            }
-        );
-    },
-    { debounce: 1000, maxWait: 5000 }
-);
-
-watch(() => searchLot.value, () => {
-    emit('loading', true);
-    preload['value'] = true;
-})
-
-watchDebounced(() => searchLot.value,
-    (value) => {
-        router.get(
-            "/out",
-            {
-                code: searchCode.value,
-                lot: value,
-            },
-            {
-                preserveState: true,
-                preserveScroll: true,
-                onSuccess: () => {
-                    emit('loading', false);
-                    preload['value'] = false;
+                    buttonLoading.value = false;
+                    
                 },
             }
         );
@@ -121,6 +92,8 @@ function submit() {
             emit('loading', false);
             snackbar.value = true;
             form.reset();
+            expand.value = false;
+            router.visit('/out', { preserveState:true, preserveScroll: true });
         },
         onError: () => {
             emit('loading', false);
@@ -131,6 +104,7 @@ function submit() {
 const formLot = useForm({
     lot: null,
 })
+
 function addLot() {
     formLot.post('/store-lot', {
         preserveState: true,
@@ -146,6 +120,19 @@ function addLot() {
         }
     })
 }
+
+const product_type = ref();
+watch(() => page.props.products, (newProducts) => {
+    product_type.value = newProducts[0]?.type || '';
+    if(product_type.value === "Track by Serial"){
+        form.quantity = 1;
+        form.expirationDate = '';
+        form.lot = '';
+    }else if (product_type.value === "Track by Lot"){
+        form.quantity = '';
+        form.serialNo = '';
+    }
+}, { deep: true });
 </script>
 <template>
     <v-form @submit.prevent="submit">
@@ -183,7 +170,7 @@ function addLot() {
         </v-row>
         <v-expand-transition>
             <v-row no-gutters v-show="expand">
-                <v-col sm="4" cols="12">
+                <v-col sm="3" cols="12">
                     <div
                         class="text-subtitle-1 text-medium-emphasis mx-2"
                     >
@@ -198,7 +185,7 @@ function addLot() {
                         readonly
                     ></v-text-field>
                 </v-col>
-                <v-col sm="4" cols="12">
+                <v-col sm="3" cols="12">
                     <div
                         class="text-subtitle-1 text-medium-emphasis mx-2"
                     >
@@ -213,7 +200,7 @@ function addLot() {
                         readonly
                     ></v-text-field>
                 </v-col>
-                <v-col sm="4" cols="12">
+                <v-col sm="3" cols="12">
                     <div
                         class="text-subtitle-1 text-medium-emphasis mx-2"
                     >
@@ -228,99 +215,107 @@ function addLot() {
                         readonly
                     ></v-text-field>
                 </v-col>
+                <v-col sm="3" cols="12">
+                    <div
+                        class="text-subtitle-1 text-medium-emphasis mx-2"
+                    >
+                        Product Type
+                    </div>
+                    <v-text-field
+                        v-model="data.product_type"
+                        class="mx-2"
+                        placeholder="Total Items"
+                        prepend-inner-icon=""
+                        variant="outlined"
+                        readonly
+                    ></v-text-field>
+                </v-col>
+               
             </v-row>
-            </v-expand-transition>
-            <v-row no-gutters>
-                <v-col cols="12" class="mb-5">
+        </v-expand-transition>
+        <v-expand-transition>
+            <v-row no-gutters v-show="data.product_type === 'Track by Serial'">
+                <v-col md="12" cols="12">
+                    <div
+                        class="text-subtitle-1 text-medium-emphasis mx-2"
+                    >
+                        Serial No.
+                    </div>
+                    <v-text-field
+                        v-model="form.serialNo"
+                        class="mx-2"
+                        placeholder="Serial No."
+                        variant="outlined"
+                        required
+                    ></v-text-field>
+                </v-col>
+            </v-row>
+        </v-expand-transition>
+        <v-expand-transition>
+            <v-row no-gutters v-show="data.product_type === 'Track by Lot'">
+                <v-col md="6" cols="12">
+                    <div
+                        class="text-subtitle-1 text-medium-emphasis mx-2"
+                    >
+                        Expiration Date
+                    </div>
+
+                    <v-date-input
+                        v-model="form.expirationDate"
+                        placeholder="Date from"
+                        prepend-icon=""
+                        prepend-inner-icon="$calendar"
+                        variant="outlined"
+                        class="mx-2"
+                    ></v-date-input>
+                </v-col>
+                <v-col md="4" cols="12">
                     <div
                         class="text-subtitle-1 text-medium-emphasis mx-2"
                     >
                         Lot/Batch No.
                     </div>
-                    <v-row no-gutters justify="start">
-                        <!-- Autocomplete -->
-                        <v-col cols="12" lg="10">
-                            <v-autocomplete
-                                v-model="form.lot"
-                                v-model:search="searchLot"
-                                :items="lots"
-                                item-title="lot"
-                                item-value="id"
-                                class="mx-2"
-                                placeholder="Select..."
-                                variant="outlined"
-                                menu-icon=""
-                                @update:modelValue="expand2 = true"
-                                @input="lotInput"
-                            >
-                            <template v-slot:no-data>
-                                <v-container fluid>
-                                    <span v-if="preload">Loading...</span>
-                                    <span v-else>No results found</span>
-                                </v-container>
-                            </template>
-                        </v-autocomplete>
-                        </v-col>
-
-                        <!-- Button -->
-                        <v-col
-                            cols="12"
-                            lg="2"
-                        >
-                            <v-btn
-                                :width="$vuetify.display.mobile ? '98.5%' : '90%'"
-                                color="green"
-                                :prepend-icon="$vuetify.display.mobile? 'mdi-plus': ''"
-                                class="mx-2"
-                                style="height:53px"
-                                @click="dialog = true"
-                                
-                            >
-                                Add New Lot
-                            </v-btn>
-                        </v-col>
-                    </v-row>
-                </v-col>
-            </v-row>
-        <!-- <v-expand-transition v-show="expand2">
-            <v-row no-gutters>
-                <v-col sm="6" cols="12">
-                    <div
-                        class="text-subtitle-1 text-medium-emphasis mx-2"
-                    >
-                        Total Items per Lot
-                    </div>
-                    <v-text-field
+                        
+                    <v-autocomplete
+                        v-model="form.lot"
+                        v-model:search="searchLot"
+                        :items="lots"
+                        item-title="lot"
+                        item-value="id"
                         class="mx-2"
-                        placeholder="Per Lot"
-                        prepend-inner-icon=""
+                        placeholder="Select..."
                         variant="outlined"
-                    ></v-text-field>
+                        menu-icon=""
+                    >
+                        <template v-slot:no-data>
+                            <v-container fluid>
+                                <span v-if="preload">Loading...</span>
+                                <span v-else>No results found</span>
+                            </v-container>
+                        </template>
+                    </v-autocomplete>
+                </v-col>
+                <!-- Button -->
+                <v-col md="2" cols="12">
+                    <v-btn
+                        :width="$vuetify.display.smAndDown ? '100%' : '90%'"
+                        color="green"
+                        :prepend-icon="$vuetify.display.smAndDown ? 'mdi-plus': ''"
+                        :class="$vuetify.display.smAndDown ? 'mb-6' : 'mx-2 mt-7'"
+                        style="height:53px"
+                        @click="dialog = true"
+                    >
+                        Add Lot
+                    </v-btn>
                 </v-col>
             </v-row>
-        </v-expand-transition> -->
+        </v-expand-transition>
 
         <v-row no-gutters>
             <!-- Expiration Date -->
-            <v-col sm="6" cols="12">
-                <div
-                    class="text-subtitle-1 text-medium-emphasis mx-2"
-                >
-                    Expiration Date
-                </div>
-
-                <v-date-input
-                    v-model="form.expirationDate"
-                    :error-messages="form.errors.expirationDate"
-                    placeholder="Date from"
-                    prepend-icon=""
-                    prepend-inner-icon="$calendar"
-                    variant="outlined"
-                    class="mx-2"
-                ></v-date-input>
-            </v-col>
             
-            
+    
+            <!-- Date of Transaction -->
             <v-col sm="6" cols="12">
                 <div
                     class="text-subtitle-1 text-medium-emphasis mx-2"
@@ -331,6 +326,7 @@ function addLot() {
                 <v-date-input
                     v-model="form.transactionDate"
                     :error-messages="form.errors.transactionDate"
+                    input-format="yyyy-mm-dd"
                     placeholder="Date from"
                     prepend-icon=""
                     prepend-inner-icon="$calendar"
@@ -338,11 +334,22 @@ function addLot() {
                     class="mx-2"
                 ></v-date-input>
             </v-col>
-
-            <v-col sm="6" cols="12">
-                <div
-                    class="text-subtitle-1 text-medium-emphasis mx-2"
-                >
+            <v-col sm="6" cols="12" v-if="data.product_type === 'Track by Serial'">
+                <div class="text-subtitle-1 text-medium-emphasis mx-2">
+                    Quantity
+                </div>
+                <v-text-field
+                    v-model="form.quantity"
+                    class="mx-2"
+                    :error-messages="form.errors.quantity"
+                    placeholder="Qty"
+                    prepend-inner-icon=""
+                    variant="outlined"
+                    readonly
+                ></v-text-field>
+            </v-col>
+            <v-col sm="6" cols="12" v-if="data.product_type === 'Track by Lot'">
+                <div class="text-subtitle-1 text-medium-emphasis mx-2">
                     Quantity
                 </div>
                 <v-text-field
@@ -354,31 +361,16 @@ function addLot() {
                     variant="outlined"
                 ></v-text-field>
             </v-col>
-
-            <v-col sm="6" cols="12">
-                <div
-                    class="text-subtitle-1 text-medium-emphasis mx-2"
-                >
-                    Serial No.
-                </div>
-                <v-text-field
-                    class="mx-2"
-                    placeholder="Serial No."
-                    variant="outlined"
-                    required
-                ></v-text-field>
-            </v-col>
-            
             <v-col sm="6" cols="6">
                 <div
                     class="text-subtitle-1 text-medium-emphasis mx-2"
                 >
-                    Customer
+                    Customer Name
                 </div>
                 <v-text-field
                     v-model="form.reference"
                     class="mx-2"
-                    placeholder="Ref"
+                    placeholder="Customer Name"
                     prepend-inner-icon=""
                     variant="outlined"
                 ></v-text-field>
@@ -393,7 +385,7 @@ function addLot() {
                 <v-select
                     v-model="form.warehouse"
                     :error-messages="form.errors.warehouse"
-                    :items="['Calle', 'SIP' ]"
+                    :items="['SIP', 'Calle']"
                     clearable
                     class="mx-2"
                     variant="outlined"
@@ -423,13 +415,13 @@ function addLot() {
                 color="primary"
                 class="me-2"
                 type="submit"
-                :loading="form.processing"
+                :loading="form.processing || buttonLoading"
             >
                 Submit
             </v-btn>
         </div>
     </v-form>
-     <v-dialog
+    <v-dialog
         v-model="dialog"
         max-width="600"
         persistent
