@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 use App\Models\Product;
+use App\Models\Lot;
 
 class Stockcard extends Model
 {
@@ -28,6 +29,11 @@ class Stockcard extends Model
     public function product(): HasOne
     {
         return $this->hasOne(Product::class, 'id', 'product_id');
+    }
+
+    public function lots(): HasOne
+    {
+        return $this->hasOne(Lot::class, 'id', 'lot_id');
     }
 
 }

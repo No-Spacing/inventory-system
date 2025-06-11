@@ -32,21 +32,24 @@ const buttonLoading = ref(false);
 
 const form = useForm({
     code: '',
+    product_type: '',
     lot: '',
     serialNo: '',
+    serialStartingNo: '',
+    serialEndingNo: '',
     quantity: '',
     warehouse: '',
     expirationDate: '',
     transactionDate: new Date().toISOString(),
     reference: '',
     remarks: '',
+    documentNo: '',
 })
 
 const codeInput = () => {
     if (searchCode.value === "") {
         expand["value"] = false;
-    }
-    
+    } 
 };
 
 const data = computed(() => {
@@ -128,9 +131,13 @@ watch(() => page.props.products, (newProducts) => {
         form.quantity = 1;
         form.expirationDate = '';
         form.lot = '';
+        form.product_type = product_type.value;
     }else if (product_type.value === "Track by Lot"){
         form.quantity = '';
         form.serialNo = '';
+        form.product_type = product_type.value;
+        form.serialStartingNo = '';
+        form.serialEndingNo = '';
     }
 }, { deep: true });
 
@@ -236,7 +243,7 @@ watch(() => page.props.products, (newProducts) => {
         </v-expand-transition>
         <v-expand-transition>
             <v-row no-gutters v-if="data.product_type === 'Track by Serial'">
-                <v-col md="12" cols="12">
+                <v-col md="4" cols="12">
                     <div
                         class="text-subtitle-1 text-medium-emphasis mx-2"
                     >
@@ -244,8 +251,41 @@ watch(() => page.props.products, (newProducts) => {
                     </div>
                     <v-text-field
                         v-model="form.serialNo"
+                        :error-messages="form.errors.serialNo"
                         class="mx-2"
                         placeholder="Serial No."
+                        variant="outlined"
+                        required
+                    ></v-text-field>
+                </v-col>
+                <v-col md="4" cols="12">
+                    <div
+                        class="text-subtitle-1 text-medium-emphasis mx-2"
+                    >
+                        Starting No.
+                    </div>
+                    <v-text-field
+                        v-model="form.serialStartingNo"
+                        :error-messages="form.errors.serialStartingNo"
+                        type="number"
+                        class="mx-2"
+                        placeholder="Starting Serial No."
+                        variant="outlined"
+                        required
+                    ></v-text-field>
+                </v-col>
+                <v-col md="4" cols="12">
+                    <div
+                        class="text-subtitle-1 text-medium-emphasis mx-2"
+                    >
+                        Ending No.
+                    </div>
+                    <v-text-field
+                        v-model="form.serialEndingNo"
+                        :error-messages="form.errors.serialEndingNo"
+                        type="number"
+                        class="mx-2"
+                        placeholder="Ending Serial No."
                         variant="outlined"
                         required
                     ></v-text-field>
@@ -261,6 +301,7 @@ watch(() => page.props.products, (newProducts) => {
 
                     <v-date-input
                         v-model="form.expirationDate"
+                        :error-messages="form.errors.expirationDate"
                         placeholder="Date from"
                         prepend-icon=""
                         prepend-inner-icon="$calendar"
@@ -277,6 +318,7 @@ watch(() => page.props.products, (newProducts) => {
                     <v-autocomplete
                         v-model="form.lot"
                         v-model:search="searchLot"
+                        :error-messages="form.errors.lot"
                         :items="lots"
                         item-title="lot"
                         item-value="id"
@@ -355,7 +397,7 @@ watch(() => page.props.products, (newProducts) => {
                     variant="outlined"
                 ></v-text-field>
             </v-col>
-            <v-col sm="6" cols="6">
+            <v-col sm="4" cols="6">
                 <div
                     class="text-subtitle-1 text-medium-emphasis mx-2"
                 >
@@ -369,7 +411,21 @@ watch(() => page.props.products, (newProducts) => {
                     variant="outlined"
                 ></v-text-field>
             </v-col>
-            <v-col sm="6" cols="6">
+            <v-col sm="4" cols="6">
+                <div
+                    class="text-subtitle-1 text-medium-emphasis mx-2"
+                >
+                    Document No.
+                </div>
+                <v-text-field
+                    v-model="form.documentNo"
+                    class="mx-2"
+                    placeholder="Document No."
+                    prepend-inner-icon=""
+                    variant="outlined"
+                ></v-text-field>
+            </v-col>
+            <v-col sm="4" cols="6">
                 <div
                     class="text-subtitle-1 text-medium-emphasis mx-2"
                 >

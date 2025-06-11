@@ -51,16 +51,18 @@ class StockcardController extends Controller
         return Inertia::render('Admin/Transaction/In', [
             'users' => User::with('role')->get(),
             'stockcards' => Stockcard::with('product')
+            ->with('lots')
             ->where('transaction_type', 'inbound')
             ->get()
             ->map(function ($product) {
                 return [
                     'code' => $product->product->code,
                     'description' => $product->product->description,
+                    'serialLotNo' => optional($product->lots)->lot . $product->serial_no,
                     'quantity' => $product->quantity,
                     'warehouse' => $product->warehouse,
                     'created_at' => \Carbon\Carbon::parse($product->transaction_date)->format('Y-m-d'),
-                    'expiration_date' => \Carbon\Carbon::parse($product->expiration_date)->format('Y-m-d')
+                    'expiration_date' => \Carbon\Carbon::parse($product->expiration_date)->format('Y-m-d'),
                 ];
             }),
             'products' => Product::with('unit')
@@ -74,32 +76,70 @@ class StockcardController extends Controller
     }
 
     public function CreateStockcardIn(Request $request){
-        $request->validate([
-            'code' => 'required',
-            'quantity' => 'required',
-            'warehouse' => 'required',
-            'transactionDate' => 'required', 
-            'reference' => 'required'
-        ]);
+        if($request->product_type == "Track by Serial"){
+            $request->validate([
+                'serialNo' => 'required',
+                'transactionDate' => 'required',
+            ]);
+        }else if($request->product_type == "Track by Lot"){
+            $request->validate([
+                'lot' => 'required',
+                'expirationDate' => 'required',
+                'quantity' => 'required',
+                'transactionDate' => 'required', 
+            ]);
+        }
+        
+        if(!empty($request->serialStartingNo)){
+            $request->validate([
+                'serialStartingNo' => 'lt:serialEndingNo',
+                'serialEndingNo' => 'required|gt:serialStartingNo',
+            ],
+            [
+                'serialEndingNo.required' => 'The Ending No. field is required.',
+                'serialStartingNo.lt' => 'Starting No. field must be less than the Ending No. field.',
+                'serialEndingNo.gt' => 'Ending No. field must be greater than the Starting No. field.'
+            ]);
+            for($i = $request->serialStartingNo; $i <= $request->serialEndingNo; $i++){
+                Product::where('id', $request->code)->increment('remaining_items', $request->quantity);
 
-        Product::where('id', $request->code)->increment('remaining_items', $request->quantity);
+                $remaining_items = Product::where('id', $request->code)->value('remaining_items');
 
-        $remaining_items = Product::where('id', $request->code)->value('remaining_items');
+                Stockcard::create([
+                    'product_id' => $request->code,
+                    'lot_id' => null,
+                    'serial_no' => $request->serialNo . $i,
+                    'transaction_type' => 'inbound',
+                    'quantity' => $request->quantity,
+                    'item_balance' => $remaining_items,
+                    'enduser_id' => Auth::user()->id,
+                    'expiration_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->expirationDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
+                    'transaction_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->transactionDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
+                    'warehouse' => $request->warehouse,
+                    'reference' => $request->reference,
+                    'remarks' => $request->remarks,
+                ]);
+            }
+        }else{
+            Product::where('id', $request->code)->increment('remaining_items', $request->quantity);
 
-        Stockcard::create([
-            'product_id' => $request->code,
-            'lot_id' => $request->lot,
-            'serial_no' => $request->serialNo,
-            'transaction_type' => 'inbound',
-            'quantity' => $request->quantity,
-            'item_balance' => $remaining_items,
-            'enduser_id' => Auth::user()->id,
-            'expiration_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->expirationDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
-            'transaction_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->transactionDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
-            'warehouse' => $request->warehouse,
-            'reference' => $request->reference,
-            'remarks' => $request->remarks,
-        ]);
+            $remaining_items = Product::where('id', $request->code)->value('remaining_items');
+
+            Stockcard::create([
+                'product_id' => $request->code,
+                'lot_id' => $request->lot,
+                'serial_no' => null,
+                'transaction_type' => 'inbound',
+                'quantity' => $request->quantity,
+                'item_balance' => $remaining_items,
+                'enduser_id' => Auth::user()->id,
+                'expiration_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->expirationDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
+                'transaction_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->transactionDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
+                'warehouse' => $request->warehouse,
+                'reference' => $request->reference,
+                'remarks' => $request->remarks,
+            ]);
+        }
 
         return redirect('/in')->with('message', 'Stock has been successfully added to inventory.');
     }
@@ -114,10 +154,11 @@ class StockcardController extends Controller
                 return [
                     'code' => $product->product->code,
                     'description' => $product->product->description,
+                    'serialLotNo' => optional($product->lots)->lot . $product->serial_no,
                     'quantity' => $product->quantity,
                     'warehouse' => $product->warehouse,
                     'created_at' => \Carbon\Carbon::parse($product->transaction_date)->format('Y-m-d'),
-                    'expiration_date' => \Carbon\Carbon::parse($product->expiration_date)->format('Y-m-d')
+                    'expiration_date' => \Carbon\Carbon::parse($product->expiration_date)->format('Y-m-d'),
                 ];
             }),
             'products' => Product::with('unit')
@@ -131,32 +172,70 @@ class StockcardController extends Controller
     }
     
     public function CreateStockcardOut(Request $request){
-        $request->validate([
-            'code' => 'required',
-            'quantity' => 'required',
-            'warehouse' => 'required',
-            'transactionDate' => 'required',
-            'reference' => 'required',
-        ]);
+       if($request->product_type == "Track by Serial"){
+            $request->validate([
+                'serialNo' => 'required',
+                'transactionDate' => 'required',
+            ]);
+        }else if($request->product_type == "Track by Lot"){
+            $request->validate([
+                'lot' => 'required',
+                'expirationDate' => 'required',
+                'quantity' => 'required',
+                'transactionDate' => 'required', 
+            ]);
+        }
+        
+        if(!empty($request->serialStartingNo)){
+            $request->validate([
+                'serialStartingNo' => 'lt:serialEndingNo',
+                'serialEndingNo' => 'required|gt:serialStartingNo',
+            ],
+            [
+                'serialEndingNo.required' => 'The Ending No. field is required.',
+                'serialStartingNo.lt' => 'Starting No. field must be less than the Ending No. field.',
+                'serialEndingNo.gt' => 'Ending No. field must be greater than the Starting No. field.'
+            ]);
+            for($i = $request->serialStartingNo; $i <= $request->serialEndingNo; $i++){
+                Product::where('id', $request->code)->decrement('remaining_items', $request->quantity);
 
-        Product::where('id', $request->code)->decrement('remaining_items', $request->quantity);
+                $remaining_items = Product::where('id', $request->code)->value('remaining_items');
 
-        $remaining_items = Product::where('id', $request->code)->value('remaining_items');
+                Stockcard::create([
+                    'product_id' => $request->code,
+                    'lot_id' => null,
+                    'serial_no' => $request->serialNo . $i,
+                    'transaction_type' => 'outbound',
+                    'quantity' => $request->quantity,
+                    'item_balance' => $remaining_items,
+                    'enduser_id' => Auth::user()->id,
+                    'expiration_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->expirationDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
+                    'transaction_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->transactionDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
+                    'warehouse' => $request->warehouse,
+                    'reference' => $request->reference,
+                    'remarks' => $request->remarks,
+                ]);
+            }
+        }else{
+            Product::where('id', $request->code)->decrement('remaining_items', $request->quantity);
 
-        Stockcard::create([
-            'product_id' => $request->code,
-            'lot_id' => $request->lot,
-            'serial_no' => $request->serialNo,
-            'transaction_type' => 'outbound',
-            'quantity' => $request->quantity,
-            'item_balance' => $remaining_items,
-            'enduser_id' => Auth::user()->id,
-            'expiration_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->expirationDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
-            'transaction_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->transactionDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
-            'warehouse' => $request->warehouse,
-            'reference' => $request->reference,
-            'remarks' => $request->remarks,
-        ]);
+            $remaining_items = Product::where('id', $request->code)->value('remaining_items');
+
+            Stockcard::create([
+                'product_id' => $request->code,
+                'lot_id' => $request->lot,
+                'serial_no' => null,
+                'transaction_type' => 'outbound',
+                'quantity' => $request->quantity,
+                'item_balance' => $remaining_items,
+                'enduser_id' => Auth::user()->id,
+                'expiration_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->expirationDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
+                'transaction_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->transactionDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
+                'warehouse' => $request->warehouse,
+                'reference' => $request->reference,
+                'remarks' => $request->remarks,
+            ]);
+        }
 
         return redirect('/out')->with('message', 'Stock has been successfully released from inventory.');
     }
