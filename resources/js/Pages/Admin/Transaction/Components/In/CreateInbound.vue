@@ -234,9 +234,9 @@ watch(() => page.props.products, (newProducts) => {
                
             </v-row>
         </v-expand-transition>
-        <v-row no-gutters>
-            <v-expand-transition>
-                <v-col md="12" cols="12" v-show="data.product_type === 'Track by Serial'">
+        <v-expand-transition>
+            <v-row no-gutters v-if="data.product_type === 'Track by Serial'">
+                <v-col md="12" cols="12">
                     <div
                         class="text-subtitle-1 text-medium-emphasis mx-2"
                     >
@@ -250,10 +250,8 @@ watch(() => page.props.products, (newProducts) => {
                         required
                     ></v-text-field>
                 </v-col>
-            </v-expand-transition>
-        </v-row>
-        <v-expand-transition>
-            <v-row no-gutters v-show="data.product_type === 'Track by Lot'">
+            </v-row>
+            <v-row no-gutters v-else>
                 <v-col md="6" cols="12">
                     <div
                         class="text-subtitle-1 text-medium-emphasis mx-2"
@@ -275,8 +273,7 @@ watch(() => page.props.products, (newProducts) => {
                         class="text-subtitle-1 text-medium-emphasis mx-2"
                     >
                         Lot/Batch No.
-                    </div>
-                        
+                    </div> 
                     <v-autocomplete
                         v-model="form.lot"
                         v-model:search="searchLot"
@@ -311,13 +308,7 @@ watch(() => page.props.products, (newProducts) => {
                 </v-col>
             </v-row>
         </v-expand-transition>
-      
-
         <v-row no-gutters>
-            <!-- Expiration Date -->
-            
-    
-            <!-- Date of Transaction -->
             <v-col sm="6" cols="12">
                 <div
                     class="text-subtitle-1 text-medium-emphasis mx-2"

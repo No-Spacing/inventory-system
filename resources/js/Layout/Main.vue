@@ -125,7 +125,6 @@ onMounted(() => {
                     <v-list-item title="Category" href="/category"></v-list-item>
                     <v-list-item title="Product" href="/product"></v-list-item>
                     <v-list-item title="Lot Number" href="/lot"></v-list-item>
-                    <v-list-item title="Serial Number" href="/serial"></v-list-item>
                     <v-list-item v-if="$page.props.user.can.create" title="Users" href="/users"></v-list-item>
                 </v-list-group>
             </v-list>
@@ -194,7 +193,7 @@ onMounted(() => {
                 </span>
             </template>
 
-            <v-menu :close-on-content-click="false">
+            <!-- <v-menu :close-on-content-click="false">
                 <template v-slot:activator="{ props }">
                     <v-btn v-bind="props" icon>
                         <v-badge
@@ -222,7 +221,7 @@ onMounted(() => {
                         <v-btn size="small">Mark as unread</v-btn>
                     </v-card-actions>
                 </v-card>
-            </v-menu>
+            </v-menu> -->
 
             <v-progress-linear
                 v-if="props.loading"

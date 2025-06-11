@@ -131,34 +131,34 @@ class StockcardController extends Controller
     }
     
     public function CreateStockcardOut(Request $request){
-        // $request->validate([
-        //     'code' => 'required',
-        //     'quantity' => 'required',
-        //     'warehouse' => 'required',
-        //     'transactionDate' => 'required',
-        //     'reference' => 'required',
-        // ]);
+        $request->validate([
+            'code' => 'required',
+            'quantity' => 'required',
+            'warehouse' => 'required',
+            'transactionDate' => 'required',
+            'reference' => 'required',
+        ]);
 
-        // Product::where('id', $request->code)->decrement('remaining_items', $request->quantity);
+        Product::where('id', $request->code)->decrement('remaining_items', $request->quantity);
 
-        // $remaining_items = Product::where('id', $request->code)->value('remaining_items');
+        $remaining_items = Product::where('id', $request->code)->value('remaining_items');
 
-        // Stockcard::create([
-        //     'product_id' => $request->code,
-        //     'lot_id' => $request->lot,
-        //     'serial_no' => $request->serialNo,
-        //     'transaction_type' => 'outbound',
-        //     'quantity' => $request->quantity,
-        //     'item_balance' => $remaining_items,
-        //     'enduser_id' => Auth::user()->id,
-        //     'expiration_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->expirationDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
-        //     'transaction_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->transactionDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
-        //     'warehouse' => $request->warehouse,
-        //     'reference' => $request->reference,
-        //     'remarks' => $request->remarks,
-        // ]);
+        Stockcard::create([
+            'product_id' => $request->code,
+            'lot_id' => $request->lot,
+            'serial_no' => $request->serialNo,
+            'transaction_type' => 'outbound',
+            'quantity' => $request->quantity,
+            'item_balance' => $remaining_items,
+            'enduser_id' => Auth::user()->id,
+            'expiration_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->expirationDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
+            'transaction_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->transactionDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
+            'warehouse' => $request->warehouse,
+            'reference' => $request->reference,
+            'remarks' => $request->remarks,
+        ]);
 
-        // return redirect('/out')->with('message', 'Stock has been successfully released from inventory.');
+        return redirect('/out')->with('message', 'Stock has been successfully released from inventory.');
     }
 
 }

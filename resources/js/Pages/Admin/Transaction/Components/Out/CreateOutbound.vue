@@ -169,7 +169,7 @@ watch(() => page.props.products, (newProducts) => {
             </v-col>
         </v-row>
         <v-expand-transition>
-            <v-row no-gutters v-show="expand">
+            <v-row no-gutters v-if="expand">
                 <v-col sm="3" cols="12">
                     <div
                         class="text-subtitle-1 text-medium-emphasis mx-2"
@@ -230,11 +230,10 @@ watch(() => page.props.products, (newProducts) => {
                         readonly
                     ></v-text-field>
                 </v-col>
-               
             </v-row>
         </v-expand-transition>
         <v-expand-transition>
-            <v-row no-gutters v-show="data.product_type === 'Track by Serial'">
+            <v-row no-gutters v-if="data.product_type === 'Track by Serial'">
                 <v-col md="12" cols="12">
                     <div
                         class="text-subtitle-1 text-medium-emphasis mx-2"
@@ -250,9 +249,7 @@ watch(() => page.props.products, (newProducts) => {
                     ></v-text-field>
                 </v-col>
             </v-row>
-        </v-expand-transition>
-        <v-expand-transition>
-            <v-row no-gutters v-show="data.product_type === 'Track by Lot'">
+            <v-row no-gutters v-else>
                 <v-col md="6" cols="12">
                     <div
                         class="text-subtitle-1 text-medium-emphasis mx-2"
@@ -274,8 +271,7 @@ watch(() => page.props.products, (newProducts) => {
                         class="text-subtitle-1 text-medium-emphasis mx-2"
                     >
                         Lot/Batch No.
-                    </div>
-                        
+                    </div> 
                     <v-autocomplete
                         v-model="form.lot"
                         v-model:search="searchLot"
@@ -310,12 +306,7 @@ watch(() => page.props.products, (newProducts) => {
                 </v-col>
             </v-row>
         </v-expand-transition>
-
         <v-row no-gutters>
-            <!-- Expiration Date -->
-            
-    
-            <!-- Date of Transaction -->
             <v-col sm="6" cols="12">
                 <div
                     class="text-subtitle-1 text-medium-emphasis mx-2"
@@ -348,7 +339,7 @@ watch(() => page.props.products, (newProducts) => {
                     readonly
                 ></v-text-field>
             </v-col>
-            <v-col sm="6" cols="12" v-if="data.product_type === 'Track by Lot'">
+            <v-col sm="6" cols="12" v-else>
                 <div class="text-subtitle-1 text-medium-emphasis mx-2">
                     Quantity
                 </div>
