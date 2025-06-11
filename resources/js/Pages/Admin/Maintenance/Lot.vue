@@ -22,9 +22,21 @@ const headers = [
             style: "font-weight: 700",
         },
     },
+    {
+        title: "Actions",
+        key: "actions",
+        headerProps: {
+            style: "font-weight: 700",
+        },
+        align: "center",
+        sortable: false,
+    },
 ];
-const addLotDialog = ref(false);
 
+
+const editLotDialog = ref();
+const addLotDialog = ref(false);
+const deleteDialog = ref(false);
 const snackbar = ref(false);
 
 const form = useForm({
@@ -48,6 +60,17 @@ function submit() {
         <v-container max-width="1500" fluid>
             <v-card elevation="2" class="pa-8 my-5">
                 <v-data-table :headers="headers" :items="lots">
+                    <template v-slot:item.actions="{ item }">
+                        <div class="d-flex justify-center ga-2 blue">
+                            <v-btn prepend-icon="mdi-pencil"  @click="editLotDialog = true" color="blue-darken-4">
+                                Edit
+                            </v-btn>
+                            <v-btn prepend-icon="mdi-delete" @click="deleteDialog = true" color="red-darken-4">
+                                Delete
+                            </v-btn>
+                        </div>
+                    </template>
+                    
                     <template
                         v-slot:bottom="{
                             page,
@@ -104,6 +127,55 @@ function submit() {
                         </v-form>
                     </v-card>
                 </v-dialog>
+                <v-dialog v-model="editLotDialog" max-width="500">
+                    <v-card title="Edit Lot/Batch">
+                        <v-form @submit.prevent="submit">
+                            <v-card-text>
+                                <form>
+                                    <v-text-field
+                                        v-model="form.lot"
+                                        :error-messages="form.errors.lot"
+                                        label="Lot/Batch No."
+                                    ></v-text-field>
+                                </form>
+                            </v-card-text>
+
+                            <v-card-actions>
+                                <v-spacer></v-spacer>
+
+                                <v-btn
+                                    class="ma-2 pa-2"
+                                    @click="editLotDialog = false"
+                                >
+                                    close
+                                </v-btn>
+
+                                <v-btn class="ma-2 pa-2 bg-blue-darken-4" type="submit">
+                                    update
+                                </v-btn>
+                            </v-card-actions>
+                        </v-form>
+                    </v-card>
+                </v-dialog>
+                <v-dialog  v-model="deleteDialog"  max-width="400">
+
+                        <v-card
+                            title="Are you sure you want to delete?"
+                            text="This action cannot be undone."
+                        >
+                            <template v-slot:actions>
+                            <v-spacer></v-spacer>
+
+                            <v-btn @click="deleteDialog = false">
+                                cancel
+                            </v-btn>
+
+                            <v-btn @click="deleteDialog = false" class="ma-2 pa-2 bg-red-darken-4">
+                                delete
+                            </v-btn>
+                            </template>
+                        </v-card>
+                    </v-dialog>
             </v-card>
         </v-container>
     </Layout>

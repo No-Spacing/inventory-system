@@ -38,8 +38,19 @@ const headers = [
             style: "font-weight: 700",
         },
     },
+    {
+        title: "Actions",
+        key: "actions",
+        headerProps: {
+            style: "font-weight: 700",
+        },
+        align: "center",
+        sortable: false,
+    },
 ];
 const addProductDialog = ref(false);
+const editProductDialog = ref(false);
+const deleteDialog = ref(false);
 const snackbar = ref(false);
 
 const form = useForm({
@@ -68,6 +79,16 @@ function submit() {
         <v-container max-width="1500" fluid>
             <v-card elevation="2" class="pa-8 my-5">
                 <v-data-table :headers="headers" :items="products">
+                    <template v-slot:item.actions="{ item }">
+                            <div class="d-flex justify-center ga-2 blue">
+                                <v-btn prepend-icon="mdi-pencil"  @click="editProductDialog = true" color="blue-darken-4">
+                                    Edit
+                                </v-btn>
+                                <v-btn prepend-icon="mdi-delete" @click="deleteDialog = true" color="red-darken-4">
+                                    Delete
+                                </v-btn>
+                            </div>
+                        </template>
                     <template
                         v-slot:bottom="{
                             page,
@@ -159,6 +180,88 @@ function submit() {
                                 </v-btn>
                             </v-card-actions>
                         </v-form>
+                    </v-card>
+                </v-dialog>
+                <v-dialog v-model="editProductDialog" max-width="500">
+                    <v-card title="Edit Product">
+                        <v-form @submit.prevent="submit">
+                            <v-card-text>
+                                <v-text-field
+                                    v-model="form.code"
+                                    label="Product Code"
+                                    :error-messages="form.errors.code"
+                                ></v-text-field>
+
+                                <v-text-field
+                                    v-model="form.description"
+                                    label="Product Description"
+                                    :error-messages="form.errors.description"
+                                ></v-text-field>
+
+                                <v-select
+                                    v-model="form.category"
+                                    label="Category"
+                                    :error-messages="form.errors.category"
+                                    :items="categories"
+                                    item-value="id"
+                                    item-title="category_name"
+                                ></v-select>
+
+                                <v-select
+                                    v-model="form.unit"
+                                    :error-messages="form.errors.unit"
+                                    label="Unit"
+                                    :items="units"
+                                    item-value="id"
+                                    item-title="unit"
+                                ></v-select>
+
+                                <v-select
+                                    v-model="form.type"
+                                    :error-messages="form.errors.type"
+                                    label="Product Type"
+                                    :items="['Track by Lot', 'Track by Serial']"
+                                ></v-select>
+
+                                <v-text-field
+                                    v-model="form.remaining_items"
+                                    label="Remaining Items"
+                                    :error-messages="form.errors.remaining_items"
+                                ></v-text-field>
+                            </v-card-text>
+                            <v-card-actions>
+                                <v-spacer></v-spacer>
+
+                                <v-btn
+                                    class="ma-2 pa-2"
+                                    @click="editProductDialog = false"
+                                >
+                                    close
+                                </v-btn>
+
+                                <v-btn class="ma-2 pa-2 bg-blue-darken-4" type="submit" :loading="form.processing">
+                                    update
+                                </v-btn>
+                            </v-card-actions>
+                        </v-form>
+                    </v-card>
+                </v-dialog>
+                <v-dialog  v-model="deleteDialog"  max-width="400">
+                    <v-card
+                        title="Are you sure you want to delete?"
+                        text="This action cannot be undone."
+                    >
+                        <template v-slot:actions>
+                        <v-spacer></v-spacer>
+
+                        <v-btn @click="deleteDialog = false">
+                            cancel
+                        </v-btn>
+
+                        <v-btn @click="deleteDialog = false" class="ma-2 pa-2 bg-red-darken-4">
+                            delete
+                        </v-btn>
+                        </template>
                     </v-card>
                 </v-dialog>
             </v-card>
