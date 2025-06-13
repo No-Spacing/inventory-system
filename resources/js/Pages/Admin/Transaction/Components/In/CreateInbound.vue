@@ -376,6 +376,7 @@ watch(() => page.props.products, (newProducts) => {
                 </div>
                 <v-text-field
                     v-model="form.quantity"
+                    type="number"
                     class="mx-2"
                     :error-messages="form.errors.quantity"
                     placeholder="Qty"
@@ -390,6 +391,7 @@ watch(() => page.props.products, (newProducts) => {
                 </div>
                 <v-text-field
                     v-model="form.quantity"
+                    type="number"
                     class="mx-2"
                     :error-messages="form.errors.quantity"
                     placeholder="Qty"

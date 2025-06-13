@@ -49,11 +49,11 @@ function load() {
                                 Generate PDF
                             </v-btn>
                         </v-col>
-                        <v-col cols="12" sm="auto" class="text-center">
+                        <!-- <v-col cols="12" sm="auto" class="text-center">
                             <v-btn class="me-4" color="primary" size="large" @click="load" :loading="loading">
                                 Export to Excel
                             </v-btn>
-                        </v-col>
+                        </v-col> -->
                     </v-row>
                 </v-form>
             </v-card>

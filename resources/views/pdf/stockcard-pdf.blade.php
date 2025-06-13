@@ -81,10 +81,8 @@ body {
             <td><strong>Date:</strong> April 01, 2025 to April 30, 2025</td>
         </tr>
         <tr>
-            <td><strong>Filter by:</strong> Date of Transaction</td>
-        </tr>
-        <tr>
             <td><strong>Date/Time Generated:</strong> {{ now() }}</td>
+            <td><strong>Expiration Date:</strong> 06/30/2025</td>
         </tr>
     </table>
 
@@ -92,15 +90,10 @@ body {
         <thead>
             <tr>
                 <th>DATE</th>
-                <th>TIME</th>
-                <th>LOT NO/PO NO.</th>
-                <th>SER NO.</th>
-                <th>EXP DATE</th>
-                <th>IN</th>
-                <th>OUT</th>
+                <th>LoT/Serial No.</th>
+                <th>Transaction Type</th>
                 <th>BALANCE</th>
-                <th>REF-IN</th>
-                <th>REF-OUT</th>
+                <th>Customer/Supplier Name</th>
                 <th>REMARKS</th>
                 <th>APPROVER</th>
                 <th>END USER</th>
