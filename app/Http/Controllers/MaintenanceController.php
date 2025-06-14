@@ -17,6 +17,8 @@ use Inertia\Inertia;
 
 class MaintenanceController extends Controller
 {
+    // Unit section starts here...
+
     public function IndexUnit(){
         return Inertia::render('Admin/Maintenance/Units', 
         [
@@ -34,6 +36,19 @@ class MaintenanceController extends Controller
         return redirect('/units')->with('message', 'Unit created successfully!');
     }
 
+    public function UpdateUnit (Request $request) {
+        Unit::where('id', $request->id)->update(['unit' => $request->unit]);
+        return redirect('/units')->with('message', 'Unit updated successfully!');
+    }
+
+    public function DeleteUnit (Request $request) {
+        Unit::where('id', $request->id)->delete();
+        return redirect('/units')->with('message', 'Unit delete successfully!');
+    }
+
+    // Unit section ends here...
+
+    // Category Section Starts Here...
     public function IndexCategory(){
         return Inertia::render('Admin/Maintenance/Category', [
             'categories' => Category::all(),
@@ -42,9 +57,7 @@ class MaintenanceController extends Controller
 
     public function StoreCategory(Request $request) {
         $validated = $request->validate([
-            // 'product_code' => 'required|string|max:255',
-            'category_name' => 'required|string|max:255',
-            'slug' => 'required|string|max:255|unique:categories,slug',
+            'category_name' => 'required|string|max:255'
         ]);
 
         Category::create($validated);
@@ -52,11 +65,34 @@ class MaintenanceController extends Controller
         return redirect('/category')->with('message', 'Category created successfully!');
     }
 
+    public function UpdateCategory(Request $request){
+        return redirect('/category')->with('message', 'Category updated successfully!');
+    }
+
+    public function DeleteCategory(Request $request) {
+        return redirect('/category')->with('message', 'Category deleted successfully!');
+    }
+    // Category Section Ends Here...
+
     public function IndexProduct() {
         return Inertia::render('Admin/Maintenance/Product', [
             'categories' => Category::all(),
             'units' => Unit::all(),
-            'products' => Product::all(),
+            // 'products' => Product::all(),
+            'products' => Product::with('category')
+            ->with('unit')
+            ->get()
+            ->map(function ($product) {
+                return [
+                    'id' => $product->id,
+                    'code' => $product->code,
+                    'description' => $product->description,
+                    'unit' => $product->unit->unit,
+                    'category' => $product->category->category_name,
+                    'type' => $product->type,
+                    'remaining_items' => $product->remaining_items,
+                ];
+            }),
         ]);
     }
 

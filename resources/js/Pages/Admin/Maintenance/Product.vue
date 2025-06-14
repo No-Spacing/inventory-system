@@ -62,6 +62,15 @@ const form = useForm({
     remaining_items: ''
 });
 
+const updateForm = useForm({
+    code: '',
+    description: '',
+    category: '',
+    unit: '',
+    type: '',
+    remaining_items: '',
+});
+
 function submit() {
     form.post('/store-product', {
         onSuccess: () => {
@@ -73,6 +82,17 @@ function submit() {
         }
     })
 }
+
+function openUpdateDialog(item) {
+    console.log(item);
+    updateForm.code = item.code;
+    updateForm.description = item.description;
+    updateForm.category = item.category;
+    updateForm.unit = item.unit;
+    updateForm.type = item.type;
+    updateForm.remaining_items = item.remaining_items
+    editProductDialog.value = true;
+}
 </script>
 <template>
     <Layout title="Product">
@@ -81,7 +101,7 @@ function submit() {
                 <v-data-table :headers="headers" :items="products">
                     <template v-slot:item.actions="{ item }">
                             <div class="d-flex justify-center ga-2 blue">
-                                <v-btn prepend-icon="mdi-pencil"  @click="editProductDialog = true" color="blue-darken-4">
+                                <v-btn prepend-icon="mdi-pencil"  @click="openUpdateDialog(item)" color="blue-darken-4">
                                     Edit
                                 </v-btn>
                                 <v-btn prepend-icon="mdi-delete" @click="deleteDialog = true" color="red-darken-4">
@@ -187,29 +207,25 @@ function submit() {
                         <v-form @submit.prevent="submit">
                             <v-card-text>
                                 <v-text-field
-                                    v-model="form.code"
+                                    v-model="updateForm.code"
                                     label="Product Code"
-                                    :error-messages="form.errors.code"
                                 ></v-text-field>
 
                                 <v-text-field
-                                    v-model="form.description"
+                                    v-model="updateForm.description"
                                     label="Product Description"
-                                    :error-messages="form.errors.description"
                                 ></v-text-field>
 
                                 <v-select
-                                    v-model="form.category"
+                                    v-model="updateForm.category"
                                     label="Category"
-                                    :error-messages="form.errors.category"
                                     :items="categories"
                                     item-value="id"
                                     item-title="category_name"
                                 ></v-select>
 
                                 <v-select
-                                    v-model="form.unit"
-                                    :error-messages="form.errors.unit"
+                                    v-model="updateForm.unit"
                                     label="Unit"
                                     :items="units"
                                     item-value="id"
@@ -217,14 +233,14 @@ function submit() {
                                 ></v-select>
 
                                 <v-select
-                                    v-model="form.type"
+                                    v-model="updateForm.type"
                                     :error-messages="form.errors.type"
                                     label="Product Type"
                                     :items="['Track by Lot', 'Track by Serial']"
                                 ></v-select>
 
                                 <v-text-field
-                                    v-model="form.remaining_items"
+                                    v-model="updateForm.remaining_items"
                                     label="Remaining Items"
                                     :error-messages="form.errors.remaining_items"
                                 ></v-text-field>

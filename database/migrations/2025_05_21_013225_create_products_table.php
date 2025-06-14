@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('code');
             $table->longText('description');
-            $table->bigInteger('unit_id')->references('id')->on('units')->onDelete('cascade');
-            $table->bigInteger('category_id')->references('id')->on('categories')->onDelete('cascade');
+            $table->foreignId('unit_id')->references('id')->on('units')->onUpdate('cascade')->onDelete('cascade')->nullable();
+            $table->foreignId('category_id')->references('id')->on('categories')->onUpdate('cascade')->onDelete('cascade')->nullable();
             $table->bigInteger('remaining_items');
             $table->longText('type');
             $table->timestamps();

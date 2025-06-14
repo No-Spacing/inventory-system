@@ -125,7 +125,7 @@ onMounted(() => {
                     <v-list-item title="Category" href="/category"></v-list-item>
                     <v-list-item title="Product" href="/product"></v-list-item>
                     <v-list-item title="Lot Number" href="/lot"></v-list-item>
-                    <v-list-item v-if="$page.props.user.can.create" title="Users" href="/users"></v-list-item>
+                    <v-list-item v-if="$page.props.user.can.viewUser" title="Users" href="/users"></v-list-item>
                 </v-list-group>
             </v-list>
 

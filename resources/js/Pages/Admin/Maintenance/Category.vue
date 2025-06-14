@@ -12,29 +12,19 @@ defineProps({
 
 // Create Inertia form object
 const form = useForm({
-    // product_code: '',
     category_name: "",
     slug: "",
 });
 
 const updateForm = useForm({
     id: "",
-    // product_code: '',
     category_name: "",
-    slug: "",
 });
 
 const headers = [
     {
         title: "Category",
         key: "category_name",
-        headerProps: {
-            style: "font-weight: 700",
-        },
-    },
-    {
-        title: "Slug",
-        key: "slug",
         headerProps: {
             style: "font-weight: 700",
         },
@@ -52,6 +42,7 @@ const headers = [
 
 const addCategoryDialog = ref();
 const editCategoryDialog = ref();
+const deleteDialog = ref(false);
 
 // Watch category and generate slug dynamically
 watch(
@@ -79,19 +70,35 @@ function submit() {
     });
 }
 
-function update() {
-    // form.post('/category/update', {
-    //     onSuccess: () => {
-    //         editCategoryDialog.value = false;
-    //         snackbar.value = true;
-    //         form.reset();
-    //     },
-    //     onError: () => {
-    //         // console.log(form.errors);
-    //     }
-    // })
+function openEditCategory (item) {
+    updateForm.id = item.id;
+    updateForm.category_name = item.category_name;
+    editCategoryDialog.value = true;
+}
 
-    console.log("update");
+function update() {
+    updateForm.patch('/update-category', {
+        onSuccess: () => {
+            editCategoryDialog.value = false;
+            snackbar.value = true;
+            form.reset();
+        },
+    })
+}
+
+function openDeleteDialog(item) {
+    updateForm.id = item.id;
+    deleteDialog.value = true;
+}
+
+function deleteCategory (item) {
+    updateForm.delete('/delete-category', {
+        onSuccess: () => {
+            deleteDialog.value = false;
+            snackbar.value = true;
+            form.reset();
+        },
+    })
 }
 </script>
 <template>
@@ -104,10 +111,10 @@ function update() {
                 >
                     <template v-slot:item.actions="{ item }">
                         <div class="d-flex justify-center ga-2">
-                            <v-btn prepend-icon="mdi-pencil"  @click="editCategoryDialog = true">
+                            <v-btn prepend-icon="mdi-pencil"  @click="openEditCategory(item)" color="blue-darken-4">
                                 Edit
                             </v-btn>
-                            <v-btn prepend-icon="mdi-delete">
+                            <v-btn prepend-icon="mdi-delete" @click="openDeleteDialog(item)" color="red-darken-4">
                                 Delete
                             </v-btn>
                         </div>
@@ -146,24 +153,17 @@ function update() {
                     <v-card title="Add Category">
                         <v-form @submit.prevent="submit">
                             <v-card-text>
-                                <form>
-                                    <!-- <v-text-field label="Product Code" v-model="form.product_code"
-                                :error-messages="form.errors.product_code"></v-text-field> -->
+                                <v-text-field
+                                    label="Category"
+                                    v-model="form.category_name"
+                                    :error-messages="form.errors.category_name"
+                                ></v-text-field>
 
-                                    <v-text-field
-                                        label="Category"
-                                        v-model="form.category_name"
-                                        :error-messages="
-                                            form.errors.category_name
-                                        "
-                                    ></v-text-field>
-
-                                    <v-text-field
-                                        label="Slug"
-                                        v-model="form.slug"
-                                        disabled
-                                    ></v-text-field>
-                                </form>
+                                <v-text-field
+                                    v-model="form.slug"
+                                    disabled
+                                    hidden
+                                ></v-text-field>
                             </v-card-text>
 
                             <v-card-actions>
@@ -179,6 +179,7 @@ function update() {
                                 <v-btn
                                     class="ma-2 pa-2 bg-primary"
                                     type="submit"
+                                    :loading="form.processing"
                                 >
                                     submit
                                 </v-btn>
@@ -186,29 +187,14 @@ function update() {
                         </v-form>
                     </v-card>
                 </v-dialog>
-
                 <v-dialog v-model="editCategoryDialog" max-width="500">
                     <v-card title="Edit Category">
                         <v-form @submit.prevent="update">
                             <v-card-text>
-                                <v-text-field
-                                    label="Product Code"
-                                    v-model="updateForm.product_code"
-                                    :error-messages="form.errors.product_code"
-                                ></v-text-field>
-
-                                <v-text-field
-                                    label="Category"
-                                    v-model="updateForm.category_name"
-                                    :error-messages="form.errors.category_name"
-                                ></v-text-field>
-
-                                <v-text-field
-                                    label="Slug"
-                                    v-model="updateForm.slug"
-                                    outlined
-                                    disabled
-                                ></v-text-field>
+                                    <v-text-field
+                                        v-model="updateForm.category_name"
+                                        label="Category"
+                                    ></v-text-field>
                             </v-card-text>
 
                             <v-card-actions>
@@ -221,16 +207,36 @@ function update() {
                                     close
                                 </v-btn>
 
-                                <v-btn
-                                    class="ma-2 pa-2 bg-primary"
-                                    type="submit"
-                                    :loading="form.processing"
+                                <v-btn 
+                                class="ma-2 pa-2 bg-blue-darken-4" 
+                                type="submit"
+                                :loading="updateForm.processing"
                                 >
-                                    submit
+                                    update
                                 </v-btn>
                             </v-card-actions>
                         </v-form>
                     </v-card>
+                </v-dialog>
+                <v-dialog  v-model="deleteDialog"  max-width="400">
+                    <v-form @submit.prevent="deleteCategory">
+                        <v-card
+                            title="Are you sure you want to delete?"
+                            text="This action cannot be undone."
+                        >
+                            <template v-slot:actions>
+                            <v-spacer></v-spacer>
+
+                            <v-btn @click="deleteDialog = false">
+                                cancel
+                            </v-btn>
+
+                            <v-btn type="submit" class="ma-2 pa-2 bg-red-darken-4">
+                                delete
+                            </v-btn>
+                            </template>
+                        </v-card>
+                    </v-form>
                 </v-dialog>
             </v-card>
         </v-container>

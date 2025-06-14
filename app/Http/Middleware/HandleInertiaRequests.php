@@ -54,6 +54,7 @@ class HandleInertiaRequests extends Middleware
                         'create' => $user->can('create', User::class),
                         'update' => $user->can('update', User::class),
                         'delete' => $user->can('delete', User::class),
+                        'viewUser' => $user->can('viewUser', User::class),
                     ]
                 ] : null;
             }

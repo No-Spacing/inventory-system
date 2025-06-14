@@ -15,13 +15,6 @@ const props = defineProps({
 })
 const headers = [
     { 
-        title: 'Id',
-        key: 'id',
-        headerProps: {
-            style: "font-weight: 700",
-        },
-    },
-    { 
         title: 'Unit',
         key: 'unit',
         headerProps: {
@@ -55,6 +48,44 @@ function submit() {
     })
 }
 
+const updateForm = useForm({
+    id: '', 
+    unit: ''
+});
+
+function openUpdateDialog(item){
+    updateForm.id = item.id;
+    updateForm.unit = item.unit;
+    editUnitDialog.value = true;
+}
+
+function update() {
+    updateForm.patch('/update-unit', {
+        onSuccess: () => {
+            editUnitDialog.value = false;
+            snackbar.value = true;
+        },
+        onError: () => {
+        }
+    })
+}
+
+function openDeleteDialog(item){
+    updateForm.id = item.id;
+    deleteDialog.value = true;
+}
+
+function deleteUnit(){
+    updateForm.delete('/delete-unit', {
+        onSuccess: () => {
+            snackbar.value = true;
+            deleteDialog.value = false;
+        },
+        onError: () => {
+        }
+    })
+}
+
 </script>
 <template>
     <Layout title="Units">
@@ -64,10 +95,10 @@ function submit() {
                     <v-data-table :headers="headers" :items="units">
                         <template v-slot:item.actions="{ item }">
                             <div class="d-flex justify-center ga-2 blue">
-                                <v-btn prepend-icon="mdi-pencil"  @click="editUnitDialog = true" color="blue-darken-4">
+                                <v-btn prepend-icon="mdi-pencil"  @click="openUpdateDialog(item)" color="blue-darken-4">
                                     Edit
                                 </v-btn>
-                                <v-btn prepend-icon="mdi-delete" @click="deleteDialog = true" color="red-darken-4">
+                                <v-btn prepend-icon="mdi-delete" @click="openDeleteDialog(item)" color="red-darken-4">
                                     Delete
                                 </v-btn>
                             </div>
@@ -121,15 +152,12 @@ function submit() {
                     </v-dialog>
                     <v-dialog v-model="editUnitDialog" max-width="500">
                         <v-card title="Edit Unit">
-                            <form @submit.prevent="submit">
+                            <form @submit.prevent="update">
                                 <v-card-text>
-                                
-                                        <v-text-field
-                                        v-model="form.unit"
-                                        :error-messages="form.errors.unit"
-                                        label="Unit"
-                                        ></v-text-field>
-                                    
+                                    <v-text-field
+                                    v-model="updateForm.unit"
+                                    label="Unit"
+                                    ></v-text-field>
                                 </v-card-text>
 
                                 <v-card-actions>
@@ -142,7 +170,7 @@ function submit() {
                                     <v-btn 
                                     class="ma-2 pa-2 bg-blue-darken-4"
                                     type="submit"
-                                    :loading="form.processing"
+                                    :loading="updateForm.processing"
                                     >
                                     update
                                     </v-btn>
@@ -151,23 +179,24 @@ function submit() {
                         </v-card>
                     </v-dialog>
                     <v-dialog  v-model="deleteDialog"  max-width="400">
+                        <v-form @submit.prevent="deleteUnit">
+                            <v-card
+                                title="Are you sure you want to delete?"
+                                text="This action cannot be undone."
+                            >
+                                <template v-slot:actions>
+                                <v-spacer></v-spacer>
 
-                        <v-card
-                            title="Are you sure you want to delete?"
-                            text="This action cannot be undone."
-                        >
-                            <template v-slot:actions>
-                            <v-spacer></v-spacer>
+                                <v-btn @click="deleteDialog = false">
+                                    cancel
+                                </v-btn>
 
-                            <v-btn @click="deleteDialog = false">
-                                cancel
-                            </v-btn>
-
-                            <v-btn @click="deleteDialog = false" class="ma-2 pa-2 bg-red-darken-4">
-                                delete
-                            </v-btn>
-                            </template>
-                        </v-card>
+                                <v-btn type="submit" class="ma-2 pa-2 bg-red-darken-4">
+                                    delete
+                                </v-btn>
+                                </template>
+                            </v-card>
+                        </v-form>
                     </v-dialog>
                 </v-card-text>
             </v-card>

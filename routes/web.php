@@ -57,20 +57,24 @@ Route::middleware(['user-group'])->group(function () {
     // Maintenance routes
 
     Route::controller(MaintenanceController::class)->group(function () {
-        Route::get('/category', 'IndexCategory')->can('view', User::class);
-        Route::post('/store-category', 'StoreCategory')->can('view', User::class);
-
         Route::get('/units', 'IndexUnit')->can('view', User::class);
-        Route::post('/store-unit', 'StoreUnit')->can('view', User::class);
+        Route::post('/store-unit', 'StoreUnit')->can('create', User::class);
+        Route::patch('/update-unit', 'UpdateUnit')->can('update', User::class);
+        Route::delete('/delete-unit', 'DeleteUnit')->can('delete', User::class);
+
+        Route::get('/category', 'IndexCategory')->can('view', User::class);
+        Route::post('/store-category', 'StoreCategory')->can('create', User::class);
+        Route::patch('/update-category', 'UpdateCategory')->can('update', User::class);
+        Route::delete('/delete-category', 'DeleteCategory')->can('delete', User::class);
 
         Route::get('/product', 'IndexProduct')->can('view', User::class);
-        Route::post('/store-product', 'StoreProduct')->can('view', User::class);
+        Route::post('/store-product', 'StoreProduct')->can('create', User::class);
 
         Route::get('/lot', 'IndexLot')->can('view', User::class);
-        Route::post('/store-lot', 'StoreLot')->can('view', User::class);
+        Route::post('/store-lot', 'StoreLot')->can('create', User::class);
 
-        Route::get('/users', 'IndexUsers')->can('create', User::class);
-        Route::post('/store-user', 'StoreUser')->can('create', User::class);
+        Route::get('/users', 'IndexUsers')->can('viewUser', User::class);
+        Route::post('/store-user', 'StoreUser')->can('addUser', User::class);
     });
 
     // Route::get('/category', [CategoryController::class, 'index'])->can('view', User::class)->name('products.index');

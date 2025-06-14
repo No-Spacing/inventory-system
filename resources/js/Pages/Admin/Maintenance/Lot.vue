@@ -158,24 +158,23 @@ function submit() {
                     </v-card>
                 </v-dialog>
                 <v-dialog  v-model="deleteDialog"  max-width="400">
+                    <v-card
+                        title="Are you sure you want to delete?"
+                        text="This action cannot be undone."
+                    >
+                        <template v-slot:actions>
+                        <v-spacer></v-spacer>
 
-                        <v-card
-                            title="Are you sure you want to delete?"
-                            text="This action cannot be undone."
-                        >
-                            <template v-slot:actions>
-                            <v-spacer></v-spacer>
+                        <v-btn @click="deleteDialog = false">
+                            cancel
+                        </v-btn>
 
-                            <v-btn @click="deleteDialog = false">
-                                cancel
-                            </v-btn>
-
-                            <v-btn @click="deleteDialog = false" class="ma-2 pa-2 bg-red-darken-4">
-                                delete
-                            </v-btn>
-                            </template>
-                        </v-card>
-                    </v-dialog>
+                        <v-btn @click="deleteDialog = false" class="ma-2 pa-2 bg-red-darken-4">
+                            delete
+                        </v-btn>
+                        </template>
+                    </v-card>
+                </v-dialog>
             </v-card>
         </v-container>
     </Layout>

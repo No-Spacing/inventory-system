@@ -30,7 +30,7 @@ class UserPolicy
      */
     public function create(User $user): bool
     {
-        return $user->role_id == Role::IS_ADMIN;
+        return $user->role_id == Role::IS_ADMIN || $user->role_id == Role::IS_SUPERVISOR;
     }
 
     /**
@@ -38,7 +38,7 @@ class UserPolicy
      */
     public function update(User $user): bool
     {
-        return $user->role_id == Role::IS_ADMIN;
+        return $user->role_id == Role::IS_ADMIN || $user->role_id == Role::IS_SUPERVISOR;
     }
 
     /**
@@ -63,5 +63,25 @@ class UserPolicy
     public function forceDelete(User $user): bool
     {
         return false;
+    }
+
+    public function viewUser(User $user): bool
+    {
+        return $user->role_id == Role::IS_ADMIN;
+    }
+
+    public function addUser(User $user): bool
+    {
+        return $user->role_id == Role::IS_ADMIN;
+    }
+
+    public function deleteUser(User $user): bool
+    {
+        return $user->role_id == Role::IS_ADMIN;
+    }
+
+    public function updateUser(User $user): bool
+    {
+        return $user->role_id == Role::IS_ADMIN;
     }
 }
