@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { useDisplay } from "vuetify";
-import { Head } from "@inertiajs/vue3";
+import { Head, Link } from "@inertiajs/vue3";
 
 const props = defineProps({
     title: String,
@@ -68,11 +68,12 @@ onMounted(() => {
             <v-divider></v-divider>
 
             <v-list v-model:opened="openGroup" density="compact" nav>
-                <v-list-item
-                    prepend-icon="mdi-view-dashboard"
-                    href="/dashboard"
-                    title="Dashboard"
-                ></v-list-item>
+                <Link href="/dashboard" prefetch>
+                    <v-list-item
+                        prepend-icon="mdi-view-dashboard"
+                        title="Dashboard"
+                    ></v-list-item>
+                </Link>
                 <v-list-group value="Transaction">
                     <template v-slot:activator="{ props }">
                         <v-list-item
@@ -86,8 +87,12 @@ onMounted(() => {
                         ></v-list-item>
                     </template>
 
-                    <v-list-item title="Inbound" href="/in"></v-list-item>
-                    <v-list-item title="Outbound" href="/out"></v-list-item>
+                    <Link href="/in" prefetch>
+                        <v-list-item title="Inbound"></v-list-item>
+                    </Link>
+                    <Link href="/out" prefetch>
+                        <v-list-item title="Outbound"></v-list-item>
+                    </Link>
                 </v-list-group>
 
                 <v-list-group value="Reports">
@@ -102,8 +107,12 @@ onMounted(() => {
                             "
                         ></v-list-item>
                     </template>
-                    <v-list-item title="Stockcard" href="stockcard"></v-list-item>
-                    <v-list-item title="Summary" href="/summary"></v-list-item>
+                    <Link href="stockcard" prefetch>
+                        <v-list-item title="Stockcard"></v-list-item>
+                    </Link>
+                    <Link href="/summary" prefetch>
+                        <v-list-item title="Summary"></v-list-item>
+                    </Link>
                 </v-list-group>
 
                 <v-list-group
@@ -121,11 +130,12 @@ onMounted(() => {
                             "
                         ></v-list-item>
                     </template>
-                    <v-list-item title="Units" href="/units"></v-list-item>
-                    <v-list-item title="Category" href="/category"></v-list-item>
-                    <v-list-item title="Product" href="/product"></v-list-item>
-                    <v-list-item title="Lot Number" href="/lot"></v-list-item>
-                    <v-list-item v-if="$page.props.user.can.viewUser" title="Users" href="/users"></v-list-item>
+                    
+                    <Link href="/units" prefetch><v-list-item title="Units"></v-list-item></Link>
+                    <Link href="/category" prefetch><v-list-item title="Category"></v-list-item></Link>
+                    <Link href="/product" prefetch><v-list-item title="Product"></v-list-item></Link>
+                    <Link href="/lot" prefetch><v-list-item title="Lot Number"></v-list-item></Link>
+                    <Link href="/users" prefetch v-if="$page.props.user.can.viewUser"><v-list-item title="Users"></v-list-item></Link>
                 </v-list-group>
             </v-list>
 
