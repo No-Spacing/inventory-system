@@ -68,7 +68,7 @@ onMounted(() => {
             <v-divider></v-divider>
 
             <v-list v-model:opened="openGroup" density="compact" nav>
-                <Link href="/dashboard" prefetch>
+                <Link href="/dashboard">
                     <v-list-item
                         prepend-icon="mdi-view-dashboard"
                         title="Dashboard"
@@ -87,10 +87,10 @@ onMounted(() => {
                         ></v-list-item>
                     </template>
 
-                    <Link href="/in" prefetch>
+                    <Link href="/in">
                         <v-list-item title="Inbound"></v-list-item>
                     </Link>
-                    <Link href="/out" prefetch>
+                    <Link href="/out">
                         <v-list-item title="Outbound"></v-list-item>
                     </Link>
                 </v-list-group>
@@ -107,10 +107,10 @@ onMounted(() => {
                             "
                         ></v-list-item>
                     </template>
-                    <Link href="stockcard" prefetch>
+                    <Link href="stockcard">
                         <v-list-item title="Stockcard"></v-list-item>
                     </Link>
-                    <Link href="/summary" prefetch>
+                    <Link href="/summary">
                         <v-list-item title="Summary"></v-list-item>
                     </Link>
                 </v-list-group>
@@ -131,11 +131,11 @@ onMounted(() => {
                         ></v-list-item>
                     </template>
                     
-                    <Link href="/units" prefetch><v-list-item title="Units"></v-list-item></Link>
-                    <Link href="/category" prefetch><v-list-item title="Category"></v-list-item></Link>
-                    <Link href="/product" prefetch><v-list-item title="Product"></v-list-item></Link>
-                    <Link href="/lot" prefetch><v-list-item title="Lot Number"></v-list-item></Link>
-                    <Link href="/users" prefetch v-if="$page.props.user.can.viewUser"><v-list-item title="Users"></v-list-item></Link>
+                    <Link href="/units" ><v-list-item title="Units"></v-list-item></Link>
+                    <Link href="/category" ><v-list-item title="Category"></v-list-item></Link>
+                    <Link href="/product" ><v-list-item title="Product"></v-list-item></Link>
+                    <Link href="/lot" ><v-list-item title="Lot Number"></v-list-item></Link>
+                    <Link href="/users" v-if="$page.props.user.can.viewUser"><v-list-item title="Users"></v-list-item></Link>
                 </v-list-group>
             </v-list>
 

@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Models\Role;
 
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Database\QueryException;
 
 use Inertia\Inertia;
 
@@ -28,7 +29,7 @@ class MaintenanceController extends Controller
 
     public function StoreUnit (Request $request) {
         $validated = $request->validate([
-            'unit' => 'required|string|max:255',
+            'unit' => 'required|string|max:255|unique:units',
         ]);
 
         Unit::create($validated);
@@ -37,13 +38,33 @@ class MaintenanceController extends Controller
     }
 
     public function UpdateUnit (Request $request) {
+        $unit = Unit::findOrFail($request->id);
+
+        $unit->fill($request->all());
+        $dirty = $unit->getDirty();
+
+        if (!empty($dirty)) {
+            $validated = $request->validate([
+                'unit' => 'required|string|max:255|unique:units'
+            ]);
+        }else {
+            $validated = $request->validate([
+                'unit' => 'required|string|max:255'
+            ]);
+        }
+
         Unit::where('id', $request->id)->update(['unit' => $request->unit]);
         return redirect('/units')->with('message', 'Unit updated successfully!');
     }
 
     public function DeleteUnit (Request $request) {
-        Unit::where('id', $request->id)->delete();
-        return redirect('/units')->with('message', 'Unit delete successfully!');
+        try {
+            Unit::where('id', $request->id)->delete();
+            return redirect('/units')->with('message', 'Unit deleted successfully');
+        } catch (QueryException $e) {
+            return back()->withErrors(['message' => "Cannot delete this unit, the product of this unit still exist"]);
+        }
+
     }
 
     // Unit section ends here...
@@ -57,20 +78,45 @@ class MaintenanceController extends Controller
 
     public function StoreCategory(Request $request) {
         $validated = $request->validate([
-            'category_name' => 'required|string|max:255'
+            'category_name' => 'required|string|max:255|unique:categories'
         ]);
 
-        Category::create($validated);
+        Category::create([
+            'category_name' => $request->category_name , 
+            'slug' => $request->slug
+        ]);
 
         return redirect('/category')->with('message', 'Category created successfully!');
     }
 
     public function UpdateCategory(Request $request){
+        $category = Category::findOrFail($request->id);
+
+        $category->fill($request->all());
+        $dirty = $category->getDirty();
+
+        if (!empty($dirty)) {
+            $validated = $request->validate([
+                'category_name' => 'required|string|max:255|unique:categories'
+            ]);
+        }else {
+            $validated = $request->validate([
+                'category_name' => 'required|string|max:255'
+            ]);
+        }
+        
+        Category::where('id', $request->id)->update(['category_name' => $request->category_name, 'slug' => $request->slug]);
+
         return redirect('/category')->with('message', 'Category updated successfully!');
     }
 
     public function DeleteCategory(Request $request) {
-        return redirect('/category')->with('message', 'Category deleted successfully!');
+        try {
+            Category::where('id', $request->id)->delete();
+            return redirect('/category')->with('message', 'Category deleted successfully');
+        } catch (QueryException $e) {
+            return back()->withErrors(['message' => "Cannot delete this category, the product of this category still exist"]);
+        }
     }
     // Category Section Ends Here...
 
@@ -87,8 +133,8 @@ class MaintenanceController extends Controller
                     'id' => $product->id,
                     'code' => $product->code,
                     'description' => $product->description,
-                    'unit' => $product->unit->unit,
-                    'category' => $product->category->category_name,
+                    'unit' => $product->unit_id,
+                    'category' => $product->category_id,
                     'type' => $product->type,
                     'remaining_items' => $product->remaining_items,
                 ];
@@ -118,6 +164,50 @@ class MaintenanceController extends Controller
         return redirect('/product')->with('message', 'Product created successfully!');
     }
 
+    public function UpdateProduct (Request $request) {
+        $product = Product::findOrFail($request->id);
+
+        $product->fill($request->all());
+        $dirty = $product->getDirty();
+
+        if (!empty($dirty)) {
+            $validated = $request->validate([
+                'code' => 'required|unique:products',
+                'description' => 'required',
+                'category' => 'required',
+                'unit' => 'required',
+                'type' => 'required',
+                'remaining_items' => 'required'
+            ]);
+        }else {
+            $validated = $request->validate([
+                'code' => 'required',
+                'description' => 'required',
+                'category' => 'required',
+                'unit' => 'required',
+                'type' => 'required',
+                'remaining_items' => 'required'
+            ]);
+        }
+
+        Product::where('id', $request->id)
+        ->update([
+            'code' => $request->code,
+            'description' => $request->description,
+            'category_id' => $request->category,
+            'unit_id' => $request->unit,
+            'type' => $request->type,
+            'remaining_items' => $request->remaining_items
+        ]);
+        
+        return redirect('/product')->with('message', 'Product updated successfully!');
+    }
+
+    public function DeleteProduct (Request $request) {
+        Product::where('id', $request->id)->delete();
+        return redirect('/product')->with('message', 'Product deleted successfully!');
+    }
+
     public function IndexLot() {
         return Inertia::render('Admin/Maintenance/Lot', [
             'lots' => Lot::all(),
@@ -132,6 +222,32 @@ class MaintenanceController extends Controller
         Lot::create($validated);
         
         return back()->with('message', 'Lot created successfully!');
+    }
+
+    public function UpdateLot(Request $request) {
+        $lot = Lot::findOrFail($request->id);
+
+        $lot->fill($request->all());
+        $dirty = $lot->getDirty();
+
+        if (!empty($dirty)) {
+            $validated = $request->validate([
+                'lot' => 'required|unique:lots',
+            ]);
+        }else {
+            $validated = $request->validate([
+                'lot' => 'required',
+            ]);
+        }
+        
+        Lot::where('id', $request->id)->update(['lot' => $request->lot]);
+        
+        return back()->with('message', 'Lot updated successfully!');
+    }
+
+    public function DeleteLot(Request $request) {
+        Lot::where('id', $request->id)->delete();
+        return redirect('/lot')->with('message', 'Lot deleted successfully!');
     }
 
     public function IndexUsers(){

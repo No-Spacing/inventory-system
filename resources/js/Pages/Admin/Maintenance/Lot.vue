@@ -34,13 +34,18 @@ const headers = [
 ];
 
 
-const editLotDialog = ref();
+const editLotDialog = ref(false);
 const addLotDialog = ref(false);
 const deleteDialog = ref(false);
 const snackbar = ref(false);
 
 const form = useForm({
     lot: ''
+});
+
+const updateForm = useForm({
+    id: '',
+    lot: '',
 });
 
 function submit() {
@@ -54,6 +59,34 @@ function submit() {
         }
     })
 }
+
+function editDialog(item) {
+    updateForm.id = item.id;
+    updateForm.lot = item.lot;
+    editLotDialog.value = true;
+}
+
+function update() {
+    updateForm.patch('/update-lot', {
+        onSuccess: () => {
+            editLotDialog.value = false;
+            snackbar.value = true;
+        },
+    })
+}
+
+function openDeleteDialog(item) {
+    updateForm.id = item.id;
+    deleteDialog.value = true;
+}
+function deleteLot() {
+    updateForm.delete('/delete-lot', {
+        onSuccess: () => {
+            deleteDialog.value = false;
+            snackbar.value = true;
+        },
+    })
+}
 </script>
 <template>
     <Layout title="Lot/Batch">
@@ -62,10 +95,10 @@ function submit() {
                 <v-data-table :headers="headers" :items="lots">
                     <template v-slot:item.actions="{ item }">
                         <div class="d-flex justify-center ga-2 blue">
-                            <v-btn prepend-icon="mdi-pencil"  @click="editLotDialog = true" color="blue-darken-4">
+                            <v-btn prepend-icon="mdi-pencil"  @click="editDialog(item)" color="blue-darken-4">
                                 Edit
                             </v-btn>
-                            <v-btn prepend-icon="mdi-delete" @click="deleteDialog = true" color="red-darken-4">
+                            <v-btn prepend-icon="mdi-delete" @click="openDeleteDialog(item)" color="red-darken-4">
                                 Delete
                             </v-btn>
                         </div>
@@ -101,13 +134,11 @@ function submit() {
                     <v-card title="Add Lot/Batch">
                         <v-form @submit.prevent="submit">
                             <v-card-text>
-                                <form>
-                                    <v-text-field
-                                        v-model="form.lot"
-                                        :error-messages="form.errors.lot"
-                                        label="Lot/Batch No."
-                                    ></v-text-field>
-                                </form>
+                                <v-text-field
+                                    v-model="form.lot"
+                                    :error-messages="form.errors.lot"
+                                    label="Lot/Batch No."
+                                ></v-text-field>
                             </v-card-text>
 
                             <v-card-actions>
@@ -129,17 +160,14 @@ function submit() {
                 </v-dialog>
                 <v-dialog v-model="editLotDialog" max-width="500">
                     <v-card title="Edit Lot/Batch">
-                        <v-form @submit.prevent="submit">
+                        <v-form @submit.prevent="update">
                             <v-card-text>
-                                <form>
-                                    <v-text-field
-                                        v-model="form.lot"
-                                        :error-messages="form.errors.lot"
-                                        label="Lot/Batch No."
-                                    ></v-text-field>
-                                </form>
+                                <v-text-field
+                                    v-model="updateForm.lot"
+                                    :error-messages="updateForm.errors.lot"
+                                    label="Lot/Batch No."
+                                ></v-text-field>
                             </v-card-text>
-
                             <v-card-actions>
                                 <v-spacer></v-spacer>
 
@@ -158,22 +186,24 @@ function submit() {
                     </v-card>
                 </v-dialog>
                 <v-dialog  v-model="deleteDialog"  max-width="400">
-                    <v-card
-                        title="Are you sure you want to delete?"
-                        text="This action cannot be undone."
-                    >
-                        <template v-slot:actions>
-                        <v-spacer></v-spacer>
+                    <v-form @submit.prevent="deleteLot">
+                        <v-card
+                            title="Are you sure you want to delete?"
+                            text="This action cannot be undone."
+                        >
+                            <template v-slot:actions>
+                            <v-spacer></v-spacer>
 
-                        <v-btn @click="deleteDialog = false">
-                            cancel
-                        </v-btn>
+                            <v-btn @click="deleteDialog = false">
+                                cancel
+                            </v-btn>
 
-                        <v-btn @click="deleteDialog = false" class="ma-2 pa-2 bg-red-darken-4">
-                            delete
-                        </v-btn>
-                        </template>
-                    </v-card>
+                            <v-btn type="submit" class="ma-2 pa-2 bg-red-darken-4">
+                                delete
+                            </v-btn>
+                            </template>
+                        </v-card>
+                    </v-form>
                 </v-dialog>
             </v-card>
         </v-container>

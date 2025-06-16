@@ -1,9 +1,12 @@
 <script setup>
 import Layout from "../../../Layout/Main.vue"
 import { ref } from "vue";
-import { useForm } from '@inertiajs/vue3';
+import { useForm, usePage } from '@inertiajs/vue3';
+
+const page = usePage();
 
 const snackbar = ref(false)
+const errorSnackbar = ref(false);
 const addUnitDialog = ref(false);
 const editUnitDialog = ref(false);
 const deleteDialog = ref(false);
@@ -43,8 +46,6 @@ function submit() {
             snackbar.value = true;
             form.reset();
         },
-        onError: () => {
-        }
     })
 }
 
@@ -82,6 +83,7 @@ function deleteUnit(){
             deleteDialog.value = false;
         },
         onError: () => {
+            errorSnackbar.value = true;
         }
     })
 }
@@ -156,6 +158,7 @@ function deleteUnit(){
                                 <v-card-text>
                                     <v-text-field
                                     v-model="updateForm.unit"
+                                    :error-messages="updateForm.errors.unit"
                                     label="Unit"
                                     ></v-text-field>
                                 </v-card-text>
@@ -211,5 +214,15 @@ function deleteUnit(){
         class="text"
     >
         {{ $page.props.flash.message }}
+    </v-snackbar>
+    <v-snackbar
+        v-model="errorSnackbar"
+        :timeout="3000"
+        color="error"
+        variant="elevated"
+        location="top"
+        class="text"
+    >
+        {{ $page.props.errors.message }}
     </v-snackbar>
 </template>

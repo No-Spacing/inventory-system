@@ -63,6 +63,7 @@ const form = useForm({
 });
 
 const updateForm = useForm({
+    id: '',
     code: '',
     description: '',
     category: '',
@@ -84,7 +85,7 @@ function submit() {
 }
 
 function openUpdateDialog(item) {
-    console.log(item);
+    updateForm.id = item.id
     updateForm.code = item.code;
     updateForm.description = item.description;
     updateForm.category = item.category;
@@ -92,6 +93,30 @@ function openUpdateDialog(item) {
     updateForm.type = item.type;
     updateForm.remaining_items = item.remaining_items
     editProductDialog.value = true;
+}
+
+function update() {
+    updateForm.patch('/update-product', {
+        onSuccess: () => {
+           snackbar.value = true; 
+           editProductDialog.value = false;
+        },
+    })
+}
+
+function openDeleteDialog(item){
+    updateForm.id = item.id
+    deleteDialog.value = true;
+}
+
+function deleteProduct() {
+    updateForm.delete('/delete-product', {
+        onSuccess: () => {
+            deleteDialog.value = false;
+            snackbar.value = true;
+            form.reset();
+        },
+    })
 }
 </script>
 <template>
@@ -104,7 +129,7 @@ function openUpdateDialog(item) {
                                 <v-btn prepend-icon="mdi-pencil"  @click="openUpdateDialog(item)" color="blue-darken-4">
                                     Edit
                                 </v-btn>
-                                <v-btn prepend-icon="mdi-delete" @click="deleteDialog = true" color="red-darken-4">
+                                <v-btn prepend-icon="mdi-delete" @click="openDeleteDialog(item)" color="red-darken-4">
                                     Delete
                                 </v-btn>
                             </div>
@@ -204,20 +229,23 @@ function openUpdateDialog(item) {
                 </v-dialog>
                 <v-dialog v-model="editProductDialog" max-width="500">
                     <v-card title="Edit Product">
-                        <v-form @submit.prevent="submit">
+                        <v-form @submit.prevent="update">
                             <v-card-text>
                                 <v-text-field
                                     v-model="updateForm.code"
+                                    :error-messages="updateForm.errors.code"
                                     label="Product Code"
                                 ></v-text-field>
 
                                 <v-text-field
                                     v-model="updateForm.description"
+                                    :error-messages="updateForm.errors.description"
                                     label="Product Description"
                                 ></v-text-field>
 
                                 <v-select
                                     v-model="updateForm.category"
+                                    :error-messages="updateForm.errors.category"
                                     label="Category"
                                     :items="categories"
                                     item-value="id"
@@ -226,6 +254,7 @@ function openUpdateDialog(item) {
 
                                 <v-select
                                     v-model="updateForm.unit"
+                                    :error-messages="updateForm.errors.unit"
                                     label="Unit"
                                     :items="units"
                                     item-value="id"
@@ -234,7 +263,7 @@ function openUpdateDialog(item) {
 
                                 <v-select
                                     v-model="updateForm.type"
-                                    :error-messages="form.errors.type"
+                                    :error-messages="updateForm.errors.type"
                                     label="Product Type"
                                     :items="['Track by Lot', 'Track by Serial']"
                                 ></v-select>
@@ -242,7 +271,7 @@ function openUpdateDialog(item) {
                                 <v-text-field
                                     v-model="updateForm.remaining_items"
                                     label="Remaining Items"
-                                    :error-messages="form.errors.remaining_items"
+                                    :error-messages="updateForm.errors.remaining_items"
                                 ></v-text-field>
                             </v-card-text>
                             <v-card-actions>
@@ -263,22 +292,25 @@ function openUpdateDialog(item) {
                     </v-card>
                 </v-dialog>
                 <v-dialog  v-model="deleteDialog"  max-width="400">
-                    <v-card
-                        title="Are you sure you want to delete?"
-                        text="This action cannot be undone."
-                    >
-                        <template v-slot:actions>
-                        <v-spacer></v-spacer>
+                    <v-form @submit.prevent="deleteProduct">
+                        <v-card
+                            title="Are you sure you want to delete?"
+                            text="This action cannot be undone."
+                        >
+                            
+                                <template v-slot:actions>
+                                    <v-spacer></v-spacer>
 
-                        <v-btn @click="deleteDialog = false">
-                            cancel
-                        </v-btn>
+                                    <v-btn @click="deleteDialog = false">
+                                        cancel
+                                    </v-btn>
 
-                        <v-btn @click="deleteDialog = false" class="ma-2 pa-2 bg-red-darken-4">
-                            delete
-                        </v-btn>
-                        </template>
-                    </v-card>
+                                    <v-btn type="submit" class="ma-2 pa-2 bg-red-darken-4">
+                                        delete
+                                    </v-btn>
+                                </template>
+                        </v-card>
+                    </v-form>
                 </v-dialog>
             </v-card>
         </v-container>

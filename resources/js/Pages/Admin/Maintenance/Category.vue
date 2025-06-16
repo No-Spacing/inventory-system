@@ -5,6 +5,7 @@ import { usePage, useForm } from "@inertiajs/vue3";
 
 const page = usePage();
 const snackbar = ref(false);
+const errorSnackbar = ref(false);
 
 defineProps({
     categories: Object,
@@ -19,6 +20,7 @@ const form = useForm({
 const updateForm = useForm({
     id: "",
     category_name: "",
+    slug: "",
 });
 
 const headers = [
@@ -56,6 +58,19 @@ watch(
             .replace(/-+/g, "-");
     }
 );
+
+watch(
+    () => updateForm.category_name,
+    (value) => {
+        updateForm.slug = value
+            .toLowerCase()
+            .trim()
+            .replace(/[^a-z0-9\s-]/g, "")
+            .replace(/\s+/g, "-")
+            .replace(/-+/g, "-");
+    }
+);
+
 
 function submit() {
     form.post("/store-category", {
@@ -96,8 +111,10 @@ function deleteCategory (item) {
         onSuccess: () => {
             deleteDialog.value = false;
             snackbar.value = true;
-            form.reset();
         },
+        onError: () => {
+            errorSnackbar.value = true;
+        }
     })
 }
 </script>
@@ -158,12 +175,6 @@ function deleteCategory (item) {
                                     v-model="form.category_name"
                                     :error-messages="form.errors.category_name"
                                 ></v-text-field>
-
-                                <v-text-field
-                                    v-model="form.slug"
-                                    disabled
-                                    hidden
-                                ></v-text-field>
                             </v-card-text>
 
                             <v-card-actions>
@@ -193,6 +204,7 @@ function deleteCategory (item) {
                             <v-card-text>
                                     <v-text-field
                                         v-model="updateForm.category_name"
+                                        :error-messages="updateForm.errors.category_name"
                                         label="Category"
                                     ></v-text-field>
                             </v-card-text>
@@ -250,5 +262,15 @@ function deleteCategory (item) {
         class="text"
     >
         {{ $page.props.flash.message }}
+    </v-snackbar>
+    <v-snackbar
+        v-model="errorSnackbar"
+        :timeout="2000"
+        color="error"
+        variant="elevated"
+        location="top"
+        class="text"
+    >
+        {{ $page.props.errors.message }}
     </v-snackbar>
 </template>

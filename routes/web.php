@@ -69,9 +69,13 @@ Route::middleware(['user-group'])->group(function () {
 
         Route::get('/product', 'IndexProduct')->can('view', User::class);
         Route::post('/store-product', 'StoreProduct')->can('create', User::class);
+        Route::patch('/update-product', 'UpdateProduct')->can('update', User::class);
+        Route::delete('/delete-product', 'DeleteProduct')->can('delete', User::class);
 
         Route::get('/lot', 'IndexLot')->can('view', User::class);
         Route::post('/store-lot', 'StoreLot')->can('create', User::class);
+        Route::patch('/update-lot', 'UpdateLot')->can('update', User::class);
+        Route::delete('/delete-lot', 'DeleteLot')->can('delete', User::class);
 
         Route::get('/users', 'IndexUsers')->can('viewUser', User::class);
         Route::post('/store-user', 'StoreUser')->can('addUser', User::class);
