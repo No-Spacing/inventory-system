@@ -3,7 +3,6 @@ import Layout from "../../../Layout/Main.vue";
 import { ref } from "vue";
 import { useForm } from '@inertiajs/vue3';
 
-
 defineProps({
     lots: Object,
 })
@@ -60,7 +59,7 @@ function submit() {
     })
 }
 
-function editDialog(item) {
+function openUpdateDialog(item) {
     updateForm.id = item.id;
     updateForm.lot = item.lot;
     editLotDialog.value = true;
@@ -95,7 +94,7 @@ function deleteLot() {
                 <v-data-table :headers="headers" :items="lots">
                     <template v-slot:item.actions="{ item }">
                         <div class="d-flex justify-center ga-2 blue">
-                            <v-btn prepend-icon="mdi-pencil"  @click="editDialog(item)" color="blue-darken-4">
+                            <v-btn prepend-icon="mdi-pencil"  @click="openUpdateDialog(item)" color="blue-darken-4">
                                 Edit
                             </v-btn>
                             <v-btn prepend-icon="mdi-delete" @click="openDeleteDialog(item)" color="red-darken-4">

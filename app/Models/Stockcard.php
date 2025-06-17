@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 use App\Models\Product;
 use App\Models\Lot;
+use App\Models\Serial;
 
 class Stockcard extends Model
 {
@@ -15,7 +16,7 @@ class Stockcard extends Model
         'lot_id',
         'approver_id',
         'enduser_id',
-        'serial_no',
+        'serial_id',
         'transaction_type',
         'quantity',
         'item_balance',
@@ -31,9 +32,14 @@ class Stockcard extends Model
         return $this->hasOne(Product::class, 'id', 'product_id');
     }
 
-    public function lots(): HasOne
+    public function lot(): HasOne
     {
         return $this->hasOne(Lot::class, 'id', 'lot_id');
+    }
+
+    public function serial(): HasOne
+    {
+        return $this->hasOne(Serial::class, 'id', 'serial_id');
     }
 
 }

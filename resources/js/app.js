@@ -16,10 +16,8 @@ const vuetify = createVuetify({
     theme: {
         themes: {
           light: {
-            dark: false,
             colors: {
               primary: colors.amber.darken4,
-            //   secondary: colors.red.lighten4, // #FFCDD2
             }
           },
         },
@@ -27,17 +25,17 @@ const vuetify = createVuetify({
   })
 
 createInertiaApp({
-    resolve: name => {
-      const pages = import.meta.glob('./Pages/**/*.vue', { eager: true })
-      return pages[`./Pages/${name}.vue`]
-    },
-    setup({ el, App, props, plugin }) {
-      createApp({ render: () => h(App, props) })
-      .use(plugin)
-      .use(vuetify)
-      .mount(el)
-    },
-  })
+  resolve: name => {
+    const pages = import.meta.glob('./Pages/**/*.vue', { eager: true })
+    return pages[`./Pages/${name}.vue`]
+  },
+  setup({ el, App, props, plugin }) {
+    createApp({ render: () => h(App, props) })
+    .use(plugin)
+    .use(vuetify)
+    .mount(el)
+  },
+})
 
 
 

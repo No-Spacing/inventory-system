@@ -1,9 +1,11 @@
 <script setup>
 import Layout from "../../../Layout/Main.vue";
 import { VDateInput } from "vuetify/labs/VDateInput";
-import { ref, watch, computed } from "vue";
+import { ref, watch, computed, reactive } from "vue";
 import { watchDebounced } from "@vueuse/core";
 import { useForm, router, usePage } from "@inertiajs/vue3"
+import download from 'downloadjs';
+import axios from 'axios';
 
 defineProps({
     stockcards: Object,
@@ -24,9 +26,10 @@ const showProductType = ref(false);
 
 const preload = ref(false);
 
-const form = useForm({
+const form = reactive({
     code: null,
     lot: null,
+    serial: null,
 })
 
 const data = computed(() => {
@@ -97,13 +100,25 @@ watch(() => page.props.products, (newProducts) => {
     product_type.value = newProducts[0]?.type || '';
     if(product_type.value === "Track by Serial"){
         showProductType.value = false
+        form.lot = null;
     }else if (product_type.value === "Track by Lot"){
         showProductType.value = true
+        form.serial = null;
     }
 }, { deep: true });
 
 function submit(){
-    form.post('index-pdf')
+    router.post('view-stockcard-pdf', form)
+    // axios.post('view-stockcard-pdf', form, {
+    //     responseType: 'blob',
+    // })
+    // .then((response) => {
+    //     const contentType = response.headers['content-type'];
+    //     download(response.data, 'invoice.pdf', contentType);
+    // })
+    // .catch((error) => {
+    //     console.error('PDF generation failed:', error);
+    // });
 }
 </script>
 <template>
@@ -163,7 +178,7 @@ function submit(){
                                     v-model:search="searchLot"
                                     :items="stockcards"
                                     item-title="lot"
-                                    item-value="id"
+                                    item-value="lot"
                                     placeholder="Select..."
                                     variant="outlined"
                                     menu-icon=""
@@ -181,9 +196,9 @@ function submit(){
                                     Serial No.
                                 </div>
                                 <v-autocomplete
+                                    v-model="form.serial"
                                     :items="stockcards"
                                     item-title="serial"
-                                    item-value="id"
                                     placeholder="Select..."
                                     variant="outlined"
                                     menu-icon=""
@@ -241,16 +256,6 @@ function submit(){
                                 Generate PDF
                             </v-btn>
                         </v-col>
-                        <!-- <v-col cols="12" sm="auto" class="text-center">
-                            <v-btn
-                                class="me-4"
-                                color="primary"
-                                :loading="loading"
-                                size="large"
-                            >
-                                Export to Excel
-                            </v-btn>
-                        </v-col> -->
                     </v-row>
                 </v-form>
             </v-card>

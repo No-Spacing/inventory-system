@@ -45,7 +45,7 @@ Route::middleware(['user-group'])->group(function () {
     Route::controller(ReportsController::class)->group(function () {
         Route::get('/stockcard', 'IndexStockcard');
         Route::get('/generate-stockcard-pdf', 'GenerateStockcardPdf')->name('show.stockcard.pdf');
-        Route::post('index-pdf', 'IndexPdf');
+        Route::post('view-stockcard-pdf', 'ViewStockcardPdf');
 
         Route::get('/summary', 'IndexSummary');
     });
@@ -77,16 +77,15 @@ Route::middleware(['user-group'])->group(function () {
         Route::patch('/update-lot', 'UpdateLot')->can('update', User::class);
         Route::delete('/delete-lot', 'DeleteLot')->can('delete', User::class);
 
+        Route::get('/serial', 'IndexSerial')->can('view', User::class);
+        Route::patch('/update-serial', 'UpdateSerial')->can('update', User::class);
+        Route::delete('/delete-serial', 'DeleteSerial')->can('delete', User::class);
+
         Route::get('/users', 'IndexUsers')->can('viewUser', User::class);
         Route::post('/store-user', 'StoreUser')->can('addUser', User::class);
     });
 
-    // Route::get('/category', [CategoryController::class, 'index'])->can('view', User::class)->name('products.index');
-    // Route::post('/category/store', [CategoryController::class, 'store'])->can('view', User::class)->name('products.create');
 
-    // Route::inertia('/product', 'Admin/Maintenance/Product')->can('view', User::class);
-    // Route::inertia('/lot', 'Admin/Maintenance/Lot')->can('view', User::class);
-    Route::inertia('/serial', 'Admin/Maintenance/Serial')->can('view', User::class);
 
     Route::inertia('/forgot-password', 'Auth/ForgotPassword');
 

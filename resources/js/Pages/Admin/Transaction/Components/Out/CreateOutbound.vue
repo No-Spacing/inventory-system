@@ -256,6 +256,7 @@ watch(() => page.props.products, (newProducts) => {
                         placeholder="Serial No."
                         variant="outlined"
                         required
+                        counter
                     ></v-text-field>
                 </v-col>
                 <v-col md="4" cols="12">

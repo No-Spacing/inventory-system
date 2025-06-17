@@ -10,6 +10,7 @@ use App\Models\Product;
 use App\Models\Lot;
 use App\Models\User;
 use App\Models\Role;
+use App\Models\Serial;
 
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\QueryException;
@@ -27,7 +28,7 @@ class MaintenanceController extends Controller
         ]);
     }
 
-    public function StoreUnit (Request $request) {
+    public function StoreUnit(Request $request) {
         $validated = $request->validate([
             'unit' => 'required|string|max:255|unique:units',
         ]);
@@ -37,7 +38,7 @@ class MaintenanceController extends Controller
         return redirect('/units')->with('message', 'Unit created successfully!');
     }
 
-    public function UpdateUnit (Request $request) {
+    public function UpdateUnit(Request $request) {
         $unit = Unit::findOrFail($request->id);
 
         $unit->fill($request->all());
@@ -57,7 +58,7 @@ class MaintenanceController extends Controller
         return redirect('/units')->with('message', 'Unit updated successfully!');
     }
 
-    public function DeleteUnit (Request $request) {
+    public function DeleteUnit(Request $request) {
         try {
             Unit::where('id', $request->id)->delete();
             return redirect('/units')->with('message', 'Unit deleted successfully');
@@ -204,8 +205,12 @@ class MaintenanceController extends Controller
     }
 
     public function DeleteProduct (Request $request) {
-        Product::where('id', $request->id)->delete();
-        return redirect('/product')->with('message', 'Product deleted successfully!');
+        try {
+            Product::where('id', $request->id)->delete();
+            return redirect('/product')->with('message', 'Product deleted successfully!');
+        } catch (QueryException $e) {
+            return back()->withErrors(['message' => "Cannot delete this Product, the stockcard of this product still exist"]);
+        }
     }
 
     public function IndexLot() {
@@ -246,8 +251,49 @@ class MaintenanceController extends Controller
     }
 
     public function DeleteLot(Request $request) {
-        Lot::where('id', $request->id)->delete();
-        return redirect('/lot')->with('message', 'Lot deleted successfully!');
+        try {
+            Lot::where('id', $request->id)->delete();
+            return redirect('/lot')->with('message', 'Lot deleted successfully!');
+        } catch (QueryException $e) {
+            return back()->withErrors(['message' => "Cannot delete this Lot, the stockcard of this lot still exist"]);
+        }
+        
+    }
+
+    public function IndexSerial() {
+        return Inertia::render('Admin/Maintenance/Serial', [
+            'serials' => Serial::all()
+        ]);
+    } 
+
+    public function UpdateSerial(Request $request) {
+        $serial = Serial::findOrFail($request->id);
+
+        $serial->fill($request->all());
+        $dirty = $serial->getDirty();
+
+        if (!empty($dirty)) {
+            $request->validate([
+                'serial_no' => 'required|unique:serials'
+            ]);
+        }else {
+            $request->validate([
+                'serial_no' => 'required'
+            ]);
+        }
+        
+        Serial::where('id', $request->id)->update(['serial_no' => $request->serial_no]);
+
+        return redirect('/serial')->with('message', 'Serial updated successfully!');
+    }
+
+    public function DeleteSerial(Request $request) {
+        try {
+            Serial::where('id', $request->id)->delete();
+            return redirect('/serial')->with('message', 'Category deleted successfully');
+        } catch (QueryException $e) {
+            return back()->withErrors(['message' => "Cannot delete this Serial, the stockcard of this serial still exist"]);
+        }
     }
 
     public function IndexUsers(){

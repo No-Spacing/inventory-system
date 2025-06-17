@@ -23,30 +23,53 @@ class ReportsController extends Controller
             ->limit(5)
             ->get(),
             'stockcards' => Stockcard::with('product')
-            ->whereHas('product', function ($query) use ($request) {
-                $query->where('code', 'LIKE', '%'.$request->code.'%');
-            })
-            ->limit(5)
+            ->with('lot')
+            ->where('product_id', $request->code)
             ->get()
             ->map(function ($product) {
                 return [
+                    'lot' => optional($product->lot)->lot,
                     'serial' => $product->serial_no,
-                    'lot' => optional($product->lots)->lot,
                 ];
-            }),
+            })
         ]);
     }
 
-    public function IndexPdf(Request $request) {
-        dd($request->code);
-        // return view('pdf.stockcard-pdf');
+    public function ViewStockcardPdf(Request $request) {
+        $stockcards = Stockcard::with('product')
+        ->with('lot')
+        ->where('product_id', $request->code)
+        ->get()
+        ->map(function ($product) {
+            return [
+                'transaction_date' => $product->transaction_date,
+                'lotNo' => optional($product->lot)->lot,
+                'serialNo' => $product->serial_no,
+                'transaction_type' => $product->transaction_type,
+                'quantity' => $product->quantity,
+                'balance' => $product->item_balance,
+                'reference' => $product->reference,
+                'remarks' => $product->remarks,
+            ];
+        });
+        
+        return view('pdf.stockcard-pdf', ['stockcards' => $stockcards]);
+        // return Pdf::view('pdf.stockcard-pdf', ['stockcards' => $stockcards])
+        // ->format('a4')
+        // ->landscape()
+        // ->name('invoice.pdf');
     }
 
+
     public function GenerateStockcardPdf(){
-        return Pdf::view('pdf.invoice', ['invoice' => 'invoice'])
-            ->format('a4')
-            ->landscape()
-            ->name('invoice.pdf');
+        $stockcards = Stockcard::with('product')
+        ->where('product_id', $request->code)
+        ->get();
+        
+        return Pdf::view('pdf.stockcard-pdf', ['stockcards' => $stockcards])
+        ->format('a4')
+        ->landscape()
+        ->name('invoice.pdf');
     }
 
     public function IndexSummary() {

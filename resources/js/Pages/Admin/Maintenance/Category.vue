@@ -85,7 +85,7 @@ function submit() {
     });
 }
 
-function openEditCategory (item) {
+function openUpdateDialog (item) {
     updateForm.id = item.id;
     updateForm.category_name = item.category_name;
     editCategoryDialog.value = true;
@@ -128,7 +128,7 @@ function deleteCategory (item) {
                 >
                     <template v-slot:item.actions="{ item }">
                         <div class="d-flex justify-center ga-2">
-                            <v-btn prepend-icon="mdi-pencil"  @click="openEditCategory(item)" color="blue-darken-4">
+                            <v-btn prepend-icon="mdi-pencil"  @click="openUpdateDialog(item)" color="blue-darken-4">
                                 Edit
                             </v-btn>
                             <v-btn prepend-icon="mdi-delete" @click="openDeleteDialog(item)" color="red-darken-4">

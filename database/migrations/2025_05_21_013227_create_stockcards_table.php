@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('product_id')->nullable()->references('id')->on('products')->onUpdate('cascade');
             $table->foreignId('lot_id')->nullable()->references('id')->on('lots')->onUpdate('cascade');
-            $table->longText('serial_no')->nullable();
+            $table->foreignId('serial_id')->nullable()->references('id')->on('serials')->onUpdate('cascade');
             $table->foreignId('approver_id')->nullable()->references('id')->on('users')->onUpdate('cascade');
             $table->foreignId('enduser_id')->nullable()->references('id')->on('users')->onUpdate('cascade');
             $table->string('transaction_type')->nullable();

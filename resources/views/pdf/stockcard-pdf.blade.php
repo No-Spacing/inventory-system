@@ -66,15 +66,10 @@ body {
 </style>
 <div class="container">
     <div class="title">STOCK CARD</div>
-    @if(!Route::is('show.stockcard.pdf') )
-       <div class="btn-container">
-            <a href="/generate-stockcard-pdf" target='_blank' class="download-btn">Download PDF</a>
-        </div>
-    @endif
     <table class="info-table">
         <tr>
-            <td><strong>Product:</strong> 1-BR-BD7800 (BREMED Electric Heat Pad)</td>
-            <td><strong>Lot no:</strong> 01021020</td>
+            <td><strong>Product: </strong> </td>
+            <td><strong>Lot no: </strong> 01021020</td>
         </tr>
         <tr>
             <td><strong>UOM:</strong> Each</td>
@@ -92,7 +87,8 @@ body {
                 <th>DATE</th>
                 <th>LoT/Serial No.</th>
                 <th>Transaction Type</th>
-                <th>BALANCE</th>
+                <th>Quantity</th>
+                <th>Balance</th>
                 <th>Customer/Supplier Name</th>
                 <th>REMARKS</th>
                 <th>APPROVER</th>
@@ -100,8 +96,19 @@ body {
             </tr>
         </thead>
         <tbody>
+            @foreach ($stockcards as $item)
+                <tr>
+                    <td style="text-align: left;">{{ $item['transaction_date'] }}</td>
+                    <td style="text-align: left;">{{ $item['serialNo'] ?? $item['lotNo'] }}</td>
+                    <td style="text-align: left;">{{ $item['transaction_type'] }}</td>
+                    <td style="text-align: left;">{{ $item['quantity'] }}</td>
+                    <td style="text-align: left;">{{ $item['balance'] }}</td>
+                    <td style="text-align: left;">{{ $item['reference'] }}</td>
+                    <td style="text-align: left;">{{ $item['remarks'] }}</td>
+                </tr>
+            @endforeach
             <tr>
-                <td colspan="13" style="text-align: left;">Total records: 0</td>
+                <td colspan="8" style="text-align: left;">Total records: {{ count($stockcards) }}</td>
             </tr>
         </tbody>
     </table>

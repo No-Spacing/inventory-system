@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('serials', function (Blueprint $table) {
             $table->id();
-            $table->string('serial_no');
+            $table->longText('serial_no')->unique();;
             $table->timestamps();
         });
     }
