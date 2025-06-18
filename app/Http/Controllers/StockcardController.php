@@ -87,7 +87,6 @@ class StockcardController extends Controller
         }else if($request->product_type == "Track by Lot"){
             $request->validate([
                 'lot' => 'required',
-                'expirationDate' => 'required',
                 'quantity' => 'required',
                 'transactionDate' => 'required', 
             ]);
@@ -122,10 +121,10 @@ class StockcardController extends Controller
                         'quantity' => $request->quantity,
                         'item_balance' => $remaining_items,
                         'enduser_id' => Auth::user()->id,
-                        'expiration_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->expirationDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
                         'transaction_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->transactionDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
                         'warehouse' => $request->warehouse,
                         'reference' => $request->reference,
+                        'document_no' => $request->document_no,
                         'remarks' => $request->remarks,
                     ]);
                 }
@@ -145,10 +144,10 @@ class StockcardController extends Controller
                         'quantity' => $request->quantity,
                         'item_balance' => $remaining_items,
                         'enduser_id' => Auth::user()->id,
-                        'expiration_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->expirationDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
                         'transaction_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->transactionDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
                         'warehouse' => $request->warehouse,
                         'reference' => $request->reference,
+                        'document_no' => $request->document_no,
                         'remarks' => $request->remarks,
                     ]);
                 }
@@ -166,10 +165,10 @@ class StockcardController extends Controller
                 'quantity' => $request->quantity,
                 'item_balance' => $remaining_items,
                 'enduser_id' => Auth::user()->id,
-                'expiration_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->expirationDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
                 'transaction_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->transactionDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
                 'warehouse' => $request->warehouse,
                 'reference' => $request->reference,
+                'document_no' => $request->document_no,
                 'remarks' => $request->remarks,
             ]);
         }
@@ -213,7 +212,6 @@ class StockcardController extends Controller
         }else if($request->product_type == "Track by Lot"){
             $request->validate([
                 'lot' => 'required',
-                'expirationDate' => 'required',
                 'quantity' => 'required',
                 'transactionDate' => 'required', 
             ]);
@@ -248,10 +246,10 @@ class StockcardController extends Controller
                         'quantity' => $request->quantity,
                         'item_balance' => $remaining_items,
                         'enduser_id' => Auth::user()->id,
-                        'expiration_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->expirationDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
                         'transaction_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->transactionDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
                         'warehouse' => $request->warehouse,
                         'reference' => $request->reference,
+                        'document_no' => $request->document_no,
                         'remarks' => $request->remarks,
                     ]);
                 }
@@ -271,10 +269,10 @@ class StockcardController extends Controller
                         'quantity' => $request->quantity,
                         'item_balance' => $remaining_items,
                         'enduser_id' => Auth::user()->id,
-                        'expiration_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->expirationDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
                         'transaction_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->transactionDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
                         'warehouse' => $request->warehouse,
                         'reference' => $request->reference,
+                        'document_no' => $request->document_no,
                         'remarks' => $request->remarks,
                     ]);
                 }
@@ -292,10 +290,10 @@ class StockcardController extends Controller
                 'quantity' => $request->quantity,
                 'item_balance' => $remaining_items,
                 'enduser_id' => Auth::user()->id,
-                'expiration_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->expirationDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
                 'transaction_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->transactionDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
                 'warehouse' => $request->warehouse,
                 'reference' => $request->reference,
+                'document_no' => $request->document_no,
                 'remarks' => $request->remarks,
             ]);
         }

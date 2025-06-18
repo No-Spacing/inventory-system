@@ -21,6 +21,7 @@ const emit = defineEmits(['loading']);
 const dialog = ref(false); // Dialog for adding new lot
 
 const expand = ref(false);
+const expandLot = ref(false);
 
 const searchCode = ref();
 
@@ -39,16 +40,21 @@ const form = useForm({
     serialEndingNo: '',
     quantity: '',
     warehouse: '',
-    expirationDate: '',
     transactionDate: new Date().toISOString(),
     reference: '',
     remarks: '',
-    documentNo: '',
+    document_no: '',
 })
 
 const codeInput = () => {
     if (searchCode.value === "") {
         expand["value"] = false;
+    } 
+};
+
+const lotInput = () => {
+    if (searchLot.value === "") {
+        expandLot["value"] = false;
     } 
 };
 
@@ -58,6 +64,12 @@ const data = computed(() => {
         unit: page.props.products[0]?.unit.unit || "",
         remaining_items: page.props.products[0]?.remaining_items || "",
         product_type: page.props.products[0]?.type || '',
+    };
+});
+
+const lotData = computed(() => {
+    return {
+        expiration_date: page.props.lots[0].expiration_date,
     };
 });
 
@@ -106,6 +118,7 @@ function submit() {
 
 const formLot = useForm({
     lot: null,
+    expiration_date: null,
 })
 
 function addLot() {
@@ -129,7 +142,6 @@ watch(() => page.props.products, (newProducts) => {
     product_type.value = newProducts[0]?.type || '';
     if(product_type.value === "Track by Serial"){
         form.quantity = 1;
-        form.expirationDate = '';
         form.lot = '';
         form.product_type = product_type.value;
     }else if (product_type.value === "Track by Lot"){
@@ -139,6 +151,7 @@ watch(() => page.props.products, (newProducts) => {
         form.serialStartingNo = '';
         form.serialEndingNo = '';
     }
+    
 }, { deep: true });
 
 </script>
@@ -241,77 +254,62 @@ watch(() => page.props.products, (newProducts) => {
                
             </v-row>
         </v-expand-transition>
-        <v-expand-transition>
+       
+        <v-expand-transition v-if="expand === true">
             <v-row no-gutters v-if="data.product_type === 'Track by Serial'">
-                <v-col md="4" cols="12">
-                    <div
-                        class="text-subtitle-1 text-medium-emphasis mx-2"
-                    >
-                        Serial No.
-                    </div>
-                    <v-text-field
-                        v-model="form.serial_no"
-                        :error-messages="form.errors.serial_no"
-                        class="mx-2"
-                        placeholder="Serial No."
-                        variant="outlined"
-                        required
-                        counter
-                    ></v-text-field>
-                </v-col>
-                <v-col md="4" cols="12">
-                    <div
-                        class="text-subtitle-1 text-medium-emphasis mx-2"
-                    >
-                        Starting No.
-                    </div>
-                    <v-text-field
-                        v-model="form.serialStartingNo"
-                        :error-messages="form.errors.serialStartingNo"
-                        type="number"
-                        class="mx-2"
-                        placeholder="Starting Serial No."
-                        variant="outlined"
-                        required
-                    ></v-text-field>
-                </v-col>
-                <v-col md="4" cols="12">
-                    <div
-                        class="text-subtitle-1 text-medium-emphasis mx-2"
-                    >
-                        Ending No.
-                    </div>
-                    <v-text-field
-                        v-model="form.serialEndingNo"
-                        :error-messages="form.errors.serialEndingNo"
-                        type="number"
-                        class="mx-2"
-                        placeholder="Ending Serial No."
-                        variant="outlined"
-                        required
-                    ></v-text-field>
-                </v-col>
-            </v-row>
-            <v-row no-gutters v-else>
+            <v-col md="4" cols="12">
+                <div
+                    class="text-subtitle-1 text-medium-emphasis mx-2"
+                >
+                    Serial No.
+                </div>
+                <v-text-field
+                    v-model="form.serial_no"
+                    :error-messages="form.errors.serial_no"
+                    class="mx-2"
+                    placeholder="Serial No."
+                    variant="outlined"
+                    required
+                    counter
+                ></v-text-field>
+            </v-col>
+            <v-col md="4" cols="12">
+                <div
+                    class="text-subtitle-1 text-medium-emphasis mx-2"
+                >
+                    Starting No.
+                </div>
+                <v-text-field
+                    v-model="form.serialStartingNo"
+                    :error-messages="form.errors.serialStartingNo"
+                    type="number"
+                    class="mx-2"
+                    placeholder="Starting Serial No."
+                    variant="outlined"
+                    required
+                ></v-text-field>
+            </v-col>
+            <v-col md="4" cols="12">
+                <div
+                    class="text-subtitle-1 text-medium-emphasis mx-2"
+                >
+                    Ending No.
+                </div>
+                <v-text-field
+                    v-model="form.serialEndingNo"
+                    :error-messages="form.errors.serialEndingNo"
+                    type="number"
+                    class="mx-2"
+                    placeholder="Ending Serial No."
+                    variant="outlined"
+                    required
+                ></v-text-field>
+            </v-col>
+        </v-row>
+        </v-expand-transition>
+        <v-expand-transition v-if="expand === true">
+            <v-row no-gutters v-if="data.product_type === 'Track by Lot'">
                 <v-col md="6" cols="12">
-                    <div
-                        class="text-subtitle-1 text-medium-emphasis mx-2"
-                    >
-                        Expiration Date
-                    </div>
-
-                    <v-date-input
-                        v-model="form.expirationDate"
-                        :error-messages="form.errors.expirationDate"
-                        placeholder="Date from"
-                        prepend-icon=""
-                        prepend-inner-icon="$calendar"
-                        variant="outlined"
-                        class="mx-2"
-                        readonly
-                    ></v-date-input>
-                </v-col>
-                <v-col md="4" cols="12">
                     <div
                         class="text-subtitle-1 text-medium-emphasis mx-2"
                     >
@@ -328,6 +326,8 @@ watch(() => page.props.products, (newProducts) => {
                         placeholder="Select..."
                         variant="outlined"
                         menu-icon=""
+                        @update:modelValue="expandLot = true;"
+                        @input="lotInput"
                     >
                         <template v-slot:no-data>
                             <v-container fluid>
@@ -336,6 +336,23 @@ watch(() => page.props.products, (newProducts) => {
                             </v-container>
                         </template>
                     </v-autocomplete>
+                </v-col>
+                <v-col md="4" cols="12" v-show="expandLot">
+                    <div
+                        class="text-subtitle-1 text-medium-emphasis mx-2"
+                    >
+                        Expiration Date
+                    </div>
+
+                    <v-date-input
+                        v-model="lotData.expiration_date"
+                        placeholder="Date from"
+                        prepend-icon=""
+                        prepend-inner-icon="$calendar"
+                        variant="outlined"
+                        class="mx-2"
+                        readonly
+                    ></v-date-input>
                 </v-col>
                 <!-- Button -->
                 <v-col md="2" cols="12">
@@ -362,7 +379,6 @@ watch(() => page.props.products, (newProducts) => {
 
                 <v-date-input
                     v-model="form.transactionDate"
-                    :error-messages="form.errors.transactionDate"
                     input-format="yyyy-mm-dd"
                     placeholder="Date from"
                     prepend-icon=""
@@ -422,7 +438,7 @@ watch(() => page.props.products, (newProducts) => {
                     Document No.
                 </div>
                 <v-text-field
-                    v-model="form.documentNo"
+                    v-model="form.document_no"
                     class="mx-2"
                     placeholder="Document No."
                     prepend-inner-icon=""
@@ -499,8 +515,8 @@ watch(() => page.props.products, (newProducts) => {
                             </div>
 
                             <v-date-input
-                                v-model="form.expirationDate"
-                                :error-messages="form.errors.expirationDate"
+                                v-model="formLot.expiration_date"
+                                :error-messages="formLot.errors.expiration_date"
                                 placeholder="Date from"
                                 prepend-icon=""
                                 prepend-inner-icon="$calendar"

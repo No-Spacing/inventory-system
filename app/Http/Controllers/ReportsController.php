@@ -51,10 +51,12 @@ class ReportsController extends Controller
                     'lotNo' => optional($product->lot)->lot,
                     'serialNo' => optional($product->serial)->serial_no,
                     'transaction_type' => $product->transaction_type,
+                    'warehouse' => $product->warehouse,
                     'quantity' => $product->quantity,
                     'balance' => $product->item_balance,
                     'reference' => $product->reference,
                     'remarks' => $product->remarks,
+                    'document_no' => $product->document_no
                 ];
             });
         }else if($request->filled('lot')){
@@ -68,10 +70,12 @@ class ReportsController extends Controller
                     'lotNo' => optional($product->lot)->lot,
                     'serialNo' => optional($product->serial)->serial_no,
                     'transaction_type' => $product->transaction_type,
+                    'warehouse' => $product->warehouse,
                     'quantity' => $product->quantity,
                     'balance' => $product->item_balance,
                     'reference' => $product->reference,
                     'remarks' => $product->remarks,
+                    'document_no' => $product->document_no
                 ];
             });
         }else{
@@ -84,10 +88,12 @@ class ReportsController extends Controller
                     'lotNo' => optional($product->lot)->lot,
                     'serialNo' => optional($product->serial)->serial_no,
                     'transaction_type' => $product->transaction_type,
+                    'warehouse' => $product->warehouse,
                     'quantity' => $product->quantity,
                     'balance' => $product->item_balance,
                     'reference' => $product->reference,
                     'remarks' => $product->remarks,
+                    'document_no' => $product->document_no 
                 ];
             });
         }

@@ -86,13 +86,16 @@ body {
             <tr>
                 <th>DATE</th>
                 <th>LoT/Serial No.</th>
-                <th>Transaction Type</th>
+                
                 <th>Quantity</th>
                 <th>Balance</th>
+                <th>Transaction Type</th>
+                <th>Warehouse</th>
                 <th>Customer/Supplier Name</th>
-                <th>REMARKS</th>
-                <th>APPROVER</th>
-                <th>END USER</th>
+                <th>Document No.</th>
+                <th>Remarks</th>
+                <th>End User</th>
+                <th>Approver</th>
             </tr>
         </thead>
         <tbody>
@@ -100,10 +103,12 @@ body {
                 <tr>
                     <td style="text-align: left;">{{ $item['transaction_date'] }}</td>
                     <td style="text-align: left;">{{ $item['serialNo'] ?? $item['lotNo'] }}</td>
-                    <td style="text-align: left;">{{ $item['transaction_type'] }}</td>
                     <td style="text-align: left;">{{ $item['quantity'] }}</td>
                     <td style="text-align: left;">{{ $item['balance'] }}</td>
+                    <td style="text-align: left;">{{ $item['transaction_type'] }}</td>
+                    <td style="text-align: left;">{{ $item['warehouse'] }}</td>
                     <td style="text-align: left;">{{ $item['reference'] }}</td>
+                    <td style="text-align: left;">{{ $item['document_no'] }}</td>
                     <td style="text-align: left;">{{ $item['remarks'] }}</td>
                 </tr>
             @endforeach

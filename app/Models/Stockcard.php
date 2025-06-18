@@ -22,6 +22,7 @@ class Stockcard extends Model
         'item_balance',
         'transaction_date',
         'expiration_date',
+        'document_no',
         'warehouse',
         'reference',
         'remarks',

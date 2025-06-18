@@ -23,6 +23,13 @@ const headers = [
         },
     },
     {
+        title: "Expiration Date",
+        key: "expiration_date",
+        headerProps: {
+            style: "font-weight: 700",
+        },
+    },
+    {
         title: "Actions",
         key: "actions",
         headerProps: {
@@ -40,12 +47,14 @@ const deleteDialog = ref(false);
 const snackbar = ref(false);
 
 const form = useForm({
-    lot: ''
+    lot: '',
+    expiration_date: ''
 });
 
 const updateForm = useForm({
     id: '',
     lot: '',
+    expiration_date: ''
 });
 
 function submit() {
@@ -63,6 +72,7 @@ function submit() {
 function openUpdateDialog(item) {
     updateForm.id = item.id;
     updateForm.lot = item.lot;
+    updateForm.expiration_date = item.expiration_date;
     editLotDialog.value = true;
 }
 
@@ -139,21 +149,21 @@ function deleteLot() {
                                     :error-messages="form.errors.lot"
                                     label="Lot/Batch No."
                                 ></v-text-field>
-                            <div
-                                class="text-subtitle-1 text-medium-emphasis mx-2"
-                            >
-                                Expiration Date
-                            </div>
+                                <div
+                                    class="text-subtitle-1 text-medium-emphasis mx-2"
+                                >
+                                    Expiration Date
+                                </div>
 
-                            <v-date-input
-                                v-model="form.expirationDate"
-                                :error-messages="form.errors.expirationDate"
-                                placeholder="Date from"
-                                prepend-icon=""
-                                prepend-inner-icon="$calendar"
-                                variant="outlined"
-                                class="mx-2"
-                            ></v-date-input>
+                                <v-date-input
+                                    v-model="form.expiration_date"
+                                    :error-messages="form.errors.expiration_date"
+                                    placeholder="Date from"
+                                    prepend-icon=""
+                                    prepend-inner-icon="$calendar"
+                                    variant="outlined"
+                                    class="mx-2"
+                                ></v-date-input>
                             </v-card-text>
 
                             <v-card-actions>
@@ -182,6 +192,21 @@ function deleteLot() {
                                     :error-messages="updateForm.errors.lot"
                                     label="Lot/Batch No."
                                 ></v-text-field>
+                                <div
+                                    class="text-subtitle-1 text-medium-emphasis mx-2"
+                                >
+                                    Expiration Date
+                                </div>
+
+                                <v-date-input
+                                    v-model="updateForm.expiration_date"
+                                    :error-messages="updateForm.errors.expiration_date"
+                                    placeholder="Date from"
+                                    prepend-icon=""
+                                    prepend-inner-icon="$calendar"
+                                    variant="outlined"
+                                    class="mx-2"
+                                ></v-date-input>
                             </v-card-text>
                             <v-card-actions>
                                 <v-spacer></v-spacer>

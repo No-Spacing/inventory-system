@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('lots', function (Blueprint $table) {
             $table->id();
             $table->longText('lot');
+            $table->date('expiration_date')->nullable();
             $table->timestamps();
         });
     }

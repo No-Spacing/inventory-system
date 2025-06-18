@@ -15,7 +15,7 @@ function submit(){
 </script>
 
 <template>
-  <Head title="Login"></Head>
+  <Head title="Login" />
   <v-container fluid class="login-background d-flex justify-center align-center fill-height">
     <v-card class="pa-10" :elevation="8" max-width="450" width="100%" rounded="2xl">
 

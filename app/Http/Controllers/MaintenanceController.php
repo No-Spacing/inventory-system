@@ -218,10 +218,14 @@ class MaintenanceController extends Controller
     
     public function StoreLot(Request $request) {
         $validated = $request->validate([
-            'lot' => 'required|unique:lots'
+            'lot' => 'required|unique:lots',
+            'expiration_date' => 'required'
         ]);
 
-        Lot::create($validated);
+        Lot::create([
+            'lot' => $request->lot,
+            'expiration_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->expiration_date)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
+        ]);
         
         return back()->with('message', 'Lot created successfully!');
     }
@@ -234,14 +238,20 @@ class MaintenanceController extends Controller
         if ($lot->isDirty('lot')) {
             $validated = $request->validate([
                 'lot' => 'required|unique:lots',
+                'expiration_date' => 'required'
             ]);
         }else {
             $validated = $request->validate([
                 'lot' => 'required',
+                'expiration_date' => 'required'
             ]);
         }
         
-        Lot::where('id', $request->id)->update(['lot' => $request->lot]);
+        Lot::where('id', $request->id)
+        ->update([
+            'lot' => $request->lot, 
+            'expiration_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->expiration_date)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d')
+        ]);
         
         return back()->with('message', 'Lot updated successfully!');
     }

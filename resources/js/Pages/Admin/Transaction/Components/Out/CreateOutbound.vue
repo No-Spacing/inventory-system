@@ -39,11 +39,10 @@ const form = useForm({
     serialEndingNo: '',
     quantity: '',
     warehouse: '',
-    expirationDate: '',
     transactionDate: new Date().toISOString(),
     reference: '',
     remarks: '',
-    documentNo: '',
+    document_no: '',
 })
 
 const codeInput = () => {
@@ -58,6 +57,12 @@ const data = computed(() => {
         unit: page.props.products[0]?.unit.unit || "",
         remaining_items: page.props.products[0]?.remaining_items || "",
         product_type: page.props.products[0]?.type || '',
+    };
+});
+
+const lotData = computed(() => {
+    return {
+        expiration_date: page.props.lots[0].expiration_date,
     };
 });
 
@@ -106,6 +111,7 @@ function submit() {
 
 const formLot = useForm({
     lot: null,
+    expiration_date: null,
 })
 
 function addLot() {
@@ -129,16 +135,16 @@ watch(() => page.props.products, (newProducts) => {
     product_type.value = newProducts[0]?.type || '';
     if(product_type.value === "Track by Serial"){
         form.quantity = 1;
-        form.expirationDate = '';
         form.lot = '';
         form.product_type = product_type.value;
     }else if (product_type.value === "Track by Lot"){
         form.quantity = '';
-        form.serialNo = '';
+        form.serial_no = '';
         form.product_type = product_type.value;
         form.serialStartingNo = '';
         form.serialEndingNo = '';
     }
+    
 }, { deep: true });
 
 </script>
@@ -301,8 +307,7 @@ watch(() => page.props.products, (newProducts) => {
                     </div>
 
                     <v-date-input
-                        v-model="form.expirationDate"
-                        :error-messages="form.errors.expirationDate"
+                        v-model="lotData.expiration_date"
                         placeholder="Date from"
                         prepend-icon=""
                         prepend-inner-icon="$calendar"
@@ -362,7 +367,6 @@ watch(() => page.props.products, (newProducts) => {
 
                 <v-date-input
                     v-model="form.transactionDate"
-                    :error-messages="form.errors.transactionDate"
                     input-format="yyyy-mm-dd"
                     placeholder="Date from"
                     prepend-icon=""
@@ -410,7 +414,7 @@ watch(() => page.props.products, (newProducts) => {
                 <v-text-field
                     v-model="form.reference"
                     class="mx-2"
-                    placeholder="Customer Name"
+                    placeholder="Supplier Name"
                     prepend-inner-icon=""
                     variant="outlined"
                 ></v-text-field>
@@ -422,7 +426,7 @@ watch(() => page.props.products, (newProducts) => {
                     Document No.
                 </div>
                 <v-text-field
-                    v-model="form.documentNo"
+                    v-model="form.document_no"
                     class="mx-2"
                     placeholder="Document No."
                     prepend-inner-icon=""
@@ -499,8 +503,8 @@ watch(() => page.props.products, (newProducts) => {
                             </div>
 
                             <v-date-input
-                                v-model="form.expirationDate"
-                                :error-messages="form.errors.expirationDate"
+                                v-model="formLot.expiration_date"
+                                :error-messages="formLot.errors.expiration_date"
                                 placeholder="Date from"
                                 prepend-icon=""
                                 prepend-inner-icon="$calendar"
