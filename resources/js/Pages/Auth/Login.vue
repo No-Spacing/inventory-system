@@ -1,5 +1,5 @@
 <script setup>
-import { useForm } from '@inertiajs/vue3'
+import { useForm, Head } from '@inertiajs/vue3'
 
 const form = useForm({
   email: null,
@@ -15,6 +15,7 @@ function submit(){
 </script>
 
 <template>
+  <Head title="Login"></Head>
   <v-container fluid class="login-background d-flex justify-center align-center fill-height">
     <v-card class="pa-10" :elevation="8" max-width="450" width="100%" rounded="2xl">
 
