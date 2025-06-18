@@ -308,6 +308,7 @@ watch(() => page.props.products, (newProducts) => {
                         prepend-inner-icon="$calendar"
                         variant="outlined"
                         class="mx-2"
+                        readonly
                     ></v-date-input>
                 </v-col>
                 <v-col md="4" cols="12">
@@ -477,7 +478,6 @@ watch(() => page.props.products, (newProducts) => {
      <v-dialog
         v-model="dialog"
         max-width="600"
-        persistent
     >
         <v-form @submit.prevent="addLot">
             <v-card title="Add New Lot">
@@ -490,6 +490,23 @@ watch(() => page.props.products, (newProducts) => {
                                 label="Lot/Batch No."
                                 required
                             ></v-text-field>
+                        </v-col>
+                        <v-col cols="12">
+                            <div
+                                class="text-subtitle-1 text-medium-emphasis mx-2"
+                            >
+                                Expiration Date
+                            </div>
+
+                            <v-date-input
+                                v-model="form.expirationDate"
+                                :error-messages="form.errors.expirationDate"
+                                placeholder="Date from"
+                                prepend-icon=""
+                                prepend-inner-icon="$calendar"
+                                variant="outlined"
+                                class="mx-2"
+                            ></v-date-input>
                         </v-col>
                     </v-row>
                 </v-card-text>

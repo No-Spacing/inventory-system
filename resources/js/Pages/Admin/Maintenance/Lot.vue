@@ -2,6 +2,7 @@
 import Layout from "../../../Layout/Main.vue";
 import { ref } from "vue";
 import { useForm } from '@inertiajs/vue3';
+import { VDateInput } from 'vuetify/labs/VDateInput'
 
 defineProps({
     lots: Object,
@@ -138,6 +139,21 @@ function deleteLot() {
                                     :error-messages="form.errors.lot"
                                     label="Lot/Batch No."
                                 ></v-text-field>
+                            <div
+                                class="text-subtitle-1 text-medium-emphasis mx-2"
+                            >
+                                Expiration Date
+                            </div>
+
+                            <v-date-input
+                                v-model="form.expirationDate"
+                                :error-messages="form.errors.expirationDate"
+                                placeholder="Date from"
+                                prepend-icon=""
+                                prepend-inner-icon="$calendar"
+                                variant="outlined"
+                                class="mx-2"
+                            ></v-date-input>
                             </v-card-text>
 
                             <v-card-actions>
