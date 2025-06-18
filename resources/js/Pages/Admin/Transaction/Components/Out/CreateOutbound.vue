@@ -34,7 +34,7 @@ const form = useForm({
     code: '',
     product_type: '',
     lot: '',
-    serialNo: '',
+    serial_no: '',
     serialStartingNo: '',
     serialEndingNo: '',
     quantity: '',
@@ -250,8 +250,8 @@ watch(() => page.props.products, (newProducts) => {
                         Serial No.
                     </div>
                     <v-text-field
-                        v-model="form.serialNo"
-                        :error-messages="form.errors.serialNo"
+                        v-model="form.serial_no"
+                        :error-messages="form.errors.serial_no"
                         class="mx-2"
                         placeholder="Serial No."
                         variant="outlined"

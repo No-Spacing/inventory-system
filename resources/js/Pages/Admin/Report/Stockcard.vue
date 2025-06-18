@@ -11,6 +11,7 @@ defineProps({
     stockcards: Object,
     products: Object,
     lots: Object,
+    serials: Object,
 })
 
 const page = usePage();
@@ -168,7 +169,7 @@ function submit(){
                         </v-row>
                     </v-expand-transition>
                     <v-expand-transition>
-                        <v-row no-gutters>
+                        <v-row no-gutters v-show="showDescription">
                             <v-col cols="12" v-if="showProductType">
                                 <div class="text-subtitle-1 text-medium-emphasis">
                                     Lot/Batch No.
@@ -176,9 +177,9 @@ function submit(){
                                 <v-autocomplete
                                     v-model="form.lot"
                                     v-model:search="searchLot"
-                                    :items="stockcards"
+                                    :items="lots"
                                     item-title="lot"
-                                    item-value="lot"
+                                    item-value="id"
                                     placeholder="Select..."
                                     variant="outlined"
                                     menu-icon=""
@@ -197,8 +198,9 @@ function submit(){
                                 </div>
                                 <v-autocomplete
                                     v-model="form.serial"
-                                    :items="stockcards"
-                                    item-title="serial"
+                                    :items="serials"
+                                    item-title="serial_no"
+                                    item-value="id"
                                     placeholder="Select..."
                                     variant="outlined"
                                     menu-icon=""

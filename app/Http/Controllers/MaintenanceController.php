@@ -42,9 +42,8 @@ class MaintenanceController extends Controller
         $unit = Unit::findOrFail($request->id);
 
         $unit->fill($request->all());
-        $dirty = $unit->getDirty();
 
-        if (!empty($dirty)) {
+        if ($unit->isDirty('unit')) {
             $validated = $request->validate([
                 'unit' => 'required|string|max:255|unique:units'
             ]);
@@ -94,9 +93,8 @@ class MaintenanceController extends Controller
         $category = Category::findOrFail($request->id);
 
         $category->fill($request->all());
-        $dirty = $category->getDirty();
 
-        if (!empty($dirty)) {
+        if ($category->isDirty('category_name')) {
             $validated = $request->validate([
                 'category_name' => 'required|string|max:255|unique:categories'
             ]);
@@ -169,9 +167,8 @@ class MaintenanceController extends Controller
         $product = Product::findOrFail($request->id);
 
         $product->fill($request->all());
-        $dirty = $product->getDirty();
 
-        if (!empty($dirty)) {
+        if ($product->isDirty('code')) {
             $validated = $request->validate([
                 'code' => 'required|unique:products',
                 'description' => 'required',
@@ -233,9 +230,8 @@ class MaintenanceController extends Controller
         $lot = Lot::findOrFail($request->id);
 
         $lot->fill($request->all());
-        $dirty = $lot->getDirty();
 
-        if (!empty($dirty)) {
+        if ($lot->isDirty('lot')) {
             $validated = $request->validate([
                 'lot' => 'required|unique:lots',
             ]);
@@ -270,9 +266,8 @@ class MaintenanceController extends Controller
         $serial = Serial::findOrFail($request->id);
 
         $serial->fill($request->all());
-        $dirty = $serial->getDirty();
 
-        if (!empty($dirty)) {
+        if ($serial->isDirty('serial_no')) {
             $request->validate([
                 'serial_no' => 'required|unique:serials'
             ]);
