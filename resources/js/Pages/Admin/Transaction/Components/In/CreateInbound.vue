@@ -44,6 +44,7 @@ const form = useForm({
     reference: '',
     remarks: '',
     document_no: '',
+    action: '',
 })
 
 const codeInput = () => {
@@ -60,16 +61,18 @@ const lotInput = () => {
 
 const data = computed(() => {
     return {
-        description: page.props.products[0]?.description || "",
-        unit: page.props.products[0]?.unit.unit || "",
-        remaining_items: page.props.products[0]?.remaining_items || "",
-        product_type: page.props.products[0]?.type || '',
+        description: page.props.products[0]?.description,
+        unit: page.props.products[0]?.unit.unit,
+        remaining_items: page.props.products[0]?.remaining_items,
+        product_type: page.props.products[0]?.type,
+        totalSerialItems: page.props.products[0]?.total_items,
     };
 });
 
 const lotData = computed(() => {
     return {
-        expiration_date: page.props.lots[0].expiration_date,
+        expiration_date: page.props.lots[0]?.expiration_date,
+        totalLotItems: page.props.lots[0]?.total_items,
     };
 });
 
@@ -101,13 +104,15 @@ watchDebounced(() => [searchCode.value, searchLot.value],
     { debounce: 1000, maxWait: 5000 }
 );
 
-function submit() {
+function submitInbound (value) {
+    form.action = value
     form.post('/create-stockcard-in', {
         preserveState: true,
         preserveScroll: true,
         onSuccess: () => {
             emit('loading', false);
             snackbar.value = true;
+            expand.value = false;
             form.reset();
         },
         onError: () => {
@@ -154,9 +159,9 @@ watch(() => page.props.products, (newProducts) => {
     
 }, { deep: true });
 
-</script>
+</script> 
 <template>
-    <v-form @submit.prevent="submit">
+    <v-form @submit.prevent>
         <div class="d-flex justify-center">
             <CurrentTime></CurrentTime> 
         </div>
@@ -309,7 +314,7 @@ watch(() => page.props.products, (newProducts) => {
         </v-expand-transition>
         <v-expand-transition v-if="expand === true">
             <v-row no-gutters v-if="data.product_type === 'Track by Lot'">
-                <v-col md="6" cols="12">
+                <v-col md="4" cols="12">
                     <div
                         class="text-subtitle-1 text-medium-emphasis mx-2"
                     >
@@ -337,7 +342,22 @@ watch(() => page.props.products, (newProducts) => {
                         </template>
                     </v-autocomplete>
                 </v-col>
-                <v-col md="4" cols="12" v-show="expandLot">
+                <v-col md="3" cols="12" v-show="expandLot">
+                    <div
+                        class="text-subtitle-1 text-medium-emphasis mx-2"
+                    >
+                        Total Items in Lot
+                    </div>
+
+                    <v-text-field
+                        v-model="lotData.totalLotItems"
+                        prepend-icon=""
+                        variant="outlined"
+                        class="mx-2"
+                        readonly
+                    ></v-text-field>
+                </v-col>
+                <v-col md="3" cols="12" v-show="expandLot">
                     <div
                         class="text-subtitle-1 text-medium-emphasis mx-2"
                     >
@@ -421,12 +441,12 @@ watch(() => page.props.products, (newProducts) => {
                 <div
                     class="text-subtitle-1 text-medium-emphasis mx-2"
                 >
-                    Supplier Name
+                    Customer/Supplier Name
                 </div>
                 <v-text-field
                     v-model="form.reference"
                     class="mx-2"
-                    placeholder="Supplier Name"
+                    placeholder="Customer/Supplier Name"
                     prepend-inner-icon=""
                     variant="outlined"
                 ></v-text-field>
@@ -478,18 +498,46 @@ watch(() => page.props.products, (newProducts) => {
                 ></v-textarea>
             </v-col>
         </v-row>
-
-        <div class="d-flex justify-end" v-if="expand">
-            <v-btn
-                append-icon="mdi-send"
-                color="primary"
-                class="me-2"
-                type="submit"
-                :loading="form.processing || buttonLoading"
-            >
-                Submit
-            </v-btn>
-        </div>
+        <v-container>
+            <v-expand-transition>
+                <div class="d-flex justify-center" v-if="expand">
+                    <v-btn
+                        append-icon="mdi-send"
+                        color="green"
+                        size="large"
+                        type="submit"
+                        class="mx-4"
+                        :loading="form.processing || buttonLoading"
+                        @click="submitInbound('inbound')"
+                        
+                    >
+                        Inbound
+                    </v-btn>
+                    <v-btn
+                        append-icon="mdi-send"
+                        color="primary"
+                        size="large"
+                        type="submit"
+                        class="mx-4"
+                        :loading="form.processing || buttonLoading"
+                        @click="submitInbound('outbound')"
+                    >
+                        Outbound
+                    </v-btn>
+                    <v-btn
+                        append-icon="mdi-send"
+                        color="#039BE5"
+                        size="large"
+                        type="submit"
+                        class="mx-4"
+                        :loading="form.processing || buttonLoading"
+                    >
+                        Transfer
+                    </v-btn>
+                </div>
+            </v-expand-transition>
+        </v-container>
+   
     </v-form>
      <v-dialog
         v-model="dialog"

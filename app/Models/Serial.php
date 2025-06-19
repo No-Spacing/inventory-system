@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Serial extends Model
 {
     protected $fillable = [
-        'serial_no'
+        'serial_no',
+        'total_items'
     ];
 }

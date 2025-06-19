@@ -63,10 +63,9 @@ const headers = [
         single-line
     ></v-text-field>
     <v-data-table
-        :filter-keys="['code']"
+        :filter-keys="['code', 'description', 'serialLotNo']"
         :headers="headers"
         :search="search"
         :items="$page.props.stockcards"
-        item-value="uniqueId"
     ></v-data-table>
 </template>

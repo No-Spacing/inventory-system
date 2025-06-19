@@ -225,6 +225,7 @@ class MaintenanceController extends Controller
         Lot::create([
             'lot' => $request->lot,
             'expiration_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->expiration_date)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
+            'total_items' => 0,
         ]);
         
         return back()->with('message', 'Lot created successfully!');

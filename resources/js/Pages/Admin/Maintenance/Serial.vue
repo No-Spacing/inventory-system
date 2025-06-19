@@ -30,6 +30,13 @@ const headers = [
         },
     },
     {
+        title: "Total Items",
+        key: "total_items",
+        headerProps: {
+            style: "font-weight: 700",
+        },
+    },
+    {
         title: "Actions",
         key: "actions",
         headerProps: {

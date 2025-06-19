@@ -53,16 +53,18 @@ const codeInput = () => {
 
 const data = computed(() => {
     return {
-        description: page.props.products[0]?.description || "",
-        unit: page.props.products[0]?.unit.unit || "",
-        remaining_items: page.props.products[0]?.remaining_items || "",
-        product_type: page.props.products[0]?.type || '',
+        description: page.props.products[0]?.description,
+        unit: page.props.products[0]?.unit.unit,
+        remaining_items: page.props.products[0]?.remaining_items,
+        product_type: page.props.products[0]?.type,
+        totalSerialItems: page.props.products[0]?.total_items,
     };
 });
 
 const lotData = computed(() => {
     return {
-        expiration_date: page.props.lots[0].expiration_date,
+        expiration_date: page.props.lots[0]?.expiration_date,
+        totalLotItems: page.props.lots[0]?.total_items,
     };
 });
 
@@ -244,78 +246,63 @@ watch(() => page.props.products, (newProducts) => {
                         readonly
                     ></v-text-field>
                 </v-col>
-               
             </v-row>
         </v-expand-transition>
-        <v-expand-transition>
+       
+        <v-expand-transition v-if="expand === true">
             <v-row no-gutters v-if="data.product_type === 'Track by Serial'">
-                <v-col md="4" cols="12">
-                    <div
-                        class="text-subtitle-1 text-medium-emphasis mx-2"
-                    >
-                        Serial No.
-                    </div>
-                    <v-text-field
-                        v-model="form.serial_no"
-                        :error-messages="form.errors.serial_no"
-                        class="mx-2"
-                        placeholder="Serial No."
-                        variant="outlined"
-                        required
-                        counter
-                    ></v-text-field>
-                </v-col>
-                <v-col md="4" cols="12">
-                    <div
-                        class="text-subtitle-1 text-medium-emphasis mx-2"
-                    >
-                        Starting No.
-                    </div>
-                    <v-text-field
-                        v-model="form.serialStartingNo"
-                        :error-messages="form.errors.serialStartingNo"
-                        type="number"
-                        class="mx-2"
-                        placeholder="Starting Serial No."
-                        variant="outlined"
-                        required
-                    ></v-text-field>
-                </v-col>
-                <v-col md="4" cols="12">
-                    <div
-                        class="text-subtitle-1 text-medium-emphasis mx-2"
-                    >
-                        Ending No.
-                    </div>
-                    <v-text-field
-                        v-model="form.serialEndingNo"
-                        :error-messages="form.errors.serialEndingNo"
-                        type="number"
-                        class="mx-2"
-                        placeholder="Ending Serial No."
-                        variant="outlined"
-                        required
-                    ></v-text-field>
-                </v-col>
-            </v-row>
-            <v-row no-gutters v-else>
-                <v-col md="6" cols="12">
-                    <div
-                        class="text-subtitle-1 text-medium-emphasis mx-2"
-                    >
-                        Expiration Date
-                    </div>
-
-                    <v-date-input
-                        v-model="lotData.expiration_date"
-                        placeholder="Date from"
-                        prepend-icon=""
-                        prepend-inner-icon="$calendar"
-                        variant="outlined"
-                        class="mx-2"
-                        readonly
-                    ></v-date-input>
-                </v-col>
+            <v-col md="4" cols="12">
+                <div
+                    class="text-subtitle-1 text-medium-emphasis mx-2"
+                >
+                    Serial No.
+                </div>
+                <v-text-field
+                    v-model="form.serial_no"
+                    :error-messages="form.errors.serial_no"
+                    class="mx-2"
+                    placeholder="Serial No."
+                    variant="outlined"
+                    required
+                    counter
+                ></v-text-field>
+            </v-col>
+            <v-col md="4" cols="12">
+                <div
+                    class="text-subtitle-1 text-medium-emphasis mx-2"
+                >
+                    Starting No.
+                </div>
+                <v-text-field
+                    v-model="form.serialStartingNo"
+                    :error-messages="form.errors.serialStartingNo"
+                    type="number"
+                    class="mx-2"
+                    placeholder="Starting Serial No."
+                    variant="outlined"
+                    required
+                ></v-text-field>
+            </v-col>
+            <v-col md="4" cols="12">
+                <div
+                    class="text-subtitle-1 text-medium-emphasis mx-2"
+                >
+                    Ending No.
+                </div>
+                <v-text-field
+                    v-model="form.serialEndingNo"
+                    :error-messages="form.errors.serialEndingNo"
+                    type="number"
+                    class="mx-2"
+                    placeholder="Ending Serial No."
+                    variant="outlined"
+                    required
+                ></v-text-field>
+            </v-col>
+        </v-row>
+        </v-expand-transition>
+        <v-expand-transition v-if="expand === true">
+            <v-row no-gutters v-if="data.product_type === 'Track by Lot'">
                 <v-col md="4" cols="12">
                     <div
                         class="text-subtitle-1 text-medium-emphasis mx-2"
@@ -333,6 +320,8 @@ watch(() => page.props.products, (newProducts) => {
                         placeholder="Select..."
                         variant="outlined"
                         menu-icon=""
+                        @update:modelValue="expandLot = true;"
+                        @input="lotInput"
                     >
                         <template v-slot:no-data>
                             <v-container fluid>
@@ -341,6 +330,38 @@ watch(() => page.props.products, (newProducts) => {
                             </v-container>
                         </template>
                     </v-autocomplete>
+                </v-col>
+                <v-col md="3" cols="12" v-show="expandLot">
+                    <div
+                        class="text-subtitle-1 text-medium-emphasis mx-2"
+                    >
+                        Total Items in Lot
+                    </div>
+
+                    <v-text-field
+                        v-model="lotData.totalLotItems"
+                        prepend-icon=""
+                        variant="outlined"
+                        class="mx-2"
+                        readonly
+                    ></v-text-field>
+                </v-col>
+                <v-col md="3" cols="12" v-show="expandLot">
+                    <div
+                        class="text-subtitle-1 text-medium-emphasis mx-2"
+                    >
+                        Expiration Date
+                    </div>
+
+                    <v-date-input
+                        v-model="lotData.expiration_date"
+                        placeholder="Date from"
+                        prepend-icon=""
+                        prepend-inner-icon="$calendar"
+                        variant="outlined"
+                        class="mx-2"
+                        readonly
+                    ></v-date-input>
                 </v-col>
                 <!-- Button -->
                 <v-col md="2" cols="12">
@@ -409,7 +430,7 @@ watch(() => page.props.products, (newProducts) => {
                 <div
                     class="text-subtitle-1 text-medium-emphasis mx-2"
                 >
-                    Customer Name
+                    Supplier Name
                 </div>
                 <v-text-field
                     v-model="form.reference"
@@ -479,7 +500,7 @@ watch(() => page.props.products, (newProducts) => {
             </v-btn>
         </div>
     </v-form>
-     <v-dialog
+    <v-dialog
         v-model="dialog"
         max-width="600"
     >

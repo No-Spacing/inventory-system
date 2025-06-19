@@ -45,6 +45,14 @@ const headers = [
 
     },
     {
+        key: "transaction_type",
+        title: "Transaction Type",
+        headerProps: {
+            style: "font-weight: 700",
+        },
+
+    },
+    {
         key: "created_at",
         title: "Created At",
         headerProps: {
@@ -63,7 +71,7 @@ const headers = [
         single-line
     ></v-text-field>
     <v-data-table
-        :filter-keys="['code', 'description', 'created_at']"
+        :filter-keys="['code', 'description', 'serialLotNo']"
         :headers="headers"
         :search="search"
         :items="$page.props.stockcards"
