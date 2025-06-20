@@ -11,10 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('serials', function (Blueprint $table) {
+        Schema::create('lots', function (Blueprint $table) {
             $table->id();
-            $table->longText('serial_no')->unique();
-            $table->bigInteger('total_items')->nullable();
+            $table->longText('lot');
+            $table->foreignId('product_id')->nullable()->references('id')->on('products')->onUpdate('cascade');
+            $table->date('expiration_date')->nullable();
             $table->timestamps();
         });
     }
@@ -24,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('serials');
+        Schema::dropIfExists('lots');
     }
 };

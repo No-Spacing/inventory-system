@@ -8,6 +8,6 @@ class Serial extends Model
 {
     protected $fillable = [
         'serial_no',
-        'total_items'
+        'product_id'
     ];
 }

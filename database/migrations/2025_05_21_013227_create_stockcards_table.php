@@ -20,10 +20,9 @@ return new class extends Migration
             $table->foreignId('enduser_id')->nullable()->references('id')->on('users')->onUpdate('cascade');
             $table->string('transaction_type')->nullable();
             $table->bigInteger('quantity')->nullable();
-            $table->bigInteger('item_balance')->nullable();
             $table->date('transaction_date')->nullable();
             $table->longText('document_no')->nullable();
-            $table->longText('warehouse')->nullable();
+            $table->longText('warehouse_id')->nullable();
             $table->string('reference')->nullable();
             $table->longText('remarks')->nullable();
             $table->timestamps();

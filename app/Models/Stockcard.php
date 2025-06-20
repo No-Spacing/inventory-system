@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use App\Models\Product;
 use App\Models\Lot;
 use App\Models\Serial;
+use App\Models\Warehouse;
 
 class Stockcard extends Model
 {
@@ -19,11 +20,10 @@ class Stockcard extends Model
         'serial_id',
         'transaction_type',
         'quantity',
-        'item_balance',
         'transaction_date',
         'expiration_date',
         'document_no',
-        'warehouse',
+        'warehouse_id',
         'reference',
         'remarks',
     ];
@@ -41,6 +41,11 @@ class Stockcard extends Model
     public function serial(): HasOne
     {
         return $this->hasOne(Serial::class, 'id', 'serial_id');
+    }
+
+     public function warehouse(): HasOne
+    {
+        return $this->hasOne(Warehouse::class, 'id', 'warehouse_id');
     }
 
 }

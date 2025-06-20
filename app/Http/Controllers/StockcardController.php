@@ -18,6 +18,7 @@ use App\Models\Product;
 use App\Models\Stockcard;
 use App\Models\Lot;
 use App\Models\Serial;
+use App\Models\Warehouse;
 
 
 class StockcardController extends Controller
@@ -54,6 +55,7 @@ class StockcardController extends Controller
             'stockcards' => Stockcard::with('product')
             ->with('lot')
             ->with('serial')
+            ->with('warehouse')
             ->get()
             ->map(function ($product) {
                 return [
@@ -61,7 +63,7 @@ class StockcardController extends Controller
                     'description' => $product->product->description,
                     'serialLotNo' => optional($product->lot)->lot . optional($product->serial)->serial_no,
                     'quantity' => $product->quantity,
-                    'warehouse' => $product->warehouse,
+                    'warehouse' => $product->warehouse->warehouse,
                     'transaction_type' => $product->transaction_type,
                     'created_at' => \Carbon\Carbon::parse($product->transaction_date)->format('Y-m-d'),
                     'expiration_date' => \Carbon\Carbon::parse($product->expiration_date)->format('Y-m-d'),
@@ -74,10 +76,54 @@ class StockcardController extends Controller
             'lots' => Lot::where('lot', 'Like', '%'.$request->lot.'%')
             ->limit(5)
             ->get(),
+            'warehouses' => Warehouse::all(),
         ]);
     }
 
     public function CreateStockcardIn(Request $request){
+
+        if($request->product_type == "Track by Lot"){
+            $request->validate([
+                'lot' => 'required',
+                'quantity' => 'required',
+                'transactionDate' => 'required', 
+                'warehouse' => 'required',
+            ]);
+            
+            if($request->input('action') === "inbound") {
+                Stockcard::create([
+                    'product_id' => $request->code,
+                    'lot_id' => $request->lot,
+                    'serial_no' => null,
+                    'transaction_type' => $request->input('action'),
+                    'quantity' => $request->quantity,
+                    'enduser_id' => Auth::user()->id,
+                    'transaction_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->transactionDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
+                    'warehouse_id' => $request->warehouse,
+                    'reference' => $request->reference,
+                    'document_no' => $request->document_no,
+                    'remarks' => $request->remarks,
+                ]);
+            }
+
+            if($request->input('action') === "outbound"){
+                Stockcard::create([
+                    'product_id' => $request->code,
+                    'lot_id' => $request->lot,
+                    'serial_no' => null,
+                    'transaction_type' => $request->input('action'),
+                    'quantity' => -$request->quantity,
+                    'enduser_id' => Auth::user()->id,
+                    'transaction_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->transactionDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
+                    'warehouse_id' => $request->warehouse,
+                    'reference' => $request->reference,
+                    'document_no' => $request->document_no,
+                    'remarks' => $request->remarks,
+                ]);
+            }
+
+        }
+
         if($request->product_type == "Track by Serial"){
             $request->validate([
                 'serial_no' => 'required|unique:serials',
@@ -99,37 +145,18 @@ class StockcardController extends Controller
 
                 if($serials){ // check if serial exist
                     for($i = $request->serialStartingNo; $i <= $request->serialEndingNo; $i++){
-                        if($request->input('action') === 'inbound'){
-                            Product::where('id', $request->code)->increment('remaining_items', $request->quantity);
-                        
-                            $remaining_items = Product::where('id', $request->code)->value('remaining_items');
-
-                            $serial_id = Serial::select('id')->where('serial_no', $request->serial_no . $i)->first(); // get the existing serials
-
-                            Serial::where('id', $serial_id->id)->increment('total_items', $request->quantity);
-                        }
-
-                        if($request->input('action') === 'outbound'){
-                            Product::where('id', $request->code)->decrement('remaining_items', $request->quantity);
-                        
-                            $remaining_items = Product::where('id', $request->code)->value('remaining_items');
-
-                            $serial_id = Serial::select('id')->where('serial_no', $request->serial_no . $i)->first(); // get the existing serials
-
-                            Serial::where('id', $serial_id->id)->decrement('total_items', $request->quantity);
-                        }
-                        
+                    
+                        $serials = Serial::where('serial_no', $request->serial_no .$i)->first();
 
                         Stockcard::create([
                             'product_id' => $request->code,
                             'lot_id' => null,
-                            'serial_id' => $serial_id->id,
+                            'serial_id' => $serials->id,
                             'transaction_type' => $request->input('action'),
-                            'quantity' => $request->quantity,
-                            'item_balance' => $remaining_items,
+                            'quantity' => -$request->quantity,
                             'enduser_id' => Auth::user()->id,
                             'transaction_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->transactionDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
-                            'warehouse' => $request->warehouse,
+                            'warehouse_id' => $request->warehouse,
                             'reference' => $request->reference,
                             'document_no' => $request->document_no,
                             'remarks' => $request->remarks,
@@ -137,36 +164,18 @@ class StockcardController extends Controller
                     }
                 }else{  // write the raw serial if it doesn't have the Starting No.
                     for($i = $request->serialStartingNo; $i <= $request->serialEndingNo; $i++){
-                        if($request->input('action') === 'inbound'){
-                            Product::where('id', $request->code)->increment('remaining_items', $request->quantity);
 
-                            $remaining_items = Product::where('id', $request->code)->value('remaining_items');
-
-                            $serial_id = Serial::create(['serial_no' => $request->serial_no . $i]); // write the new serials
-
-                            Serial::where('id', $serial_id->id)->update(['total_items' => $request->quantity]);
-                        }
-
-                        if($request->input('action') === 'outbound'){
-                            Product::where('id', $request->code)->decrement('remaining_items', $request->quantity);
-
-                            $remaining_items = Product::where('id', $request->code)->value('remaining_items');
-
-                            $serial_id = Serial::create(['serial_no' => $request->serial_no . $i]); // write the new serials
-
-                            Serial::where('id', $serial_id->id)->update(['total_items' => $request->quantity]);
-                        }
+                        $serials = Serial::create(['serial_no' => $request->serial_no .$i]);
 
                         Stockcard::create([
                             'product_id' => $request->code,
                             'lot_id' => null,
-                            'serial_id' => $serial_id->id,
+                            'serial_id' => $serials->id,
                             'transaction_type' => $request->input('action'),
                             'quantity' => $request->quantity,
-                            'item_balance' => $remaining_items,
                             'enduser_id' => Auth::user()->id,
                             'transaction_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->transactionDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
-                            'warehouse' => $request->warehouse,
+                            'warehouse_id' => $request->warehouse,
                             'reference' => $request->reference,
                             'document_no' => $request->document_no,
                             'remarks' => $request->remarks,
@@ -174,77 +183,38 @@ class StockcardController extends Controller
                     }
                 }
             }else{
-                if($request->input('action') === 'inbound'){
-                    Product::where('id', $request->code)->increment('remaining_items', $request->quantity);
-
-                    $remaining_items = Product::where('id', $request->code)->value('remaining_items');
-
-                    $serial = Serial::create(['serial_no' => $request->serial_no, 'total_items' => $request->quantity]);
+                if ($request->input('action') === 'inbound') {
+                    Stockcard::create([
+                        'product_id' => $request->code,
+                        'lot_id' => null,
+                        'serial_id' => $serial->id,
+                        'transaction_type' => $request->input('action'),
+                        'quantity' => $request->quantity,
+                        'enduser_id' => Auth::user()->id,
+                        'transaction_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->transactionDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
+                        'warehouse_id' => $request->warehouse,
+                        'reference' => $request->reference,
+                        'document_no' => $request->document_no,
+                        'remarks' => $request->remarks,
+                    ]);
                 }
 
-                if($request->input('action') === 'outbound'){
-                    Product::where('id', $request->code)->decrement('remaining_items', $request->quantity);
-
-                    $remaining_items = Product::where('id', $request->code)->value('remaining_items');
-
-                    $serial = Serial::create(['serial_no' => $request->serial_no, 'total_items' => $request->quantity]);
+                if ($request->input('action') === 'outbound') {
+                    Stockcard::create([
+                        'product_id' => $request->code,
+                        'lot_id' => null,
+                        'serial_id' => $serial->id,
+                        'transaction_type' => $request->input('action'),
+                        'quantity' => -$request->quantity,
+                        'enduser_id' => Auth::user()->id,
+                        'transaction_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->transactionDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
+                        'warehouse_id' => $request->warehouse,
+                        'reference' => $request->reference,
+                        'document_no' => $request->document_no,
+                        'remarks' => $request->remarks,
+                    ]);
                 }
-                Stockcard::create([
-                    'product_id' => $request->code,
-                    'lot_id' => null,
-                    'serial_id' => $serial->id,
-                    'transaction_type' => $request->input('action'),
-                    'quantity' => $request->quantity,
-                    'item_balance' => $remaining_items,
-                    'enduser_id' => Auth::user()->id,
-                    'transaction_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->transactionDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
-                    'warehouse' => $request->warehouse,
-                    'reference' => $request->reference,
-                    'document_no' => $request->document_no,
-                    'remarks' => $request->remarks,
-                ]);
             }
-
-        }
-        
-        if($request->product_type == "Track by Lot"){
-            $request->validate([
-                'lot' => 'required',
-                'quantity' => 'required',
-                'transactionDate' => 'required', 
-            ]);
-
-            if($request->input('action') === 'inbound'){
-                Product::where('id', $request->code)->increment('remaining_items', $request->quantity);
-
-                Lot::where('id', $request->lot)->increment('total_items', $request->quantity);
-
-                $remaining_items = Product::where('id', $request->code)->value('remaining_items');
-            }
-
-            if($request->input('action') === 'outbound'){
-                Product::where('id', $request->code)->decrement('remaining_items', $request->quantity);
-
-                Lot::where('id', $request->lot)->decrement('total_items', $request->quantity);
-
-                $remaining_items = Product::where('id', $request->code)->value('remaining_items');
-            }
-
-            Stockcard::create([
-                'product_id' => $request->code,
-                'lot_id' => $request->lot,
-                'serial_no' => null,
-                'transaction_type' => $request->input('action'),
-                'quantity' => $request->quantity,
-                'item_balance' => $remaining_items,
-                'enduser_id' => Auth::user()->id,
-                'transaction_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->transactionDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
-                'warehouse' => $request->warehouse,
-                'reference' => $request->reference,
-                'document_no' => $request->document_no,
-                'remarks' => $request->remarks,
-            ]);
-
         }
 
         if($request->input('action') === 'inbound'){
@@ -321,7 +291,6 @@ class StockcardController extends Controller
                         'serial_id' => $serial_id->id,
                         'transaction_type' => 'outbound',
                         'quantity' => $request->quantity,
-                        'item_balance' => $remaining_items,
                         'enduser_id' => Auth::user()->id,
                         'transaction_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->transactionDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
                         'warehouse' => $request->warehouse,
@@ -346,7 +315,6 @@ class StockcardController extends Controller
                         'serial_id' => $serial_id->id,
                         'transaction_type' => 'outbound',
                         'quantity' => $request->quantity,
-                        'item_balance' => $remaining_items,
                         'enduser_id' => Auth::user()->id,
                         'transaction_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->transactionDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
                         'warehouse' => $request->warehouse,
@@ -369,7 +337,6 @@ class StockcardController extends Controller
                 'serial_no' => $request->serial_no,
                 'transaction_type' => 'outbound',
                 'quantity' => $request->quantity,
-                'item_balance' => $remaining_items,
                 'enduser_id' => Auth::user()->id,
                 'transaction_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->transactionDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
                 'warehouse' => $request->warehouse,
@@ -397,7 +364,6 @@ class StockcardController extends Controller
                 'serial_no' => null,
                 'transaction_type' => 'outbound',
                 'quantity' => $request->quantity,
-                'item_balance' => $remaining_items,
                 'enduser_id' => Auth::user()->id,
                 'transaction_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->transactionDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
                 'warehouse' => $request->warehouse,

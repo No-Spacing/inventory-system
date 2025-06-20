@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use App\Models\Role;
+use App\Models\Warehouse;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -21,6 +22,9 @@ class DatabaseSeeder extends Seeder
         Role::create(['name' => 'admin']);
         Role::create(['name' => 'supervisor']);
         Role::create(['name' => 'encoder']);
+
+        Warehouse::create(['warehouse' => 'Calli']);
+        Warehouse::create(['warehouse' => 'Sterling']);
 
         User::create(['name' => 'Admin', 'email' => 'admin@email.com', 'password' => Hash::make('admin123'), 'role_id' => 1]);
         User::create(['name' => 'Supervisor', 'email' => 'supervisor@email.com', 'password' => Hash::make('supervisor123'), 'role_id' => 2]);

@@ -88,7 +88,7 @@ body {
                 <th>LoT/Serial No.</th>
                 
                 <th>Quantity</th>
-                <th>Balance</th>
+                <th>Total Items</th>
                 <th>Transaction Type</th>
                 <th>Warehouse</th>
                 <th>Customer/Supplier Name</th>

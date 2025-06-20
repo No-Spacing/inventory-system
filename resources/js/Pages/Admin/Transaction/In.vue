@@ -6,7 +6,7 @@ import { ref } from "vue";
 
 const tab = ref(null);
 
-const props = defineProps({ products: Object, stockcards: Object });
+const props = defineProps({ products: Object, stockcards: Object, warehouses: Object });
 
 const loading = ref(false)
 

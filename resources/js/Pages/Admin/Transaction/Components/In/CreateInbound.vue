@@ -63,7 +63,7 @@ const data = computed(() => {
     return {
         description: page.props.products[0]?.description,
         unit: page.props.products[0]?.unit.unit,
-        remaining_items: page.props.products[0]?.remaining_items,
+        remaining_items: 0,
         product_type: page.props.products[0]?.type,
         totalSerialItems: page.props.products[0]?.total_items,
     };
@@ -72,7 +72,7 @@ const data = computed(() => {
 const lotData = computed(() => {
     return {
         expiration_date: page.props.lots[0]?.expiration_date,
-        totalLotItems: page.props.lots[0]?.total_items,
+        totalLotItems: 0,
     };
 });
 
@@ -475,7 +475,9 @@ watch(() => page.props.products, (newProducts) => {
                 <v-select
                     v-model="form.warehouse"
                     :error-messages="form.errors.warehouse"
-                    :items="['SIP', 'Calle']"
+                    :items="page.props.warehouses"
+                    item-title="warehouse"
+                    item-value="id"
                     clearable
                     class="mx-2"
                     variant="outlined"
@@ -524,7 +526,7 @@ watch(() => page.props.products, (newProducts) => {
                     >
                         Outbound
                     </v-btn>
-                    <v-btn
+                    <!-- <v-btn
                         append-icon="mdi-send"
                         color="#039BE5"
                         size="large"
@@ -533,7 +535,7 @@ watch(() => page.props.products, (newProducts) => {
                         :loading="form.processing || buttonLoading"
                     >
                         Transfer
-                    </v-btn>
+                    </v-btn> -->
                 </div>
             </v-expand-transition>
         </v-container>

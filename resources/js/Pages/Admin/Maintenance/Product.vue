@@ -204,11 +204,11 @@ function deleteProduct() {
                                     :items="['Track by Lot', 'Track by Serial']"
                                 ></v-select>
 
-                                <v-text-field
+                                <!-- <v-text-field
                                     v-model="form.remaining_items"
                                     label="Remaining Items"
                                     :error-messages="form.errors.remaining_items"
-                                ></v-text-field>
+                                ></v-text-field> -->
                             </v-card-text>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
@@ -268,11 +268,11 @@ function deleteProduct() {
                                     :items="['Track by Lot', 'Track by Serial']"
                                 ></v-select>
 
-                                <v-text-field
+                                <!-- <v-text-field
                                     v-model="updateForm.remaining_items"
                                     label="Remaining Items"
                                     :error-messages="updateForm.errors.remaining_items"
-                                ></v-text-field>
+                                ></v-text-field> -->
                             </v-card-text>
                             <v-card-actions>
                                 <v-spacer></v-spacer>

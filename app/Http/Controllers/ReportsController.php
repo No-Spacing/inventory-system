@@ -41,7 +41,7 @@ class ReportsController extends Controller
 
     public function ViewStockcardPdf(Request $request) {
         if ($request->filled('serial')) {
-            $stockcards = Stockcard::with('product', 'lot', 'serial')
+            $stockcards = Stockcard::with('product', 'lot', 'serial', 'warehouse')
             ->where('product_id',$request->code)
             ->where('serial_id', $request->serial)
             ->get()
@@ -51,7 +51,7 @@ class ReportsController extends Controller
                     'lotNo' => optional($product->lot)->lot,
                     'serialNo' => optional($product->serial)->serial_no,
                     'transaction_type' => $product->transaction_type,
-                    'warehouse' => $product->warehouse,
+                    'warehouse' => $product->warehouse->warehouse,
                     'quantity' => $product->quantity,
                     'balance' => $product->item_balance,
                     'reference' => $product->reference,
@@ -60,42 +60,74 @@ class ReportsController extends Controller
                 ];
             });
         }else if($request->filled('lot')){
-            $stockcards = Stockcard::with('product', 'lot', 'serial')
+
+           $stockcards = Stockcard::with('product', 'lot', 'serial', 'warehouse')
             ->where('product_id', $request->code)
             ->where('lot_id', $request->lot)
+            ->orderBy('warehouse_id')
+            ->orderBy('lot_id')
+            ->orderBy('serial_id')
+            ->orderBy('created_at')
+            ->orderBy('id')
             ->get()
-            ->map(function ($product) {
-                return [
-                    'transaction_date' => $product->transaction_date,
-                    'lotNo' => optional($product->lot)->lot,
-                    'serialNo' => optional($product->serial)->serial_no,
-                    'transaction_type' => $product->transaction_type,
-                    'warehouse' => $product->warehouse,
-                    'quantity' => $product->quantity,
-                    'balance' => $product->item_balance,
-                    'reference' => $product->reference,
-                    'remarks' => $product->remarks,
-                    'document_no' => $product->document_no
-                ];
+            ->groupBy(function ($item) {
+                return $item->warehouse_id . '-' . ($item->lot_id ?? 'null') . '-' . ($item->serial_id ?? 'null');
+            })
+            ->flatMap(function ($group) {
+                $balance = 0;
+
+                return $group->map(function ($product) use (&$balance) {
+                    $balance += $product->quantity;
+
+                    return [
+                        'transaction_date' => $product->transaction_date,
+                        'lotNo' => optional($product->lot)->lot,
+                        'serialNo' => optional($product->serial)->serial_no,
+                        'transaction_type' => $product->transaction_type,
+                        'warehouse' => $product->warehouse->warehouse,
+                        'quantity' => $product->quantity,
+                        'balance' => $balance,
+                        'reference' => $product->reference,
+                        'remarks' => $product->remarks,
+                        'document_no' => $product->document_no
+                    ];
+                });
             });
         }else{
-            $stockcards = Stockcard::with('product', 'lot', 'serial')
+            $balance = 0;
+
+            $stockcards = Stockcard::with('product', 'lot', 'serial', 'warehouse')
             ->where('product_id', $request->code)
+            ->orderBy('warehouse_id')
+            ->orderBy('lot_id')
+            ->orderBy('serial_id')
+            ->orderBy('created_at')
+            ->orderBy('id')
             ->get()
-            ->map(function ($product) {
-                return [
-                    'transaction_date' => $product->transaction_date,
-                    'lotNo' => optional($product->lot)->lot,
-                    'serialNo' => optional($product->serial)->serial_no,
-                    'transaction_type' => $product->transaction_type,
-                    'warehouse' => $product->warehouse,
-                    'quantity' => $product->quantity,
-                    'balance' => $product->item_balance,
-                    'reference' => $product->reference,
-                    'remarks' => $product->remarks,
-                    'document_no' => $product->document_no 
-                ];
+            ->groupBy(function ($item) {
+                return $item->warehouse_id . '-' . ($item->lot_id ?? 'null') . '-' . ($item->serial_id ?? 'null');
+            })
+            ->flatMap(function ($group) {
+                $balance = 0;
+
+                return $group->map(function ($product) use (&$balance) {
+                    $balance += $product->quantity;
+
+                    return [
+                        'transaction_date' => $product->transaction_date,
+                        'lotNo' => optional($product->lot)->lot,
+                        'serialNo' => optional($product->serial)->serial_no,
+                        'transaction_type' => $product->transaction_type,
+                        'warehouse' => $product->warehouse->warehouse,
+                        'quantity' => $product->quantity,
+                        'balance' => $balance,
+                        'reference' => $product->reference,
+                        'remarks' => $product->remarks,
+                        'document_no' => $product->document_no
+                    ];
+                });
             });
+
         }
 
         return view('pdf.stockcard-pdf', ['stockcards' => $stockcards]);

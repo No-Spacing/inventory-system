@@ -16,7 +16,6 @@ class Product extends Model
         'category_id',
         'unit_id',
         'type',
-        'remaining_items'
     ];
 
     public function unit(): HasOne

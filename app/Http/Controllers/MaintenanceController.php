@@ -148,7 +148,6 @@ class MaintenanceController extends Controller
             'category' => 'required',
             'unit' => 'required',
             'type' => 'required',
-            'remaining_items' => 'required'
         ]);
 
         Product::create([
@@ -157,7 +156,6 @@ class MaintenanceController extends Controller
             'category_id' => $request->category,
             'unit_id' => $request->unit,
             'type' => $request->type,
-            'remaining_items' => $request->remaining_items,
         ]);
 
         return redirect('/product')->with('message', 'Product created successfully!');
@@ -175,7 +173,6 @@ class MaintenanceController extends Controller
                 'category' => 'required',
                 'unit' => 'required',
                 'type' => 'required',
-                'remaining_items' => 'required'
             ]);
         }else {
             $validated = $request->validate([
@@ -184,7 +181,6 @@ class MaintenanceController extends Controller
                 'category' => 'required',
                 'unit' => 'required',
                 'type' => 'required',
-                'remaining_items' => 'required'
             ]);
         }
 
@@ -195,7 +191,6 @@ class MaintenanceController extends Controller
             'category_id' => $request->category,
             'unit_id' => $request->unit,
             'type' => $request->type,
-            'remaining_items' => $request->remaining_items
         ]);
         
         return redirect('/product')->with('message', 'Product updated successfully!');
