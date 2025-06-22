@@ -68,48 +68,49 @@ body {
     <div class="title">STOCK CARD</div>
     <table class="info-table">
         <tr>
-            <td><strong>Product: </strong> </td>
-            <td><strong>Lot no: </strong> 01021020</td>
+            <td><strong>Product: </strong>{{ $product->code }}</td>
+            @if (isset($product->lot->lot))
+                <td><strong>Batch/Lot No.: </strong> {{ $product->lot->lot }}</td>
+            @elseif (isset($product->serial->serial_no))
+                <td><strong>Serial No.: </strong> {{ $product->serial->serial_no }}</td>
+            @endif
         </tr>
         <tr>
-            <td><strong>UOM:</strong> Each</td>
-            <td><strong>Date:</strong> April 01, 2025 to April 30, 2025</td>
+            <td><strong>UOM: </strong>{{ $product->unit->unit }}</td>
+            @if (isset($product->lot->lot))
+                <td><strong>Expiration Date: </strong> {{ $product->lot->expiration_date }}</td>
+            @endif
         </tr>
         <tr>
-            <td><strong>Date/Time Generated:</strong> {{ now() }}</td>
-            <td><strong>Expiration Date:</strong> 06/30/2025</td>
+            <td><strong>Date/Time Generated:</strong> {{ date('Y-m-d') }}</td>
+            <td><strong>Total Items: </strong>{{ $totalItems }}</td>
         </tr>
     </table>
 
     <table class="data-table">
         <thead>
             <tr>
-                <th>DATE</th>
-                <th>LoT/Serial No.</th>
-                
+                <th>DATE</th>  
                 <th>Quantity</th>
-                <th>Total Items</th>
                 <th>Transaction Type</th>
                 <th>Warehouse</th>
                 <th>Customer/Supplier Name</th>
                 <th>Document No.</th>
                 <th>Remarks</th>
                 <th>End User</th>
-                <th>Approver</th>
             </tr>
         </thead>
         <tbody>
             @foreach ($stockcards as $item)
                 <tr>
                     <td style="text-align: left;">{{ $item['transaction_date'] }}</td>
-                    <td style="text-align: left;">{{ $item['serialNo'] ?? $item['lotNo'] }}</td>
                     <td style="text-align: left;">{{ $item['quantity'] }}</td>
-                    <td style="text-align: left;">{{ $item['balance'] }}</td>
                     <td style="text-align: left;">{{ $item['transaction_type'] }}</td>
                     <td style="text-align: left;">{{ $item['warehouse'] }}</td>
                     <td style="text-align: left;">{{ $item['reference'] }}</td>
                     <td style="text-align: left;">{{ $item['document_no'] }}</td>
                     <td style="text-align: left;">{{ $item['remarks'] }}</td>
+                    <td style="text-align: left;">{{ $item['enduser'] }}</td>
                 </tr>
             @endforeach
             <tr>

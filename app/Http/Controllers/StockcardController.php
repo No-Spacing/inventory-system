@@ -50,6 +50,40 @@ class StockcardController extends Controller
     }
 
     public function In(Request $request){
+
+        $prod = Product::where('code', $request->code)->first();
+
+        $lot = Lot::where('lot', $request->lot)->first();
+
+        $serial = Serial::where('serial_no', $request->serial)->first();
+
+        $lots = Lot::where('lot', 'Like', '%'.$request->lot.'%')
+        ->where('product_id', optional($prod)->id)
+        ->limit(5)
+        ->get();
+
+        $serials = Serial::where('serial_no', 'Like', '%'.$request->serial.'%')
+        ->where('product_id', optional($prod)->id)
+        ->limit(5)
+        ->get();
+
+        $remainingLotItems = StockCard::getLotRemainingStock(
+            optional($prod)->id,
+            optional($lot)->id,
+            $request->warehouse,
+        );
+
+        $remainingSerialItems = StockCard::getSerialRemainingStock(
+            optional($prod)->id,
+            optional($serial)->id,
+            $request->warehouse,
+        );
+
+        $remainingItems = StockCard::getRemainingStock(
+            optional($prod)->id,
+            $request->warehouse,
+        );
+
         return Inertia::render('Admin/Transaction/In', [
             'users' => User::with('role')->get(),
             'stockcards' => Stockcard::with('product')
@@ -69,14 +103,20 @@ class StockcardController extends Controller
                     'expiration_date' => \Carbon\Carbon::parse($product->expiration_date)->format('Y-m-d'),
                 ];
             }),
-            'products' => Product::with('unit')
-            ->where('code', 'Like', '%'.$request->code.'%')
+            'products' => Product::with([
+                'unit',
+                'lots',
+                'serials',
+            ])
+            ->where('code', 'like', '%' . $request->code . '%')
             ->limit(5)
             ->get(),
-            'lots' => Lot::where('lot', 'Like', '%'.$request->lot.'%')
-            ->limit(5)
-            ->get(),
+            'lots' => $lots,
+            'serials' => $serials,
             'warehouses' => Warehouse::all(),
+            'remainingLotItems' => $remainingLotItems,
+            'remainingItems' => $remainingItems,
+            'remainingSerialItems' => $remainingSerialItems
         ]);
     }
 
@@ -107,27 +147,37 @@ class StockcardController extends Controller
             }
 
             if($request->input('action') === "outbound"){
-                Stockcard::create([
-                    'product_id' => $request->code,
-                    'lot_id' => $request->lot,
-                    'serial_no' => null,
-                    'transaction_type' => $request->input('action'),
-                    'quantity' => -$request->quantity,
-                    'enduser_id' => Auth::user()->id,
-                    'transaction_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->transactionDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
-                    'warehouse_id' => $request->warehouse,
-                    'reference' => $request->reference,
-                    'document_no' => $request->document_no,
-                    'remarks' => $request->remarks,
-                ]);
-            }
+                $available = Stockcard::getLotRemainingStock(
+                    $request->code,
+                    $request->lot,
+                    $request->warehouse
+                );
 
+                if ($available >= $request->quantity) {
+                    Stockcard::create([
+                        'product_id' => $request->code,
+                        'lot_id' => $request->lot,
+                        'serial_no' => null,
+                        'transaction_type' => $request->input('action'),
+                        'quantity' => -$request->quantity,
+                        'enduser_id' => Auth::user()->id,
+                        'transaction_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->transactionDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
+                        'warehouse_id' => $request->warehouse,
+                        'reference' => $request->reference,
+                        'document_no' => $request->document_no,
+                        'remarks' => $request->remarks,
+                    ]);
+                } else {
+                    return back()->withErrors(['message' => 'Insufficient balance for this specific lot.']);
+                }
+            }
         }
 
         if($request->product_type == "Track by Serial"){
             $request->validate([
                 'serial_no' => 'required|unique:serials',
                 'transactionDate' => 'required',
+                'warehouse' => 'required',
             ]);
 
             if(!empty($request->serialStartingNo)){ // check if has input on Starting No.
@@ -162,15 +212,21 @@ class StockcardController extends Controller
                             'remarks' => $request->remarks,
                         ]);
                     }
-                }else{  // write the raw serial if it doesn't have the Starting No.
-                    for($i = $request->serialStartingNo; $i <= $request->serialEndingNo; $i++){
-
-                        $serials = Serial::create(['serial_no' => $request->serial_no .$i]);
-
+                }
+            }else{
+                if ($request->input('action') === 'inbound') {
+                    $available = Stockcard::getSerialRemainingStock(
+                        $request->code,
+                        $request->serial_no,
+                        $request->warehouse
+                    );
+                    if($available == $request->quantity){
+                        return back()->withErrors(['message' => 'This Serial No. still has item!.']);
+                    }else{
                         Stockcard::create([
                             'product_id' => $request->code,
                             'lot_id' => null,
-                            'serial_id' => $serials->id,
+                            'serial_id' => $request->serial_no,
                             'transaction_type' => $request->input('action'),
                             'quantity' => $request->quantity,
                             'enduser_id' => Auth::user()->id,
@@ -182,37 +238,30 @@ class StockcardController extends Controller
                         ]);
                     }
                 }
-            }else{
-                if ($request->input('action') === 'inbound') {
-                    Stockcard::create([
-                        'product_id' => $request->code,
-                        'lot_id' => null,
-                        'serial_id' => $serial->id,
-                        'transaction_type' => $request->input('action'),
-                        'quantity' => $request->quantity,
-                        'enduser_id' => Auth::user()->id,
-                        'transaction_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->transactionDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
-                        'warehouse_id' => $request->warehouse,
-                        'reference' => $request->reference,
-                        'document_no' => $request->document_no,
-                        'remarks' => $request->remarks,
-                    ]);
-                }
 
                 if ($request->input('action') === 'outbound') {
-                    Stockcard::create([
-                        'product_id' => $request->code,
-                        'lot_id' => null,
-                        'serial_id' => $serial->id,
-                        'transaction_type' => $request->input('action'),
-                        'quantity' => -$request->quantity,
-                        'enduser_id' => Auth::user()->id,
-                        'transaction_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->transactionDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
-                        'warehouse_id' => $request->warehouse,
-                        'reference' => $request->reference,
-                        'document_no' => $request->document_no,
-                        'remarks' => $request->remarks,
-                    ]);
+                    $available = Stockcard::getSerialRemainingStock(
+                        $request->code,
+                        $request->serial_no,
+                        $request->warehouse
+                    );
+                    if($available >= $request->quantity){
+                        Stockcard::create([
+                            'product_id' => $request->code,
+                            'lot_id' => null,
+                            'serial_id' => $request->serial_no,
+                            'transaction_type' => $request->input('action'),
+                            'quantity' => -$request->quantity,
+                            'enduser_id' => Auth::user()->id,
+                            'transaction_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->transactionDate)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
+                            'warehouse_id' => $request->warehouse,
+                            'reference' => $request->reference,
+                            'document_no' => $request->document_no,
+                            'remarks' => $request->remarks,
+                        ]);
+                    } else {
+                        return back()->withErrors(['message' => 'Insufficient balance for this specific serial.']);
+                    }
                 }
             }
         }

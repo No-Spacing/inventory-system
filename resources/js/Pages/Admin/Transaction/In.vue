@@ -16,7 +16,7 @@ const handleData = (data) => {
 
 </script>
 <template>
-    <Layout title="Inbound" :loading="loading">
+    <Layout title="In & Out Transaction" :loading="loading">
         <v-container max-width="1600" class="mt-5" fluid>
             <v-tabs v-model="tab" align-tabs="center" bg-color="primary">
                 <v-tab :value="1">

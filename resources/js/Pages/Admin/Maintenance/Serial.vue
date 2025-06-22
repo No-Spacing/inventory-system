@@ -1,10 +1,13 @@
 <script setup>
 import Layout from "../../../Layout/Main.vue";
-import { ref } from "vue";
-import { usePage, useForm } from "@inertiajs/vue3";
+import { ref, watch } from "vue";
+import { watchDebounced } from "@vueuse/core";
+import { usePage, useForm, router } from "@inertiajs/vue3";
+import { nullifyTransforms } from "vuetify/lib/util/animation.mjs";
 
 defineProps({
     serials: Object,
+    products: Object,
 });
 
 const page = usePage();
@@ -13,6 +16,8 @@ const editSerialDialog = ref(false);
 
 const snackbar = ref(false);
 const errorSnackbar = ref(false);
+
+const addSerialDialog = ref(false);
 
 const headers = [
     {
@@ -46,6 +51,56 @@ const headers = [
         sortable: false,
     },
 ];
+
+const loading = ref(false);
+const preload = ref(false);
+
+const searchCode = ref();
+
+watch(() => searchCode.value, () => {
+    loading.value = true
+    preload['value'] = true;
+})
+
+watchDebounced(() => searchCode.value,
+    (value) => {
+        router.get(
+            "/serial",
+            {
+                code: value,
+            },
+            {
+                preserveState: true,
+                preserveScroll: true,
+                onSuccess: () => {
+                    loading.value = false
+                    preload['value'] = false;
+                },
+            }
+        );
+    },
+    { debounce: 1000, maxWait: 5000 }
+);
+
+const form = useForm({
+    code: null,
+    serial_no: null,
+    serialStarting: null,
+    serialEnding: null,
+})
+
+function submit() {
+    form.post('/store-serial', {
+        onSuccess: () => {
+            addSerialDialog.value = false;
+            snackbar.value = true;
+            form.reset();
+        },
+        onError: () => {
+            errorSnackbar.value = true;
+        }
+    })
+}
 
 const updateForm = useForm({
     id: null,
@@ -83,7 +138,109 @@ function update() {
                             </v-btn>
                         </div>
                     </template>
+
+                    <template
+                        v-slot:bottom="{
+                            page,
+                            itemsPerPage,
+                            pageCount,
+                            setItemsPerPage,
+                            setPage,
+                        }"
+                    >
+                        <div
+                            class="d-flex align-center justify-space-between pa-4"
+                        >
+                            <v-btn @click="addSerialDialog = true" color="primary">
+                                Add Serial
+                            </v-btn>
+
+                            <v-data-table-footer
+                                :page="page"
+                                :items-per-page="itemsPerPage"
+                                :page-count="pageCount"
+                                @update:items-per-page="setItemsPerPage"
+                                @update:page="setPage"
+                            />
+                        </div>
+                    </template>
                 </v-data-table>
+                <v-dialog v-model="addSerialDialog" max-width="500">
+                    <v-card title="Add Lot/Batch">
+                        <v-form @submit.prevent="submit">
+                            <v-card-text>
+                                <v-autocomplete
+                                    v-model="form.code"
+                                    v-model:search="searchCode"
+                                    :error-messages="form.errors.code"
+                                    :items="products"
+                                    item-title="code"
+                                    item-value="id"
+                                    placeholder="Select..."
+                                    variant="outlined"
+                                    menu-icon=""
+                                    @update:modelValue="preload = true;"
+                                >
+                                    <template v-slot:no-data>
+                                        <v-container fluid>
+                                            <span v-if="preload">Loading...</span>
+                                            <span v-else>No results found</span>
+                                        </v-container>
+                                    </template>
+                                    <template #append-inner>
+                                        <v-progress-circular
+                                        v-if="preload"
+                                        indeterminate
+                                        size="20"
+                                        color="primary"
+                                        />
+                                    </template>
+                                </v-autocomplete>
+
+                                <v-text-field
+                                    v-model="form.serial_no"
+                                    :error-messages="form.errors.serial_no"
+                                    label="Serial No."
+                                ></v-text-field>
+
+                                <v-row no-gutters>
+                                    <v-col cols="6">
+                                        <v-text-field
+                                            v-model="form.serialStarting"
+                                            :error-messages="form.errors.serialStarting"
+                                            label="Serial Starting No."
+                                            class="mr-1"
+                                        ></v-text-field>
+                                    </v-col>
+                                    <v-col cols="6">
+                                        <v-text-field
+                                            v-model="form.serialEnding"
+                                            :error-messages="form.errors.serialEnding"
+                                            label="Serial Ending No."
+                                            class="ml-1"
+                                        ></v-text-field>
+                                    </v-col>
+                                </v-row>
+
+                            </v-card-text>
+
+                            <v-card-actions>
+                                <v-spacer></v-spacer>
+
+                                <v-btn
+                                    class="ma-2 pa-2"
+                                    @click="addSerialDialog = false"
+                                >
+                                    close
+                                </v-btn>
+
+                                <v-btn class="ma-2 pa-2 bg-primary" :loading="form.processing" type="submit">
+                                    submit
+                                </v-btn>
+                            </v-card-actions>
+                        </v-form>
+                    </v-card>
+                </v-dialog>
                 <v-dialog v-model="editSerialDialog" max-width="500">
                     <v-card title="Edit Serial">
                         <v-form @submit.prevent="update">
@@ -104,7 +261,7 @@ function update() {
                                     close
                                 </v-btn>
 
-                                <v-btn class="ma-2 pa-2 bg-blue-darken-4" type="submit">
+                                <v-btn class="ma-2 pa-2 bg-blue-darken-4" type="submit" :loading="updateForm.processing">
                                     update
                                 </v-btn>
                             </v-card-actions>
@@ -113,5 +270,25 @@ function update() {
                 </v-dialog>
             </v-card>
         </v-container>
+        <v-snackbar
+            v-model="snackbar"
+            :timeout="3000"
+            color="success"
+            variant="elevated"
+            location="top"
+            class="text"
+        >
+            {{ $page.props.flash.message }}
+        </v-snackbar>
+        <v-snackbar
+            v-model="errorSnackbar"
+            :timeout="3000"
+            color="error"
+            variant="elevated"
+            location="top"
+            class="text"
+        >
+            {{ $page.props.errors.message }}
+        </v-snackbar>
     </Layout>
 </template>

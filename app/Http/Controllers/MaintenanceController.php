@@ -205,20 +205,27 @@ class MaintenanceController extends Controller
         }
     }
 
-    public function IndexLot() {
+    public function IndexLot(Request $request) {
         return Inertia::render('Admin/Maintenance/Lot', [
             'lots' => Lot::all(),
+            'products' => Product::select('id','code')
+            ->where('code', 'Like', '%'.$request->code.'%')
+            ->where('type', 'Track by Lot')
+            ->limit(5)
+            ->get(),
         ]);
     }
     
     public function StoreLot(Request $request) {
         $validated = $request->validate([
+            'code' => 'required',
             'lot' => 'required|unique:lots',
             'expiration_date' => 'required'
         ]);
 
         Lot::create([
             'lot' => $request->lot,
+            'product_id' => $request->code,
             'expiration_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->expiration_date)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
             'total_items' => 0,
         ]);
@@ -233,11 +240,13 @@ class MaintenanceController extends Controller
 
         if ($lot->isDirty('lot')) {
             $validated = $request->validate([
+                'code' => 'required',
                 'lot' => 'required|unique:lots',
                 'expiration_date' => 'required'
             ]);
         }else {
             $validated = $request->validate([
+                'code' => 'required',
                 'lot' => 'required',
                 'expiration_date' => 'required'
             ]);
@@ -246,6 +255,7 @@ class MaintenanceController extends Controller
         Lot::where('id', $request->id)
         ->update([
             'lot' => $request->lot, 
+            'product_id' => $request->code,
             'expiration_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->expiration_date)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d')
         ]);
         
@@ -262,11 +272,62 @@ class MaintenanceController extends Controller
         
     }
 
-    public function IndexSerial() {
+    public function IndexSerial(Request $request) {
         return Inertia::render('Admin/Maintenance/Serial', [
-            'serials' => Serial::all()
+            'serials' => Serial::all(),
+            'products' => Product::select('id','code')
+            ->where('code', 'Like', '%'.$request->code.'%')
+            ->where('type', 'Track by Serial')
+            ->limit(5)
+            ->get(),
         ]);
     } 
+
+    public function StoreSerial(Request $request) {
+
+        $request->validate([
+            'code' => 'required',
+            'serial_no' => 'required|unique:serials'
+        ]);
+
+        if(!empty($request->serialStarting)){ // check if has input on Starting No.
+            $request->validate([
+                'serialStarting' => 'lt:serialEnding',
+                'serialEnding' => 'required|gt:serialStarting',
+            ],
+            [
+                'serialEnding.required' => 'The Ending No. field is required.',
+                'serialStarting.lt' => 'Starting No. field must be less than the Ending No. field.',
+                'serialEnding.gt' => 'Ending No. field must be greater than the Starting No. field.'
+            ]);
+
+            $serials = Serial::where('serial_no', $request->serial_no . $request->serialStarting)
+            ->orWhere('serial_no', $request->serial_no . $request->serialEnding)
+            ->first();
+            
+            if($serials){
+                return redirect('/serial')->withErrors('message', 'Serial already exist!');
+            }else{
+                for($i = $request->serialStarting; $i <= $request->serialEnding; $i++){
+                    try {
+                        Serial::create([
+                            'serial_no' => $request->serial_no . $i,
+                            'product_id' => $request->code,
+                        ]);
+                    } catch (QueryException $e) {
+                        return back()->withErrors(['message' => "Some serial has duplicate entry! please check and try again!"]);
+                    }
+                }
+            }
+        }else{
+            Serial::create([
+                'serial_no' => $request->serial_no,
+                'product_id' => $request->code,
+            ]);
+        }
+
+        return redirect('/serial')->with('message', 'Serial created successfully!');
+    }
 
     public function UpdateSerial(Request $request) {
         $serial = Serial::findOrFail($request->id);

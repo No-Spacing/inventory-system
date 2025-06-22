@@ -194,7 +194,7 @@ function deleteUnit(){
                                     cancel
                                 </v-btn>
 
-                                <v-btn type="submit" class="ma-2 pa-2 bg-red-darken-4">
+                                <v-btn type="submit" class="ma-2 pa-2 bg-red-darken-4" :loading="updateForm.processing">
                                     delete
                                 </v-btn>
                                 </template>

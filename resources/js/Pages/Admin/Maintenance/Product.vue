@@ -284,7 +284,7 @@ function deleteProduct() {
                                     close
                                 </v-btn>
 
-                                <v-btn class="ma-2 pa-2 bg-blue-darken-4" type="submit" :loading="form.processing">
+                                <v-btn class="ma-2 pa-2 bg-blue-darken-4" type="submit" :loading="updateForm.processing">
                                     update
                                 </v-btn>
                             </v-card-actions>
@@ -305,7 +305,7 @@ function deleteProduct() {
                                         cancel
                                     </v-btn>
 
-                                    <v-btn type="submit" class="ma-2 pa-2 bg-red-darken-4">
+                                    <v-btn type="submit" class="ma-2 pa-2 bg-red-darken-4" :loading="updateForm.processing">
                                         delete
                                     </v-btn>
                                 </template>

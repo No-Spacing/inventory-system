@@ -28,6 +28,11 @@ class Stockcard extends Model
         'remarks',
     ];
 
+    public function user(): HasOne
+    {
+        return $this->hasOne(User::class, 'id', 'enduser_id');
+    }
+
     public function product(): HasOne
     {
         return $this->hasOne(Product::class, 'id', 'product_id');
@@ -46,6 +51,45 @@ class Stockcard extends Model
      public function warehouse(): HasOne
     {
         return $this->hasOne(Warehouse::class, 'id', 'warehouse_id');
+    }
+    
+    public static function getRemainingStock($productId, $warehouseId = null)
+    {
+        $query = self::where('product_id', $productId);
+
+        if ($warehouseId) {
+            $query->where('warehouse_id', $warehouseId);
+        }
+
+        return $query->selectRaw("
+            SUM(quantity) AS remaining
+        ")->value('remaining') ?? 0;
+    }
+
+    public static function getLotRemainingStock($productId, $lotId = null, $warehouseId = null)
+    {
+        $query = self::where('product_id', $productId);
+
+        $query->where('lot_id', $lotId);
+       
+        $query->where('warehouse_id', $warehouseId);
+
+        return $query->selectRaw("
+            SUM(quantity) AS remaining
+        ")->value('remaining') ?? 0;
+    }
+
+    public static function getSerialRemainingStock($productId, $serialId = null, $warehouseId = null)
+    {
+        $query = self::where('product_id', $productId);
+
+        $query->where('serial_id', $serialId);
+ 
+        $query->where('warehouse_id', $warehouseId);
+
+        return $query->selectRaw("
+            SUM(quantity) AS remaining
+        ")->value('remaining') ?? 0;
     }
 
 }

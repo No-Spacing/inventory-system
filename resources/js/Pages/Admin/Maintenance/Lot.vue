@@ -1,12 +1,15 @@
 <script setup>
 import Layout from "../../../Layout/Main.vue";
-import { ref } from "vue";
-import { useForm } from '@inertiajs/vue3';
+import { ref, watch } from "vue";
+import { watchDebounced } from "@vueuse/core";
+import { useForm, router } from '@inertiajs/vue3';
 import { VDateInput } from 'vuetify/labs/VDateInput'
 
 defineProps({
     lots: Object,
+    products: Object
 })
+
 const headers = [
     {
         title: "Id",
@@ -53,15 +56,40 @@ const addLotDialog = ref(false);
 const deleteDialog = ref(false);
 const snackbar = ref(false);
 
-const form = useForm({
-    lot: '',
-    expiration_date: ''
-});
+const loading = ref(false);
+const preload = ref(false);
 
-const updateForm = useForm({
-    id: '',
-    lot: '',
-    expiration_date: ''
+const searchCode = ref();
+
+watch(() => searchCode.value, () => {
+    loading.value = true
+    preload['value'] = true;
+})
+
+watchDebounced(() => searchCode.value,
+    (value) => {
+        router.get(
+            "/lot",
+            {
+                code: value,
+            },
+            {
+                preserveState: true,
+                preserveScroll: true,
+                onSuccess: () => {
+                    loading.value = false
+                    preload['value'] = false;
+                },
+            }
+        );
+    },
+    { debounce: 1000, maxWait: 5000 }
+);
+
+const form = useForm({
+    code: null,
+    lot: null,
+    expiration_date: null,
 });
 
 function submit() {
@@ -76,9 +104,17 @@ function submit() {
     })
 }
 
+const updateForm = useForm({
+    id: '',
+    lot: '',
+    code: '',
+    expiration_date: ''
+});
+
 function openUpdateDialog(item) {
     updateForm.id = item.id;
     updateForm.lot = item.lot;
+    updateForm.code = item.code;
     updateForm.expiration_date = item.expiration_date;
     editLotDialog.value = true;
 }
@@ -151,25 +187,48 @@ function deleteLot() {
                     <v-card title="Add Lot/Batch">
                         <v-form @submit.prevent="submit">
                             <v-card-text>
+                                <v-autocomplete
+                                    v-model="form.code"
+                                    v-model:search="searchCode"
+                                    :error-messages="form.errors.code"
+                                    :items="products"
+                                    item-title="code"
+                                    item-value="id"
+                                    placeholder="Select..."
+                                    variant="outlined"
+                                    menu-icon=""
+                                    @update:modelValue="preload = true;"
+                                >
+                                    <template v-slot:no-data>
+                                        <v-container fluid>
+                                            <span v-if="preload">Loading...</span>
+                                            <span v-else>No results found</span>
+                                        </v-container>
+                                    </template>
+                                    <template #append-inner>
+                                        <v-progress-circular
+                                        v-if="preload"
+                                        indeterminate
+                                        size="20"
+                                        color="primary"
+                                        />
+                                    </template>
+                                </v-autocomplete>
+
                                 <v-text-field
                                     v-model="form.lot"
                                     :error-messages="form.errors.lot"
                                     label="Lot/Batch No."
+                                    variant="outlined"
                                 ></v-text-field>
-                                <div
-                                    class="text-subtitle-1 text-medium-emphasis mx-2"
-                                >
-                                    Expiration Date
-                                </div>
 
                                 <v-date-input
                                     v-model="form.expiration_date"
                                     :error-messages="form.errors.expiration_date"
-                                    placeholder="Date from"
+                                    label="Expiration Date"
                                     prepend-icon=""
                                     prepend-inner-icon="$calendar"
                                     variant="outlined"
-                                    class="mx-2"
                                 ></v-date-input>
                             </v-card-text>
 
@@ -183,7 +242,7 @@ function deleteLot() {
                                     close
                                 </v-btn>
 
-                                <v-btn class="ma-2 pa-2 bg-primary" type="submit">
+                                <v-btn class="ma-2 pa-2 bg-primary" :loading="form.processing" type="submit">
                                     submit
                                 </v-btn>
                             </v-card-actions>
@@ -194,6 +253,33 @@ function deleteLot() {
                     <v-card title="Edit Lot/Batch">
                         <v-form @submit.prevent="update">
                             <v-card-text>
+                                <v-autocomplete
+                                    v-model="updateForm.code"
+                                    v-model:search="searchCode"
+                                    :error-messages="form.errors.code"
+                                    :items="products"
+                                    item-title="code"
+                                    item-value="id"
+                                    placeholder="Select..."
+                                    variant="outlined"
+                                    menu-icon=""
+                                    @update:modelValue="preload = true;"
+                                >
+                                    <template v-slot:no-data>
+                                        <v-container fluid>
+                                            <span v-if="preload">Loading...</span>
+                                            <span v-else>No results found</span>
+                                        </v-container>
+                                    </template>
+                                    <template #append-inner>
+                                        <v-progress-circular
+                                        v-if="preload"
+                                        indeterminate
+                                        size="20"
+                                        color="primary"
+                                        />
+                                    </template>
+                                </v-autocomplete>
                                 <v-text-field
                                     v-model="updateForm.lot"
                                     :error-messages="updateForm.errors.lot"
@@ -225,7 +311,7 @@ function deleteLot() {
                                     close
                                 </v-btn>
 
-                                <v-btn class="ma-2 pa-2 bg-blue-darken-4" type="submit">
+                                <v-btn class="ma-2 pa-2 bg-blue-darken-4" :loading="updateForm.processing" type="submit">
                                     update
                                 </v-btn>
                             </v-card-actions>
@@ -245,7 +331,7 @@ function deleteLot() {
                                 cancel
                             </v-btn>
 
-                            <v-btn type="submit" class="ma-2 pa-2 bg-red-darken-4">
+                            <v-btn type="submit" class="ma-2 pa-2 bg-red-darken-4" :loading="updateForm.processing">
                                 delete
                             </v-btn>
                             </template>

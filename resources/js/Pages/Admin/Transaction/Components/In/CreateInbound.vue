@@ -20,14 +20,21 @@ const emit = defineEmits(['loading']);
 
 const dialog = ref(false); // Dialog for adding new lot
 
+const transferDialog = ref(false);
+
 const expand = ref(false);
 const expandLot = ref(false);
+const expandSerial = ref(false);
 
 const searchCode = ref();
 
 const searchLot = ref();
 
+const searchSerial = ref();
+
 const snackbar = ref(false);
+
+const errorSnackbar = ref(false);
 
 const buttonLoading = ref(false);
 
@@ -59,11 +66,17 @@ const lotInput = () => {
     } 
 };
 
+const serialInput = () => {
+    if (searchSerial.value === "") {
+        expandSerial["value"] = false;
+    } 
+};
+
 const data = computed(() => {
     return {
         description: page.props.products[0]?.description,
         unit: page.props.products[0]?.unit.unit,
-        remaining_items: 0,
+        remaining_items: page.props.remainingItems,
         product_type: page.props.products[0]?.type,
         totalSerialItems: page.props.products[0]?.total_items,
     };
@@ -72,7 +85,13 @@ const data = computed(() => {
 const lotData = computed(() => {
     return {
         expiration_date: page.props.lots[0]?.expiration_date,
-        totalLotItems: 0,
+        totalLotItems: page.props.remainingLotItems,
+    };
+});
+
+const serialData = computed(() => {
+    return {
+        totalSerialItems: page.props.remainingSerialItems,
     };
 });
 
@@ -82,13 +101,15 @@ watch(() => [searchCode.value, searchLot.value], () => {
     buttonLoading.value = true;
 })
 
-watchDebounced(() => [searchCode.value, searchLot.value],
-    ([newInput1, newInput2]) => {
+watchDebounced(() => [searchCode.value, searchLot.value, searchSerial.value, form.warehouse],
+    ([newInput1, newInput2, newInput3, newInput4]) => {
         router.get(
             "/in",
             {
                 code: newInput1,
                 lot: newInput2,
+                serial: newInput3,
+                warehouse: newInput4,
             },
             {
                 preserveState: true,
@@ -100,28 +121,32 @@ watchDebounced(() => [searchCode.value, searchLot.value],
                 },
             }
         );
-    },
-    { debounce: 1000, maxWait: 5000 }
+    },{ debounce: 500, maxWait: 5000 }
 );
 
-function submitInbound (value) {
+function submitTransaction (value) {
     form.action = value
     form.post('/create-stockcard-in', {
         preserveState: true,
-        preserveScroll: true,
+        preserveScroll: false,
         onSuccess: () => {
             emit('loading', false);
-            snackbar.value = true;
             expand.value = false;
             form.reset();
+            snackbar.value = true;
         },
         onError: () => {
             emit('loading', false);
+            if(page.props.errors.message){
+                errorSnackbar.value = true;
+            }
+            
         }
     })
 }
 
 const formLot = useForm({
+    code: null,
     lot: null,
     expiration_date: null,
 })
@@ -156,7 +181,6 @@ watch(() => page.props.products, (newProducts) => {
         form.serialStartingNo = '';
         form.serialEndingNo = '';
     }
-    
 }, { deep: true });
 
 </script> 
@@ -166,6 +190,35 @@ watch(() => page.props.products, (newProducts) => {
             <CurrentTime></CurrentTime> 
         </div>
         <v-row no-gutters>
+            <v-col cols="12">
+                <div
+                    class="text-subtitle-1 text-medium-emphasis mx-2"
+                >
+                    Warehouse
+                </div>
+
+                <v-select
+                    v-model="form.warehouse"
+                    :error-messages="form.errors.warehouse"
+                    :items="page.props.warehouses"
+                    item-title="warehouse"
+                    item-value="id"
+                    class="mx-2"
+                    variant="outlined"
+                    placeholder="Select your warehouse location..."
+                    @update:modelValue="preload = true;"
+
+                >
+                    <template #append-inner>
+                        <v-progress-circular
+                        v-if="preload"
+                        indeterminate
+                        size="20"
+                        color="primary"
+                        />
+                    </template>
+                </v-select>
+            </v-col>
             <v-col cols="12">
                 <div
                     class="text-subtitle-1 text-medium-emphasis mx-2"
@@ -182,7 +235,7 @@ watch(() => page.props.products, (newProducts) => {
                     placeholder="Select..."
                     variant="outlined"
                     menu-icon=""
-                    @update:modelValue="expand = true;"
+                    @update:modelValue="expand = true; form.lot = null"
                     @input="codeInput"
                 >
                     <template v-slot:no-data>
@@ -190,6 +243,14 @@ watch(() => page.props.products, (newProducts) => {
                             <span v-if="preload">Loading...</span>
                             <span v-else>No results found</span>
                         </v-container>
+                    </template>
+                    <template #append-inner>
+                        <v-progress-circular
+                        v-if="preload"
+                        indeterminate
+                        size="20"
+                        color="primary"
+                        />
                     </template>
                 </v-autocomplete>
             </v-col>
@@ -262,56 +323,107 @@ watch(() => page.props.products, (newProducts) => {
        
         <v-expand-transition v-if="expand === true">
             <v-row no-gutters v-if="data.product_type === 'Track by Serial'">
-            <v-col md="4" cols="12">
-                <div
-                    class="text-subtitle-1 text-medium-emphasis mx-2"
-                >
-                    Serial No.
-                </div>
-                <v-text-field
-                    v-model="form.serial_no"
-                    :error-messages="form.errors.serial_no"
-                    class="mx-2"
-                    placeholder="Serial No."
-                    variant="outlined"
-                    required
-                    counter
-                ></v-text-field>
-            </v-col>
-            <v-col md="4" cols="12">
-                <div
-                    class="text-subtitle-1 text-medium-emphasis mx-2"
-                >
-                    Starting No.
-                </div>
-                <v-text-field
-                    v-model="form.serialStartingNo"
-                    :error-messages="form.errors.serialStartingNo"
-                    type="number"
-                    class="mx-2"
-                    placeholder="Starting Serial No."
-                    variant="outlined"
-                    required
-                ></v-text-field>
-            </v-col>
-            <v-col md="4" cols="12">
-                <div
-                    class="text-subtitle-1 text-medium-emphasis mx-2"
-                >
-                    Ending No.
-                </div>
-                <v-text-field
-                    v-model="form.serialEndingNo"
-                    :error-messages="form.errors.serialEndingNo"
-                    type="number"
-                    class="mx-2"
-                    placeholder="Ending Serial No."
-                    variant="outlined"
-                    required
-                ></v-text-field>
-            </v-col>
-        </v-row>
+                <v-col md="4" cols="12">
+                    <div
+                        class="text-subtitle-1 text-medium-emphasis mx-2"
+                    >
+                        Serial No.
+                    </div>
+                    <v-autocomplete
+                        v-model="form.serial_no"
+                        v-model:search="searchSerial"
+                        :error-messages="form.errors.serial_no"
+                        :items="page.props.serials"
+                        item-title="serial_no"
+                        item-value="id"
+                        class="mx-2"
+                        placeholder="Select..."
+                        variant="outlined"
+                        menu-icon=""
+                        @update:modelValue="expandSerial = true;"
+                        @input="serialInput"
+                    >
+                        <template v-slot:no-data>
+                            <v-container fluid>
+                                <span v-if="preload">Loading...</span>
+                                <span v-else>No results found</span>
+                            </v-container>
+                        </template>
+
+                        <template #append-inner>
+                            <v-progress-circular
+                            v-if="preload"
+                            indeterminate
+                            size="20"
+                            color="primary"
+                            />
+                        </template>
+                        
+                    </v-autocomplete>
+                    <!-- <v-text-field
+                        v-model="form.serial_no"
+                        :error-messages="form.errors.serial_no"
+                        class="mx-2"
+                        placeholder="Serial No."
+                        variant="outlined"
+                        required
+                        counter
+                    ></v-text-field> -->
+                </v-col>
+                <v-col md="4" cols="12">
+                    <div
+                        class="text-subtitle-1 text-medium-emphasis mx-2"
+                    >
+                        Starting No.
+                    </div>
+                    <v-text-field
+                        v-model="form.serialStartingNo"
+                        :error-messages="form.errors.serialStartingNo"
+                        type="number"
+                        class="mx-2"
+                        placeholder="Starting Serial No."
+                        variant="outlined"
+                        required
+                    ></v-text-field>
+                </v-col>
+                <v-col md="4" cols="12">
+                    <div
+                        class="text-subtitle-1 text-medium-emphasis mx-2"
+                    >
+                        Ending No.
+                    </div>
+                    <v-text-field
+                        v-model="form.serialEndingNo"
+                        :error-messages="form.errors.serialEndingNo"
+                        type="number"
+                        class="mx-2"
+                        placeholder="Ending Serial No."
+                        variant="outlined"
+                        required
+                    ></v-text-field>
+                </v-col>
+            </v-row>
         </v-expand-transition>
+        <v-expand-transition v-if="expand === true">
+            <v-row no-gutters v-show="expandSerial">
+                <v-col md="4" cols="12">
+                    <div
+                        class="text-subtitle-1 text-medium-emphasis mx-2"
+                    >
+                        Total Items in Serial
+                    </div>
+                    <v-text-field
+                        v-model="serialData.totalSerialItems"
+                        type="number"
+                        class="mx-2"
+                        placeholder="Ending Serial No."
+                        variant="outlined"
+                        readonly
+                    ></v-text-field>
+                </v-col>
+            </v-row>
+        </v-expand-transition>
+        
         <v-expand-transition v-if="expand === true">
             <v-row no-gutters v-if="data.product_type === 'Track by Lot'">
                 <v-col md="4" cols="12">
@@ -324,7 +436,7 @@ watch(() => page.props.products, (newProducts) => {
                         v-model="form.lot"
                         v-model:search="searchLot"
                         :error-messages="form.errors.lot"
-                        :items="lots"
+                        :items="page.props.lots"
                         item-title="lot"
                         item-value="id"
                         class="mx-2"
@@ -340,9 +452,19 @@ watch(() => page.props.products, (newProducts) => {
                                 <span v-else>No results found</span>
                             </v-container>
                         </template>
+
+                        <template #append-inner>
+                            <v-progress-circular
+                            v-if="preload"
+                            indeterminate
+                            size="20"
+                            color="primary"
+                            />
+                        </template>
+                        
                     </v-autocomplete>
                 </v-col>
-                <v-col md="3" cols="12" v-show="expandLot">
+                <v-col md="4" cols="12" v-show="expandLot">
                     <div
                         class="text-subtitle-1 text-medium-emphasis mx-2"
                     >
@@ -357,7 +479,7 @@ watch(() => page.props.products, (newProducts) => {
                         readonly
                     ></v-text-field>
                 </v-col>
-                <v-col md="3" cols="12" v-show="expandLot">
+                <v-col md="4" cols="12" v-show="expandLot">
                     <div
                         class="text-subtitle-1 text-medium-emphasis mx-2"
                     >
@@ -375,7 +497,7 @@ watch(() => page.props.products, (newProducts) => {
                     ></v-date-input>
                 </v-col>
                 <!-- Button -->
-                <v-col md="2" cols="12">
+                <!-- <v-col md="2" cols="12">
                     <v-btn
                         :width="$vuetify.display.smAndDown ? '100%' : '90%'"
                         color="green"
@@ -386,7 +508,7 @@ watch(() => page.props.products, (newProducts) => {
                     >
                         Add Lot
                     </v-btn>
-                </v-col>
+                </v-col> -->
             </v-row>
         </v-expand-transition>
         <v-row no-gutters>
@@ -437,7 +559,7 @@ watch(() => page.props.products, (newProducts) => {
                     variant="outlined"
                 ></v-text-field>
             </v-col>
-            <v-col sm="4" cols="6">
+            <v-col sm="6" cols="6">
                 <div
                     class="text-subtitle-1 text-medium-emphasis mx-2"
                 >
@@ -451,7 +573,7 @@ watch(() => page.props.products, (newProducts) => {
                     variant="outlined"
                 ></v-text-field>
             </v-col>
-            <v-col sm="4" cols="6">
+            <v-col sm="6" cols="6">
                 <div
                     class="text-subtitle-1 text-medium-emphasis mx-2"
                 >
@@ -465,7 +587,7 @@ watch(() => page.props.products, (newProducts) => {
                     variant="outlined"
                 ></v-text-field>
             </v-col>
-            <v-col sm="4" cols="6">
+            <!-- <v-col sm="4" cols="6">
                 <div
                     class="text-subtitle-1 text-medium-emphasis mx-2"
                 >
@@ -481,9 +603,9 @@ watch(() => page.props.products, (newProducts) => {
                     clearable
                     class="mx-2"
                     variant="outlined"
-                    placeholder="Warehouse"
+                    placeholder="Select warehouse transfer..."
                 ></v-select>
-            </v-col>
+            </v-col> -->
             <v-col sm="12" cols="12">
                 <div
                     class="text-subtitle-1 text-medium-emphasis mx-2"
@@ -510,7 +632,7 @@ watch(() => page.props.products, (newProducts) => {
                         type="submit"
                         class="mx-4"
                         :loading="form.processing || buttonLoading"
-                        @click="submitInbound('inbound')"
+                        @click="submitTransaction('inbound')"
                         
                     >
                         Inbound
@@ -522,86 +644,82 @@ watch(() => page.props.products, (newProducts) => {
                         type="submit"
                         class="mx-4"
                         :loading="form.processing || buttonLoading"
-                        @click="submitInbound('outbound')"
+                        @click="submitTransaction('outbound')"
                     >
                         Outbound
                     </v-btn>
-                    <!-- <v-btn
+                    <v-btn
                         append-icon="mdi-send"
                         color="#039BE5"
                         size="large"
                         type="submit"
                         class="mx-4"
-                        :loading="form.processing || buttonLoading"
+                        @click="transferDialog = true"
                     >
                         Transfer
-                    </v-btn> -->
+                    </v-btn>
+                    <v-dialog v-model="transferDialog" max-width="500">
+                        <v-card title="Transfer items" >
+                            <v-form>
+                                <v-card-text>
+                                    <div
+                                        class="text-subtitle-1 text-medium-emphasis"
+                                    >
+                                        Select the warehouse you want to transfer this items.
+                                    </div>
+                                    <v-select
+                                        :items="page.props.warehouses"
+                                        item-value="id"
+                                        item-title="warehouse"
+                                        variant="outlined"
+                                        placeholder="Select your warehouse..."
+                                    ></v-select>
+                                </v-card-text>
+                                <v-card-actions>
+                                    <v-spacer></v-spacer>
+
+                                    <v-btn
+                                        class="ma-2 pa-2"
+                                        @click="transferDialog = false"
+                                    >
+                                        close
+                                    </v-btn>
+
+                                    <v-btn 
+                                        class="ma-2 pa-2 bg-light-blue-darken-1" 
+                                        type="submit" 
+                                        :loading="form.processing"
+                                    >
+                                        transfer
+                                    </v-btn>
+                                </v-card-actions>
+                            </v-form>
+                        </v-card>
+                    </v-dialog>
                 </div>
             </v-expand-transition>
         </v-container>
-   
     </v-form>
-     <v-dialog
-        v-model="dialog"
-        max-width="600"
-    >
-        <v-form @submit.prevent="addLot">
-            <v-card title="Add New Lot">
-                <v-card-text>
-                    <v-row dense>
-                        <v-col cols="12">
-                            <v-text-field
-                                v-model="formLot.lot"
-                                :error-messages="formLot.errors.lot"
-                                label="Lot/Batch No."
-                                required
-                            ></v-text-field>
-                        </v-col>
-                        <v-col cols="12">
-                            <div
-                                class="text-subtitle-1 text-medium-emphasis mx-2"
-                            >
-                                Expiration Date
-                            </div>
 
-                            <v-date-input
-                                v-model="formLot.expiration_date"
-                                :error-messages="formLot.errors.expiration_date"
-                                placeholder="Date from"
-                                prepend-icon=""
-                                prepend-inner-icon="$calendar"
-                                variant="outlined"
-                                class="mx-2"
-                            ></v-date-input>
-                        </v-col>
-                    </v-row>
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn
-                        text="Close"
-                        variant="plain"
-                        @click="dialog = false"
-                    ></v-btn>
-                    <v-btn
-                        color="green"
-                        text="Save"
-                        variant="tonal"
-                        type="submit"
-                    ></v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-form>
-    </v-dialog>
     <v-snackbar
         v-model="snackbar" 
-        :timeout="2000"
+        :timeout="3000"
         color="success"
         variant="elevated"
         location="top"
         class="text"
     >
         {{ $page.props.flash.message }}
+    </v-snackbar>
+    <v-snackbar
+        v-model="errorSnackbar" 
+        :timeout="3000"
+        color="error"
+        variant="elevated"
+        location="top"
+        class="text"
+        size="md"
+    >
+        {{ $page.props.errors.message }}
     </v-snackbar>
 </template>

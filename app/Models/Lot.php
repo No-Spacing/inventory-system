@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+use App\Models\Stockcard;
+use App\Models\Product;
+
 class Lot extends Model
 {
     protected $fillable = [
@@ -11,4 +14,5 @@ class Lot extends Model
         'expiration_date',
         'product_id',
     ];
+
 }

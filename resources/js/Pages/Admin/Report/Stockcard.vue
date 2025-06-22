@@ -12,11 +12,13 @@ defineProps({
     products: Object,
     lots: Object,
     serials: Object,
+    warehouses: Object,
 })
 
 const page = usePage();
 
 const loading = ref(false);
+const preload = ref(false);
 
 const searchCode = ref();
 const searchLot = ref();
@@ -25,12 +27,15 @@ const showDescription = ref(false);
 
 const showProductType = ref(false);
 
-const preload = ref(false);
-
 const form = reactive({
+    warehouse: null,
     code: null,
     lot: null,
     serial: null,
+})
+
+const shouldRetract = computed(() => {
+  return !form.code || form.code.length <= 1
 })
 
 const data = computed(() => {
@@ -61,10 +66,10 @@ watchDebounced(() => searchCode.value,
                 },
             }
         );
-         if (searchCode.value === "") {
-            showDescription['value'] = false;
-        } else{
+        if (value) {
             showDescription.value = true;
+        } else{
+            showDescription['value'] = false;
         } 
     },
     { debounce: 1000, maxWait: 5000 }
@@ -132,6 +137,23 @@ function submit(){
                             <div
                                 class="text-subtitle-1 text-medium-emphasis"
                             >
+                                Warehouse
+                            </div>
+
+                            <v-select
+                                v-model="form.warehouse"
+                                :items="warehouses"
+                                item-title="warehouse"
+                                item-value="id"
+                                variant="outlined"
+                                placeholder="Select your warehouse..."
+                            >
+                            </v-select>
+                        </v-col>
+                        <v-col cols="12">
+                            <div
+                                class="text-subtitle-1 text-medium-emphasis"
+                            >
                                 Code
                             </div>
                             <v-autocomplete
@@ -141,6 +163,7 @@ function submit(){
                                 item-title="code"
                                 item-value="id"
                                 placeholder="Select..."
+                                @update:modelValue="form.lot = null;"
                                 variant="outlined"
                                 menu-icon=""
                             >
@@ -177,7 +200,7 @@ function submit(){
                                 <v-autocomplete
                                     v-model="form.lot"
                                     v-model:search="searchLot"
-                                    :items="lots"
+                                    :items="products[0].lots"
                                     item-title="lot"
                                     item-value="id"
                                     placeholder="Select..."

@@ -15,13 +15,13 @@ const rail = ref(false);
 const openGroup = ref([""]);
 
 function navigationRail() {
-    drawer = !drawer;
-    rail = false;
+    this.drawer = !this.drawer;
+    this.rail = false;
 }
 
 onMounted(() => {
     if(mobile.value == true){
-        drawer.value = false
+        this.drawer.value = false
     }
 })
 </script>
@@ -34,8 +34,8 @@ onMounted(() => {
             @click="rail = false"
         >
             <v-list>
-                <v-list-item href="/dashboard">
-                    <div v-if="rail">
+                <v-list-item href="/dashboard" class="d-flex justify-center">
+                    <div v-if="rail" >
                         <v-img
                             src="images/head-icon.png"
                             alt="Company Logo"
@@ -53,7 +53,6 @@ onMounted(() => {
                                     contain
                                 ></v-img>
                         </div>
-
                         <div class="d-flex text-center">
                             <v-app-bar-title>
                                 <span class="text-subtitle-1 text-grey"
@@ -88,11 +87,11 @@ onMounted(() => {
                     </template>
 
                     <Link href="/in">
-                        <v-list-item title="Inbound"></v-list-item>
+                        <v-list-item title="In & Out Transaction"></v-list-item>
                     </Link>
-                    <Link href="/out">
+                    <!-- <Link href="/out">
                         <v-list-item title="Outbound"></v-list-item>
-                    </Link>
+                    </Link> -->
                 </v-list-group>
 
                 <v-list-group value="Reports">

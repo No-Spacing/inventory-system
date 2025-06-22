@@ -78,6 +78,7 @@ Route::middleware(['user-group'])->group(function () {
         Route::delete('/delete-lot', 'DeleteLot')->can('delete', User::class);
 
         Route::get('/serial', 'IndexSerial')->can('view', User::class);
+        Route::post('/store-serial', 'StoreSerial')->can('create', User::class);
         Route::patch('/update-serial', 'UpdateSerial')->can('update', User::class);
         Route::delete('/delete-serial', 'DeleteSerial')->can('delete', User::class);
 
