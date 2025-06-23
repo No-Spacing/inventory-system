@@ -132,7 +132,7 @@ function submitTransaction (value) {
         onSuccess: () => {
             emit('loading', false);
             expand.value = false;
-            form.reset();
+            form.reset('warehouse', 'code', 'lot', 'serial_no', 'serialStartingNo', 'startingEndingNo', 'quantity', 'reference', 'document_no', 'remarks');
             snackbar.value = true;
         },
         onError: () => {
@@ -151,21 +151,21 @@ const formLot = useForm({
     expiration_date: null,
 })
 
-function addLot() {
-    formLot.post('/store-lot', {
-        preserveState: true,
-        preserveScroll: true,
-        onSuccess: () => {
-            emit('loading', false);
-            snackbar.value = true;
-            dialog.value = false;
-            formLot.reset();
-        },
-        onError: () => {
-            emit('loading', false);
-        }
-    })
-}
+// function addLot() {
+//     formLot.post('/store-lot', {
+//         preserveState: true,
+//         preserveScroll: true,
+//         onSuccess: () => {
+//             emit('loading', false);
+//             snackbar.value = true;
+//             dialog.value = false;
+//             formLot.reset();
+//         },
+//         onError: () => {
+//             emit('loading', false);
+//         }
+//     })
+// }
 
 const product_type = ref();
 watch(() => page.props.products, (newProducts) => {
@@ -207,6 +207,7 @@ watch(() => page.props.products, (newProducts) => {
                     variant="outlined"
                     placeholder="Select your warehouse location..."
                     @update:modelValue="preload = true;"
+                    clearable
 
                 >
                     <template #append-inner>

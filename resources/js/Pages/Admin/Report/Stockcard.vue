@@ -147,6 +147,7 @@ function submit(){
                                 item-value="id"
                                 variant="outlined"
                                 placeholder="Select your warehouse..."
+                                clearable
                             >
                             </v-select>
                         </v-col>

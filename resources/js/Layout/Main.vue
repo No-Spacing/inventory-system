@@ -34,7 +34,7 @@ onMounted(() => {
             @click="rail = false"
         >
             <v-list>
-                <v-list-item href="/dashboard" class="d-flex justify-center">
+                <v-list-item href="/dashboard">
                     <div v-if="rail" >
                         <v-img
                             src="images/head-icon.png"
