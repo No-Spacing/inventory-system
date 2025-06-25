@@ -1,5 +1,5 @@
 <script setup>
-import Layout from "../../../Layout/Main.vue";
+import Layout from "../../Layout/Main.vue";
 import OutAdjustments from "./Components/Out/CreateOutbound.vue";
 import OutTable from "./Components/Out/TableOutbound.vue";
 import { ref } from "vue";

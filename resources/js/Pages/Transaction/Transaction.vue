@@ -1,7 +1,7 @@
 <script setup>
-import Layout from "../../../Layout/Main.vue";
-import InAdjustments from "./Components/In/CreateInbound.vue";
-import InTable from "./Components/In/TableInbound.vue";
+import Layout from "../../Layout/Main.vue";
+import CreateTransactionComponent from "./Components/Transaction/CreateTransaction.vue";
+import TransactionTableComponent from "./Components/Transaction/TransactionTable.vue";
 import { ref } from "vue";
 
 const tab = ref(null);
@@ -33,12 +33,12 @@ const handleData = (data) => {
                 <v-tabs-window v-model="tab">
                     <v-tabs-window-item :value="1">
                         <v-container fluid>
-                            <InTable></InTable>
+                            <TransactionTableComponent></TransactionTableComponent>
                         </v-container>
                     </v-tabs-window-item>
                     <v-tabs-window-item :value="2">
                         <v-container max-width="1500" fluid>
-                            <InAdjustments @loading="handleData"></InAdjustments>
+                            <CreateTransactionComponent @loading="handleData"></CreateTransactionComponent>
                         </v-container>
                     </v-tabs-window-item>
                 </v-tabs-window>

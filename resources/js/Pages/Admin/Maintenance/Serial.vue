@@ -176,7 +176,7 @@ function update() {
                                     :items="products"
                                     item-title="code"
                                     item-value="id"
-                                    placeholder="Select..."
+                                    placeholder="Select a product..."
                                     variant="outlined"
                                     menu-icon=""
                                     @update:modelValue="preload = true;"
@@ -197,6 +197,12 @@ function update() {
                                     </template>
                                 </v-autocomplete>
 
+                                <div class="d-flex justify-center mb-5">
+                                    <v-img 
+                                        cover
+                                        src="https://cdn.vuetifyjs.com/images/parallax/material.jpg"
+                                    ></v-img>
+                                </div>
                                 <v-text-field
                                     v-model="form.serial_no"
                                     :error-messages="form.errors.serial_no"

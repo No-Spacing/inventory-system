@@ -34,11 +34,15 @@ Route::middleware(['user-group'])->group(function () {
     Route::controller(StockcardController::class)->group(function () {
         Route::get('/dashboard', 'Dashboard');
         
-        Route::get('/in', 'In');
-        Route::post('/create-stockcard-in', 'CreateStockcardIn');
+        Route::get('/transaction', 'Transaction');
+        Route::post('/stockcard-data', 'StockcardData');
 
         Route::get('out', 'Out');
         Route::post('/create-stockcard-out', 'CreateStockcardOut');
+
+        Route::get('/receive', 'IndexReceive');
+
+        Route::post('/getter', 'getter');
 
     });
 
@@ -52,7 +56,7 @@ Route::middleware(['user-group'])->group(function () {
 
     // Route::inertia('/stockcard', 'Admin/Report/Stockcard');
 
-    Route::inertia('/summary', 'Admin/Report/Summary');
+    Route::inertia('/summary', 'Report/Summary');
 
     // Maintenance routes
 

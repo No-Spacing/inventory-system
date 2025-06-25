@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from "vue";
-import Layout from "../../Layout/Main.vue";
+import Layout from "../Layout/Main.vue";
 
 const props = defineProps({ 
     users: Object, 

@@ -69,30 +69,27 @@ body {
     <table class="info-table">
         <tr>
             <td><strong>Product: </strong>{{ $product->code }}</td>
-            @if (isset($product->lot->lot))
-                <td><strong>Batch/Lot No.: </strong> {{ $product->lot->lot }}</td>
-            @elseif (isset($product->serial->serial_no))
-                <td><strong>Serial No.: </strong> {{ $product->serial->serial_no }}</td>
-            @endif
-        </tr>
-        <tr>
             <td><strong>UOM: </strong>{{ $product->unit->unit }}</td>
-            @if (isset($product->lot->lot))
-                <td><strong>Expiration Date: </strong> {{ $product->lot->expiration_date }}</td>
-            @endif
         </tr>
         <tr>
+            <td><strong>Description: </strong> {{ $product->description }}</td>
             <td><strong>Date/Time Generated:</strong> {{ date('Y-m-d') }}</td>
             <td><strong>Total Items: </strong>{{ $totalItems }}</td>
         </tr>
+
     </table>
 
     <table class="data-table">
         <thead>
             <tr>
-                <th>DATE</th>  
-                <th>Quantity</th>
+                <th>Transaction Date</th>  
+                <th>Batch/Lot/Serial No.</th>
+                @if ($product->type == "Track by Lot")
+                    <th>Expiration Date</th>
+                @endif
                 <th>Transaction Type</th>
+                <th>Quantity</th>
+                <th>Balance</th>
                 <th>Warehouse</th>
                 <th>Customer/Supplier Name</th>
                 <th>Document No.</th>
@@ -104,8 +101,13 @@ body {
             @foreach ($stockcards as $item)
                 <tr>
                     <td style="text-align: left;">{{ $item['transaction_date'] }}</td>
-                    <td style="text-align: left;">{{ $item['quantity'] }}</td>
+                    <td style="text-align: left;">{{ $item['lotNo'] ?? $item['serialNo'] }}</td>
+                    @if ($product->type == "Track by Lot")
+                       <td style="text-align: left;">{{ $item['expiration_date'] }}</td> 
+                    @endif
                     <td style="text-align: left;">{{ $item['transaction_type'] }}</td>
+                    <td style="text-align: left;">{{ $item['quantity'] }}</td>
+                    <td style="text-align: left;">{{ $item['balance'] }}</td>
                     <td style="text-align: left;">{{ $item['warehouse'] }}</td>
                     <td style="text-align: left;">{{ $item['reference'] }}</td>
                     <td style="text-align: left;">{{ $item['document_no'] }}</td>
@@ -114,7 +116,7 @@ body {
                 </tr>
             @endforeach
             <tr>
-                <td colspan="8" style="text-align: left;">Total records: {{ count($stockcards) }}</td>
+                <td colspan="11" style="text-align: left;">Total records: {{ count($stockcards) }}</td>
             </tr>
         </tbody>
     </table>

@@ -1,5 +1,5 @@
 <script setup>
-import Layout from "../../../Layout/Main.vue";
+import Layout from "../../Layout/Main.vue";
 import { VDateInput } from "vuetify/labs/VDateInput";
 import { ref, watch, computed, reactive } from "vue";
 import { watchDebounced } from "@vueuse/core";

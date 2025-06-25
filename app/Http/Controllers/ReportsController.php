@@ -16,7 +16,7 @@ use Inertia\Inertia;
 class ReportsController extends Controller
 {
     public function IndexStockcard(Request $request){
-        return Inertia::render('Admin/Report/Stockcard', [
+        return Inertia::render('Report/Stockcard', [
             'warehouses' => Warehouse::all(),
             'products' => Product::with(['lots'])
             ->select('id','code', 'description', 'type')
@@ -72,6 +72,7 @@ class ReportsController extends Controller
                         'transaction_date' => $product->transaction_date,
                         'lotNo' => optional($product->lot)->lot,
                         'serialNo' => optional($product->serial)->serial_no,
+                        'expiration_date' => optional($product->lot)->expiration_date,
                         'transaction_type' => $product->transaction_type,
                         'warehouse' => $product->warehouse->warehouse,
                         'quantity' => $product->quantity,
@@ -107,12 +108,17 @@ class ReportsController extends Controller
                 $balance = 0;
 
                 return $group->map(function ($product) use (&$balance) {
-                    $balance += $product->quantity;
+                    if ($product->transaction_type == 'inbound') {
+                        $balance += $product->quantity;
+                    } else {
+                        $balance -= $product->quantity;
+                    }
 
                     return [
                         'transaction_date' => $product->transaction_date,
                         'lotNo' => optional($product->lot)->lot,
                         'serialNo' => optional($product->serial)->serial_no,
+                        'expiration_date' => optional($product->lot)->expiration_date,
                         'transaction_type' => $product->transaction_type,
                         'warehouse' => $product->warehouse->warehouse,
                         'quantity' => $product->quantity,
@@ -133,7 +139,6 @@ class ReportsController extends Controller
         }else{
             if(isset($request->warehouse)){
                 $balance = 0;
-
                 $stockcards = Stockcard::with('product', 'lot', 'serial', 'warehouse', 'user')
                 ->where('product_id', $request->code)
                 ->where('warehouse_id', $request->warehouse)
@@ -150,12 +155,17 @@ class ReportsController extends Controller
                     $balance = 0;
 
                     return $group->map(function ($product) use (&$balance) {
-                        $balance += $product->quantity;
+                        if ($product->transaction_type == 'inbound') {
+                            $balance += $product->quantity;
+                        } else {
+                            $balance -= $product->quantity;
+                        }
 
                         return [
                             'transaction_date' => $product->transaction_date,
                             'lotNo' => optional($product->lot)->lot,
                             'serialNo' => optional($product->serial)->serial_no,
+                            'expiration_date' => optional($product->lot)->expiration_date,
                             'transaction_type' => $product->transaction_type,
                             'warehouse' => $product->warehouse->warehouse,
                             'quantity' => $product->quantity,
@@ -174,7 +184,6 @@ class ReportsController extends Controller
                 );
             }else{
                 $balance = 0;
-
                 $stockcards = Stockcard::with('product', 'lot', 'serial', 'warehouse', 'user')
                 ->where('product_id', $request->code)
                 ->orderBy('warehouse_id')
@@ -190,12 +199,17 @@ class ReportsController extends Controller
                     $balance = 0;
 
                     return $group->map(function ($product) use (&$balance) {
-                        $balance += $product->quantity;
+                        if ($product->transaction_type == 'inbound') {
+                            $balance += $product->quantity;
+                        } else {
+                            $balance -= $product->quantity;
+                        }
 
                         return [
                             'transaction_date' => $product->transaction_date,
                             'lotNo' => optional($product->lot)->lot,
                             'serialNo' => optional($product->serial)->serial_no,
+                            'expiration_date' => optional($product->lot)->expiration_date,
                             'transaction_type' => $product->transaction_type,
                             'warehouse' => $product->warehouse->warehouse,
                             'quantity' => $product->quantity,
@@ -215,8 +229,10 @@ class ReportsController extends Controller
 
         }
 
+        $stockcardSorted = $stockcards->sortBy('transaction_date')->values();
+
         return view('pdf.stockcard-pdf', 
-        [   'stockcards' => $stockcards, 
+        [   'stockcards' => $stockcardSorted, 
             'totalItems' => $totalItems,
             'product' => $product,
         ]);
@@ -239,6 +255,6 @@ class ReportsController extends Controller
     }
 
     public function IndexSummary() {
-        return Inertia::render('Admin/Report/Summary');
+        return Inertia::render('Report/Summary');
     }
 }

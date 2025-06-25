@@ -62,7 +62,8 @@ class Stockcard extends Model
         }
 
         return $query->selectRaw("
-            SUM(quantity) AS remaining
+            SUM(CASE WHEN transaction_type = 'inbound' THEN quantity ELSE 0 END) -
+            SUM(CASE WHEN transaction_type = 'outbound' THEN quantity ELSE 0 END) AS remaining
         ")->value('remaining') ?? 0;
     }
 
@@ -75,7 +76,8 @@ class Stockcard extends Model
         $query->where('warehouse_id', $warehouseId);
 
         return $query->selectRaw("
-            SUM(quantity) AS remaining
+            SUM(CASE WHEN transaction_type = 'inbound' THEN quantity ELSE 0 END) -
+            SUM(CASE WHEN transaction_type = 'outbound' THEN quantity ELSE 0 END) AS remaining
         ")->value('remaining') ?? 0;
     }
 
@@ -88,7 +90,8 @@ class Stockcard extends Model
         $query->where('warehouse_id', $warehouseId);
 
         return $query->selectRaw("
-            SUM(quantity) AS remaining
+            SUM(CASE WHEN transaction_type = 'inbound' THEN quantity ELSE 0 END) -
+            SUM(CASE WHEN transaction_type = 'outbound' THEN quantity ELSE 0 END) AS remaining
         ")->value('remaining') ?? 0;
     }
 

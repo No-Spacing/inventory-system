@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
         Role::create(['name' => 'supervisor']);
         Role::create(['name' => 'encoder']);
 
-        Warehouse::create(['warehouse' => 'Calli']);
+        Warehouse::create(['warehouse' => 'Calle']);
         Warehouse::create(['warehouse' => 'Sterling']);
 
         User::create(['name' => 'Admin', 'email' => 'admin@email.com', 'password' => Hash::make('admin123'), 'role_id' => 1]);

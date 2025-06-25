@@ -306,12 +306,12 @@ class MaintenanceController extends Controller
             ->first();
             
             if($serials){
-                return redirect('/serial')->withErrors('message', 'Serial already exist!');
+                return redirect('/serial')->withErrors(['message' => "Serial already exist!"]);
             }else{
                 for($i = $request->serialStarting; $i <= $request->serialEnding; $i++){
                     try {
                         Serial::create([
-                            'serial_no' => $request->serial_no . $i,
+                            'serial_no' => $request->serial_no . str_pad($i, 4, "0", STR_PAD_LEFT),
                             'product_id' => $request->code,
                         ]);
                     } catch (QueryException $e) {

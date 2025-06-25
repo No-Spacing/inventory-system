@@ -1,18 +1,32 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { useDisplay } from "vuetify";
-import { Head, Link } from "@inertiajs/vue3";
+import { Head, Link, useForm } from "@inertiajs/vue3";
+import View from "./View.vue"
 
 const props = defineProps({
     title: String,
     loading: Boolean,
 });
 
+const form = useForm({
+    data: null,
+});
+
+// const now = new Date();
+const viewDialog = ref(false); // this check all of the view port page
+// const targetDate = new Date('2025-06-26'); // example target
+
+// if (now >= targetDate) {
+//   viewDialog.value = true;
+// }
+
 const { mobile } = useDisplay();
 
 const drawer = ref(true);
 const rail = ref(false);
 const openGroup = ref([""]);
+
 
 function navigationRail() {
     this.drawer = !this.drawer;
@@ -86,7 +100,7 @@ onMounted(() => {
                         ></v-list-item>
                     </template>
 
-                    <Link href="/in">
+                    <Link href="/transaction">
                         <v-list-item title="In & Out Transaction"></v-list-item>
                     </Link>
                     <!-- <Link href="/out">
