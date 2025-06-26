@@ -281,7 +281,7 @@ class StockcardController extends Controller
             'product_id' => $stockcard->product_id,
             'lot_id' => $stockcard->lot_id,
             'serial_no' => $stockcard->serial_no,
-            'transaction_type' => 'outbound',
+            'transaction_type' => 'inbound',
             'quantity' => $stockcard->quantity,
             'enduser_id' => Auth::user()->id,
             'transaction_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse(now())->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
