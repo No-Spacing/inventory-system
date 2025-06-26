@@ -225,7 +225,9 @@ class MaintenanceController extends Controller
         Lot::create([
             'lot' => $request->lot,
             'product_id' => $request->code,
-            'expiration_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->expiration_date)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
+            'expiration_date' => $request->expiration_date
+                                ? \Carbon\Carbon::parse($request->expiration_date)->setTimezone('Asia/Manila')->toDateString()
+                                : null,
             'total_items' => 0,
         ]);
         
