@@ -41,6 +41,7 @@ Route::middleware(['user-group'])->group(function () {
         Route::post('/create-stockcard-out', 'CreateStockcardOut');
 
         Route::get('/receive', 'IndexReceive');
+        Route::patch('/received', 'Received');
 
         Route::post('/getter', 'getter');
 

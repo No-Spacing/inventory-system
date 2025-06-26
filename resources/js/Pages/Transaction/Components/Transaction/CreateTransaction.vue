@@ -129,14 +129,12 @@ function submitTransaction (value) {
     form.action = value
     form.post('/stockcard-data', {
         preserveState: true,
-        preserveScroll: true,
         onSuccess: () => {
             emit('loading', false);
             snackbar.value = true;
             expand.value = false;
             transferDialog.value = false
             form.reset('code');
-
         },
         onError: () => {
             emit('loading', false);
@@ -198,7 +196,7 @@ watch(() => page.props.products, (newProducts) => {
                 </template>
             </v-select>
  
-        <v-card variant="outlined" title="Product" class="my-5">
+        <v-card variant="outlined" title="Product Details" class="my-5">
             <v-row no-gutters class="ma-2 pa-2">
                 <v-col cols="12">
                     <div
@@ -209,6 +207,7 @@ watch(() => page.props.products, (newProducts) => {
                     <v-autocomplete
                         v-model="form.code"
                         v-model:search="searchCode"
+                        :error-messages="form.errors.code"
                         :items="products"
                         item-title="code"
                         class="mx-2"
@@ -301,7 +300,7 @@ watch(() => page.props.products, (newProducts) => {
             </v-row>
         </v-card>
         
-        <v-card title="Serial" variant="outlined" v-if="expand && data.product_type === 'Track by Serial'" class="my-5" :disabled="preload">
+        <v-card title="Serial No." variant="outlined" v-if="expand && data.product_type === 'Track by Serial'" class="my-5" :disabled="preload">
             <v-expand-transition>
                 <v-row no-gutters class="ma-2 pa-2"> 
                     <v-col md="4" cols="12">
@@ -403,7 +402,7 @@ watch(() => page.props.products, (newProducts) => {
         </v-card>
         
         <v-expand-transition v-if="expand === true && data.product_type === 'Track by Lot'" class="my-5">
-            <v-card variant="outlined" title="Lot" :disabled="preload">
+            <v-card variant="outlined" title="Batch/Lot No." :disabled="preload">
 
                 <v-row no-gutters class="pa-2 ma-2">
                     <v-col md="4" cols="12">
@@ -594,7 +593,7 @@ watch(() => page.props.products, (newProducts) => {
         </v-row>
         <v-container>
             <v-expand-transition>
-                <div class="d-flex justify-center" v-if="expand">
+                <div class="d-flex justify-center">
                     <v-btn
                         append-icon="mdi-send"
                         color="green"

@@ -45,6 +45,13 @@ const headers = [
         }, 
     },
     {
+        title: 'Document No.',
+        key: 'document_no',
+        headerProps: {
+            style: "font-weight: 700",
+        }, 
+    },
+    {
         title: "Actions",
         key: "actions",
         headerProps: {
@@ -56,12 +63,28 @@ const headers = [
 ]
 
 const form = useForm({
-    warehouse: null,
+    from: null,
+    to: null,
 })
 
-watch(() => form.warehouse, (value) => {
+function sumbit(items)
+{
+    router.patch('/received',
+        {
+            stockcardId: items.id,
+            from: form.from,
+            to: form.to,
+        },
+        {
+
+        }
+    )
+}
+
+watch(() => [form.from, form.to], ([value, value2]) => {
         router.get('/receive', {
-            warehouse: value
+            from: value,
+            to: value2,   
         },
         {
             preserveState: true
@@ -73,23 +96,39 @@ watch(() => form.warehouse, (value) => {
     <Layout title="Receive Items">
         <v-container max-width="1500" fluid>
             <v-card elevation="2" class="pa-8 my-5">
-                <v-row>
-                    <v-col cols="4">
-                        <v-select
-                            v-model="form.warehouse"
-                            placeholder="Select warehouse..."
-                            :items="warehouses"
-                            item-title="warehouse"
-                            item-value="id"
-                            variant="outlined"
-                            clearable
-                        ></v-select>
-                    </v-col>
-                </v-row>
+                <v-card title="Warehouse" variant="text" class="mb-2">
+                    <v-card-text>
+                        <v-row>
+                            <v-col cols="4">
+                                <v-select
+                                    v-model="form.from"
+                                    placeholder="Select warehouse..."
+                                    label="From"
+                                    :items="warehouses"
+                                    item-title="warehouse"
+                                    variant="outlined"
+                                    clearable
+                                ></v-select>
+                            </v-col>
+                            <v-col cols="4">
+                                <v-select
+                                    v-model="form.to"
+                                    placeholder="Select warehouse..."
+                                    label="To"
+                                    :items="warehouses"
+                                    item-title="warehouse"
+                                    variant="outlined"
+                                    clearable
+                                ></v-select>
+                            </v-col>
+                        </v-row>
+                    </v-card-text>
+                </v-card>
                 <v-data-table :headers="headers" :items="stockcards">
                     <template v-slot:item.actions="{ item }">
                         <div class="d-flex justify-center ga-2 blue">
-                            <v-btn 
+                            <v-btn
+                                @click="sumbit(item)"
                                 append-icon="mdi-send"
                                 color="#FFEE58"
                             >
@@ -100,12 +139,11 @@ watch(() => form.warehouse, (value) => {
                             </v-btn>
                         </div>
                     </template>
-                
                 </v-data-table>
             </v-card>
         </v-container>
     </Layout>
-    <!-- <v-snackbar
+    <v-snackbar
         v-model="snackbar" 
         :timeout="2000"
         color="success"
@@ -114,5 +152,5 @@ watch(() => form.warehouse, (value) => {
         class="text"
     >
         {{ $page.props.flash.message }}
-    </v-snackbar> -->
+    </v-snackbar>
 </template>

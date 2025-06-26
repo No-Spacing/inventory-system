@@ -121,14 +121,18 @@ class StockcardController extends Controller
 
     public function StockcardData(Request $request){
 
+        $request->validate([
+                'warehouse' => 'required',
+                'code' => 'required',
+                'transactionDate' => 'required',
+            ]);
+
         $product = Product::select('id')->where('code', $request->code)->first();
 
         if($request->product_type == "Track by Lot"){
             $request->validate([
                 'lot' => 'required',
                 'quantity' => 'required',
-                'transactionDate' => 'required', 
-                'warehouse' => 'required',
             ]);
 
             $lot = Lot::select('id')->where('lot', $request->lot)->where('product_id', $product->id)->first();
@@ -183,8 +187,6 @@ class StockcardController extends Controller
             
             $request->validate([
                 'serial_no' => 'required',
-                'transactionDate' => 'required',
-                'warehouse' => 'required',
             ]);
 
             $serial = Serial::select('id')->where('serial_no', $request->serial_no)->where('product_id', $product->id)->first();
@@ -240,20 +242,23 @@ class StockcardController extends Controller
 
     public function IndexReceive (Request $request) {
 
-        $warehouse = Warehouse::where('id', $request->warehouse)->first();
+        $warehouse = Warehouse::where('warehouse', $request->from)->first();
         $stockcards =  Stockcard::with('product')
         ->with('lot')
         ->with('serial')
         ->with('warehouse')
-        ->where('remarks', "Transfer to Sterling")
-        ->where('warehouse_id' , 1)
+        ->where('remarks', "Transfer to " . $request->to)
+        ->where('warehouse_id' , optional($warehouse)->id)
+        ->where('received_at', NULL)
         ->get()
         ->map(function ($product) {
             return [
+                'id' => $product->id,
                 'code' => $product->product->code,
                 'description' => $product->product->description,
                 'serialLotNo' => optional($product->lot)->lot . optional($product->serial)->serial_no,
                 'quantity' => $product->quantity,
+                'document_no' => $product->document_no,
                 'remarks' => $product->remarks,
             ];
         });
@@ -263,6 +268,27 @@ class StockcardController extends Controller
             'stockcards' => $stockcards,   
             'warehouses' => Warehouse::all(),
         ]);
+    }
+
+    public function Received(Request $request)
+    {
+        Stockcard::where('id', $request->stockcardId)->update(['received_at' => now()]);
+        $warehouse = Warehouse::where('warehouse', $request->to)->first();
+        Stockcard::create([
+            'product_id' => $request->code,
+            'lot_id' => null,
+            'serial_no' => $request->serial_no,
+            'transaction_type' => 'inbound',
+            'quantity' => $request->quantity,
+            'enduser_id' => Auth::user()->id,
+            'transaction_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse(now())->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
+            'warehouse' => optional($warehouse)->warehouse,
+            'reference' => $request->reference,
+            'document_no' => $request->document_no,
+            'remarks' => 'Received from ' . $request->from,
+        ]);
+
+        return redirect('/receive')->with('message', 'Stock has been successfully received from inventory.');
     }
 
     // public function Out(Request $request){

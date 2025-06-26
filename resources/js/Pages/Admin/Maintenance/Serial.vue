@@ -4,6 +4,7 @@ import { ref, watch } from "vue";
 import { watchDebounced } from "@vueuse/core";
 import { usePage, useForm, router } from "@inertiajs/vue3";
 import { nullifyTransforms } from "vuetify/lib/util/animation.mjs";
+import { fa } from "vuetify/locale";
 
 defineProps({
     serials: Object,
@@ -13,6 +14,7 @@ defineProps({
 const page = usePage();
 
 const editSerialDialog = ref(false);
+const deleteDialog = ref(false);
 
 const snackbar = ref(false);
 const errorSnackbar = ref(false);
@@ -30,13 +32,6 @@ const headers = [
     {
         title: "Serial No.",
         key: "serial_no",
-        headerProps: {
-            style: "font-weight: 700",
-        },
-    },
-    {
-        title: "Total Items",
-        key: "total_items",
         headerProps: {
             style: "font-weight: 700",
         },
@@ -119,6 +114,24 @@ function update() {
             editSerialDialog.value = false;
             snackbar.value = true;
         },
+    })
+}
+
+function openDeleteDialog(item)
+{
+    updateForm.id = item.id;
+    deleteDialog.value = true;
+}
+
+function deleteSerial() {
+    updateForm.delete('/delete-serial', {
+        onSuccess: () => {
+            snackbar.value = true;
+            deleteDialog.value = false;
+        },
+        onError: () => {
+            errorSnackbar.value = true;
+        }
     })
 }
 
@@ -274,6 +287,26 @@ function update() {
                         </v-form>
                     </v-card>
                 </v-dialog>
+                <v-dialog  v-model="deleteDialog"  max-width="400">
+                        <v-form @submit.prevent="deleteSerial">
+                            <v-card
+                                title="Are you sure you want to delete?"
+                                text="This action cannot be undone."
+                            >
+                                <template v-slot:actions>
+                                <v-spacer></v-spacer>
+
+                                <v-btn @click="deleteDialog = false">
+                                    cancel
+                                </v-btn>
+
+                                <v-btn type="submit" class="ma-2 pa-2 bg-red-darken-4" :loading="updateForm.processing">
+                                    delete
+                                </v-btn>
+                                </template>
+                            </v-card>
+                        </v-form>
+                    </v-dialog>
             </v-card>
         </v-container>
         <v-snackbar
