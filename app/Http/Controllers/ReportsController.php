@@ -176,7 +176,7 @@ class ReportsController extends Controller
                     });
                 });
 
-                $totalItems = StockCard::getLotRemainingStock(
+                $totalItems = StockCard::getLotsRemainingStock(
                     $request->code,
                     $request->lot,
                 );

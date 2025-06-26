@@ -67,6 +67,18 @@ class Stockcard extends Model
         ")->value('remaining') ?? 0;
     }
 
+    public static function getLotsRemainingStock($productId, $lotId = null)
+    {
+        $query = self::where('product_id', $productId);
+
+        $query->where('lot_id', $lotId);
+
+        return $query->selectRaw("
+            SUM(CASE WHEN transaction_type = 'inbound' THEN quantity ELSE 0 END) -
+            SUM(CASE WHEN transaction_type = 'outbound' THEN quantity ELSE 0 END) AS remaining
+        ")->value('remaining') ?? 0;
+    }
+
     public static function getLotRemainingStock($productId, $lotId = null, $warehouseId = null)
     {
         $query = self::where('product_id', $productId);
