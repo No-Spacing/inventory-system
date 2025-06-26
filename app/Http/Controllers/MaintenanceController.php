@@ -220,7 +220,6 @@ class MaintenanceController extends Controller
         $validated = $request->validate([
             'code' => 'required',
             'lot' => 'required|unique:lots',
-            'expiration_date' => 'required'
         ]);
 
         Lot::create([
