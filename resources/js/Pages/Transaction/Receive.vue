@@ -8,6 +8,8 @@ defineProps({
     warehouses: Object,
 })
 
+const snackbar = ref(false);
+
 const headers = [
     { 
         title: 'Code',
@@ -67,7 +69,7 @@ const form = useForm({
     to: null,
 })
 
-function sumbit(items)
+function submit(items)
 {
     router.patch('/received',
         {
@@ -76,7 +78,10 @@ function sumbit(items)
             to: form.to,
         },
         {
-
+            preserveState: true,
+            onSuccess: () => {
+                snackbar.value = true;
+            },
         }
     )
 }
@@ -107,6 +112,7 @@ watch(() => [form.from, form.to], ([value, value2]) => {
                                     :items="warehouses"
                                     item-title="warehouse"
                                     variant="outlined"
+                                    :error-messages="form.errors.from"
                                     clearable
                                 ></v-select>
                             </v-col>
@@ -118,6 +124,7 @@ watch(() => [form.from, form.to], ([value, value2]) => {
                                     :items="warehouses"
                                     item-title="warehouse"
                                     variant="outlined"
+                                    :error-messages="form.errors.to"
                                     clearable
                                 ></v-select>
                             </v-col>
@@ -128,7 +135,7 @@ watch(() => [form.from, form.to], ([value, value2]) => {
                     <template v-slot:item.actions="{ item }">
                         <div class="d-flex justify-center ga-2 blue">
                             <v-btn
-                                @click="sumbit(item)"
+                                @click="submit(item)"
                                 append-icon="mdi-send"
                                 color="#FFEE58"
                             >

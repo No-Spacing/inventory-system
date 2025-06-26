@@ -272,23 +272,26 @@ class StockcardController extends Controller
 
     public function Received(Request $request)
     {
-        Stockcard::where('id', $request->stockcardId)->update(['received_at' => now()]);
+        $stockcard = Stockcard::where('id', $request->stockcardId)->first();
+        
+        Stockcard::where('id', $request->stockcardId)->update(['received_at' => \Carbon\Carbon::parse(\Carbon\Carbon::parse(now())->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d')]);
+        
         $warehouse = Warehouse::where('warehouse', $request->to)->first();
         Stockcard::create([
-            'product_id' => $request->code,
-            'lot_id' => null,
-            'serial_no' => $request->serial_no,
-            'transaction_type' => 'inbound',
-            'quantity' => $request->quantity,
+            'product_id' => $stockcard->product_id,
+            'lot_id' => $stockcard->lot_id,
+            'serial_no' => $stockcard->serial_no,
+            'transaction_type' => 'outbound',
+            'quantity' => $stockcard->quantity,
             'enduser_id' => Auth::user()->id,
             'transaction_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse(now())->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d'),
-            'warehouse' => optional($warehouse)->warehouse,
-            'reference' => $request->reference,
-            'document_no' => $request->document_no,
+            'warehouse_id' => $warehouse->id,
+            'reference' => $stockcard->reference,
+            'document_no' => $stockcard->document_no,
             'remarks' => 'Received from ' . $request->from,
         ]);
 
-        return redirect('/receive')->with('message', 'Stock has been successfully received from inventory.');
+        return back()->with('message', 'Stock has been successfully received from inventory.');
     }
 
     // public function Out(Request $request){

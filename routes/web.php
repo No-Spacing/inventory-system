@@ -30,6 +30,7 @@ Route::get('stockcard-pdf', function () {
 
 Route::middleware(['user-group'])->group(function () {
     Route::inertia('/login', 'Auth/Login');
+    Route::inertia('/scan', 'Scan');
 
     Route::controller(StockcardController::class)->group(function () {
         Route::get('/dashboard', 'Dashboard');
@@ -43,7 +44,6 @@ Route::middleware(['user-group'])->group(function () {
         Route::get('/receive', 'IndexReceive');
         Route::patch('/received', 'Received');
 
-        Route::post('/getter', 'getter');
 
     });
 
