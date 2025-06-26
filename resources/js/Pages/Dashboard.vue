@@ -27,13 +27,6 @@ const headers = [
         },
     },
     {
-        key: "remaining_items",
-        title: "Remaining Items",
-        headerProps: {
-            style: "font-weight: 700",
-        },
-    },
-    {
         key: "created_at",
         title: "Created At",
         headerProps: {
