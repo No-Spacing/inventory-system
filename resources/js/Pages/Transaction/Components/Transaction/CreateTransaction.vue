@@ -197,107 +197,113 @@ watch(() => page.props.products, (newProducts) => {
             </v-select>
  
         <v-card variant="outlined" title="Product Details" class="my-5">
-            <v-row no-gutters class="ma-2 pa-2">
-                <v-col cols="12">
-                    <div
-                        class="text-subtitle-1 text-medium-emphasis mx-2"
-                    >
-                        Code
-                    </div>
-                    <v-autocomplete
-                        v-model="form.code"
-                        v-model:search="searchCode"
-                        :error-messages="form.errors.code"
-                        :items="products"
-                        item-title="code"
-                        class="mx-2"
-                        placeholder="Select..."
-                        variant="outlined"
-                        menu-icon=""
-                        @update:modelValue="expand = true; form.lot = null"
-                        @input="codeInput"
-                    >
-                        <template v-slot:no-data>
-                            <v-container fluid>
-                                <span v-if="preload">Loading...</span>
-                                <span v-else>No results found</span>
-                            </v-container>
-                        </template>
-                        <template #append-inner>
-                            <v-progress-circular
-                            v-if="preload"
-                            indeterminate
-                            size="20"
-                            color="primary"
-                            />
-                        </template>
-                    </v-autocomplete>
-                </v-col>
-                <v-col sm="3" cols="12">
+            <v-container>
+                <v-row no-gutters>
+                    <v-col cols="12">
                         <div
                             class="text-subtitle-1 text-medium-emphasis mx-2"
                         >
-                            Description
+                            Code
                         </div>
-                        <v-text-field
-                            v-model="data.description"
+                        <v-autocomplete
+                            v-model="form.code"
+                            v-model:search="searchCode"
+                            :error-messages="form.errors.code"
+                            :items="products"
+                            item-title="code"
                             class="mx-2"
-                            placeholder="Description"
+                            placeholder="Select..."
                             variant="outlined"
-                            required
-                            readonly
-                            disabled
-                        ></v-text-field>
-                    </v-col>
-                    <v-col sm="3" cols="12">
-                        <div
-                            class="text-subtitle-1 text-medium-emphasis mx-2"
+                            menu-icon=""
+                            @update:modelValue="expand = true; form.lot = null"
+                            @input="codeInput"
                         >
-                            Unit
-                        </div>
-                        <v-text-field
-                            v-model="data.unit"
-                            class="mx-2"
-                            placeholder="Unit"
-                            prepend-inner-icon=""
-                            variant="outlined"
-                            readonly
-                            disabled
-                        ></v-text-field>
+                            <template v-slot:no-data>
+                                <v-container fluid>
+                                    <span v-if="preload">Loading...</span>
+                                    <span v-else>No results found</span>
+                                </v-container>
+                            </template>
+                            <template #append-inner>
+                                <v-progress-circular
+                                v-if="preload"
+                                indeterminate
+                                size="20"
+                                color="primary"
+                                />
+                            </template>
+                        </v-autocomplete>
                     </v-col>
-                    <v-col sm="3" cols="12">
-                        <div
-                            class="text-subtitle-1 text-medium-emphasis mx-2"
-                        >
-                            Remaining Items
-                        </div>
-                        <v-text-field
-                            v-model="data.remaining_items"
-                            class="mx-2"
-                            placeholder="Total Items"
-                            prepend-inner-icon=""
-                            variant="outlined"
-                            readonly
-                            disabled
-                        ></v-text-field>
-                    </v-col>
-                    <v-col sm="3" cols="12">
-                        <div
-                            class="text-subtitle-1 text-medium-emphasis mx-2"
-                        >
-                            Product Type
-                        </div>
-                        <v-text-field
-                            v-model="data.product_type"
-                            class="mx-2"
-                            placeholder="Total Items"
-                            prepend-inner-icon=""
-                            variant="outlined"
-                            readonly
-                            disabled
-                        ></v-text-field>
-                    </v-col>
-            </v-row>
+                </v-row>    
+                <v-expand-transition>
+                    <v-row no-gutters v-show="expand">
+                        <v-col sm="3" cols="12">
+                            <div
+                                class="text-subtitle-1 text-medium-emphasis mx-2"
+                            >
+                                Description
+                            </div>
+                            <v-text-field
+                                v-model="data.description"
+                                class="mx-2"
+                                placeholder="Description"
+                                variant="outlined"
+                                required
+                                readonly
+                                disabled
+                            ></v-text-field>
+                        </v-col>
+                        <v-col sm="3" cols="12">
+                            <div
+                                class="text-subtitle-1 text-medium-emphasis mx-2"
+                            >
+                                Unit
+                            </div>
+                            <v-text-field
+                                v-model="data.unit"
+                                class="mx-2"
+                                placeholder="Unit"
+                                prepend-inner-icon=""
+                                variant="outlined"
+                                readonly
+                                disabled
+                            ></v-text-field>
+                        </v-col>
+                        <v-col sm="3" cols="12">
+                            <div
+                                class="text-subtitle-1 text-medium-emphasis mx-2"
+                            >
+                                Remaining Items
+                            </div>
+                            <v-text-field
+                                v-model="data.remaining_items"
+                                class="mx-2"
+                                placeholder="Total Items"
+                                prepend-inner-icon=""
+                                variant="outlined"
+                                readonly
+                                disabled
+                            ></v-text-field>
+                        </v-col>
+                        <v-col sm="3" cols="12">
+                            <div
+                                class="text-subtitle-1 text-medium-emphasis mx-2"
+                            >
+                                Product Type
+                            </div>
+                            <v-text-field
+                                v-model="data.product_type"
+                                class="mx-2"
+                                placeholder="Total Items"
+                                prepend-inner-icon=""
+                                variant="outlined"
+                                readonly
+                                disabled
+                            ></v-text-field>
+                        </v-col>
+                    </v-row>
+                </v-expand-transition>
+            </v-container>
         </v-card>
         
         <v-card title="Serial No." variant="outlined" v-if="expand && data.product_type === 'Track by Serial'" class="my-5" :disabled="preload">
