@@ -18,6 +18,7 @@ const snackbar = ref(false);
 const errorSnackbar = ref(false);
 
 const addSerialDialog = ref(false);
+const addMultipleSerialDialog = ref(false);
 
 const headers = [
     {
@@ -182,8 +183,11 @@ function paginations(){
                             class="d-flex align-center justify-space-between mt-5"
                         >
                             <v-col cols="4">
-                                <v-btn @click="addSerialDialog = true" color="primary">
-                                    Add Serial
+                                <v-btn @click="addSerialDialog = true" color="orange-darken-1" class="mr-2">
+                                    Add Single Serial
+                                </v-btn>
+                                <v-btn @click="addMultipleSerialDialog = true" color="primary">
+                                    Add Multiple Serial
                                 </v-btn>
                             </v-col>
                             <v-col cols="6">
@@ -228,17 +232,75 @@ function paginations(){
                                         />
                                     </template>
                                 </v-autocomplete>
+                                <v-text-field
+                                    v-model="form.serial_no"
+                                    :error-messages="form.errors.serial_no"
+                                    label="Serial No."
+                                ></v-text-field>
+
+                            </v-card-text>
+
+                            <v-card-actions>
+                                <v-spacer></v-spacer>
+
+                                <v-btn
+                                    class="ma-2 pa-2"
+                                    @click="addSerialDialog = false"
+                                >
+                                    close
+                                </v-btn>
+
+                                <v-btn class="ma-2 pa-2 bg-primary" :loading="form.processing" type="submit">
+                                    submit
+                                </v-btn>
+                            </v-card-actions>
+                        </v-form>
+                    </v-card>
+                </v-dialog>
+                <v-dialog v-model="addMultipleSerialDialog" max-width="500">
+                    <v-card title="Add Multiple Serial No.">
+                        <v-form @submit.prevent="submit">
+                            <v-card-text>
+                                <v-autocomplete
+                                    v-model="form.code"
+                                    v-model:search="searchCode"
+                                    :error-messages="form.errors.code"
+                                    :items="products"
+                                    item-title="code"
+                                    item-value="id"
+                                    placeholder="Select a product..."
+                                    variant="outlined"
+                                    menu-icon=""
+                                    @update:modelValue="preload = true;"
+                                >
+                                    <template v-slot:no-data>
+                                        <v-container fluid>
+                                            <span v-if="preload">Loading...</span>
+                                            <span v-else>No results found</span>
+                                        </v-container>
+                                    </template>
+                                    <template #append-inner>
+                                        <v-progress-circular
+                                        v-if="preload"
+                                        indeterminate
+                                        size="20"
+                                        color="primary"
+                                        />
+                                    </template>
+                                </v-autocomplete>
 
                                 <div class="d-flex justify-center mb-5">
                                     <v-img 
+  :width="300"
+  aspect-ratio="16/9"
                                         cover
-                                        src="https://cdn.vuetifyjs.com/images/parallax/material.jpg"
+                                        src="/images/serial.jpg"
                                     ></v-img>
                                 </div>
                                 <v-text-field
                                     v-model="form.serial_no"
                                     :error-messages="form.errors.serial_no"
-                                    label="Serial No."
+                                    label="Model Series"
                                 ></v-text-field>
 
                                 <v-row no-gutters>
@@ -246,7 +308,7 @@ function paginations(){
                                         <v-text-field
                                             v-model="form.serialStarting"
                                             :error-messages="form.errors.serialStarting"
-                                            label="Serial Starting No."
+                                            label="Series of No. Starting"
                                             class="mr-1"
                                         ></v-text-field>
                                     </v-col>
@@ -254,7 +316,7 @@ function paginations(){
                                         <v-text-field
                                             v-model="form.serialEnding"
                                             :error-messages="form.errors.serialEnding"
-                                            label="Serial Ending No."
+                                            label="Series of No. Ending"
                                             class="ml-1"
                                         ></v-text-field>
                                     </v-col>
@@ -267,7 +329,7 @@ function paginations(){
 
                                 <v-btn
                                     class="ma-2 pa-2"
-                                    @click="addSerialDialog = false"
+                                    @click="addMultipleSerialDialog = false"
                                 >
                                     close
                                 </v-btn>
