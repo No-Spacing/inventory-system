@@ -140,7 +140,46 @@ function deleteSerial() {
     <Layout title="Serials">
         <v-container max-width="1500" fluid>
             <v-card elevation="2" class="pa-8 my-5">
-                <v-data-table :headers="headers" :items="serials">
+                <v-table>
+                    <thead>
+                    <tr>
+                        <th class="text-left">
+                        Id
+                        </th>
+                        <th class="text-left">
+                        Serial No.
+                        </th>
+                        <th class="text-left">
+                        Actions
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr
+                        v-for="item in serials"
+                        :key="item.id"
+                    >
+                        <td>{{ item.id }}</td>
+                        <td>{{ item.serial_no }}</td>
+       
+                        <td>
+                            <v-btn prepend-icon="mdi-pencil"  @click="openUpdateDialog(item)" color="blue-darken-4">
+                                Edit
+                            </v-btn>
+                            <v-btn prepend-icon="mdi-delete" @click="openDeleteDialog(item)" color="red-darken-4">
+                                Delete
+                            </v-btn>
+                        </td>
+                    </tr>
+                    </tbody>
+                </v-table>
+                    <v-btn @click="addSerialDialog = true" color="primary">
+                        Add Serial
+                    </v-btn>
+                
+                <v-pagination :length="8"></v-pagination>
+
+                <!-- <v-data-table :headers="headers" :items="serials">
                     <template v-slot:item.actions="{ item }">
                         <div class="d-flex justify-center ga-2 blue">
                             <v-btn prepend-icon="mdi-pencil"  @click="openUpdateDialog(item)" color="blue-darken-4">
@@ -177,7 +216,7 @@ function deleteSerial() {
                             />
                         </div>
                     </template>
-                </v-data-table>
+                </v-data-table> -->
                 <v-dialog v-model="addSerialDialog" max-width="500">
                     <v-card title="Add Lot/Batch">
                         <v-form @submit.prevent="submit">
