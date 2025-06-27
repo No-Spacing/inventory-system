@@ -89,6 +89,7 @@ class StockcardController extends Controller
             ->with('lot')
             ->with('serial')
             ->with('warehouse')
+            ->limit(5)
             ->get()
             ->map(function ($product) {
                 return [
@@ -104,8 +105,6 @@ class StockcardController extends Controller
             }),
             'products' => Product::with([
                 'unit',
-                'lots',
-                'serials',
             ])
             ->where('code', 'like', '%' . $request->code . '%')
             ->limit(5)
@@ -192,17 +191,24 @@ class StockcardController extends Controller
             $serial = Serial::select('id')->where('serial_no', $request->serial_no)->where('product_id', $product->id)->first();
     
             if($request->input('action') === 'inbound') {
-                $available = Stockcard::getSerialRemainingStock(
-                    $product->id,
-                    $serial->id,
-                    $request->warehouse
-                );
-                if($available == $request->quantity){
-                    return back()->withErrors(['message' => 'This Serial No. still has an item!.']);
-                }else{
-                    $this->createStockcardData($request->all(), null, $serial->id, $product->id);
-                    $message = 'Stock has been stored successfully to inventory.';
+                if(isset($request->startingSerialNo))
+                {
+                    dd('Hi');
+                } else {
+                    dd('Hello');
                 }
+
+                // $available = Stockcard::getSerialRemainingStock(
+                //     $product->id,
+                //     $serial->id,
+                //     $request->warehouse
+                // );
+                // if($available == $request->quantity){
+                //     return back()->withErrors(['message' => 'This Serial No. still has an item!.']);
+                // }else{
+                //     $this->createStockcardData($request->all(), null, $serial->id, $product->id);
+                //     $message = 'Stock has been stored successfully to inventory.';
+                // }
             }
 
             if ($request->input('action') === 'outbound') {

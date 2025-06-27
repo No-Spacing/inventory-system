@@ -119,15 +119,17 @@ class MaintenanceController extends Controller
     }
     // Category Section Ends Here...
 
-    public function IndexProduct() {
+    public function IndexProduct(Request $request) {
+        
+
         return Inertia::render('Admin/Maintenance/Product', [
             'categories' => Category::all(),
             'units' => Unit::all(),
-            // 'products' => Product::all(),
             'products' => Product::with('category')
             ->with('unit')
-            ->get()
-            ->map(function ($product) {
+            ->where('code', 'Like', '%'.$request->search.'%')
+            ->paginate(10)
+            ->through(function ($product) {
                 return [
                     'id' => $product->id,
                     'code' => $product->code,
@@ -207,12 +209,23 @@ class MaintenanceController extends Controller
 
     public function IndexLot(Request $request) {
         return Inertia::render('Admin/Maintenance/Lot', [
-            'lots' => Lot::all(),
+            'lots' => Lot::with('product')
+            ->where('lot', 'Like', '%'.$request->search.'%')
+            ->paginate(10)
+            ->through(function ($lot) {
+                return [
+                    'id' => $lot->id,
+                    'product_id' => $lot->product->id,
+                    'code' => $lot->product->code,
+                    'lot' => $lot->lot,
+                    'expiration_date' => $lot->expiration_date,
+                ];
+            }),
             'products' => Product::select('id','code')
             ->where('code', 'Like', '%'.$request->code.'%')
             ->where('type', 'Track by Lot')
-            ->limit(5)
-            ->get(),
+            ->limit(10)
+            ->get()
         ]);
     }
     
@@ -243,13 +256,11 @@ class MaintenanceController extends Controller
             $validated = $request->validate([
                 'code' => 'required',
                 'lot' => 'required|unique:lots',
-                'expiration_date' => 'required'
             ]);
         }else {
             $validated = $request->validate([
                 'code' => 'required',
                 'lot' => 'required',
-                'expiration_date' => 'required'
             ]);
         }
         
@@ -257,7 +268,9 @@ class MaintenanceController extends Controller
         ->update([
             'lot' => $request->lot, 
             'product_id' => $request->code,
-            'expiration_date' => \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->expiration_date)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d')
+            'expiration_date' => $request->expiration_date
+                                ? \Carbon\Carbon::parse($request->expiration_date)->setTimezone('Asia/Manila')->toDateString()
+                                : null,
         ]);
         
         return back()->with('message', 'Lot updated successfully!');
@@ -270,12 +283,13 @@ class MaintenanceController extends Controller
         } catch (QueryException $e) {
             return back()->withErrors(['message' => "Cannot delete this Lot, the stockcard of this lot still exist"]);
         }
-        
     }
 
     public function IndexSerial(Request $request) {
         return Inertia::render('Admin/Maintenance/Serial', [
-            'serials' => Serial::all(),
+            'serials' => Serial::where('serial_no', 'Like', '%'.$request->search.'%')
+            ->paginate(10)
+            ->withQueryString(),
             'products' => Product::select('id','code')
             ->where('code', 'Like', '%'.$request->code.'%')
             ->where('type', 'Track by Serial')
@@ -309,10 +323,11 @@ class MaintenanceController extends Controller
             if($serials){
                 return redirect('/serial')->withErrors(['message' => "Serial already exist!"]);
             }else{
+                $length = strlen($request->serialStarting);
                 for($i = $request->serialStarting; $i <= $request->serialEnding; $i++){
                     try {
                         Serial::create([
-                            'serial_no' => $request->serial_no . str_pad($i, 4, "0", STR_PAD_LEFT),
+                            'serial_no' => $request->serial_no . str_pad($i, $length, "0", STR_PAD_LEFT),
                             'product_id' => $request->code,
                         ]);
                     } catch (QueryException $e) {

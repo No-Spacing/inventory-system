@@ -19,12 +19,19 @@ const headers = [
         },
     },
     {
+        title: "Code",
+        key: "code",
+        headerProps: {
+            style: "font-weight: 700",
+        },
+    },
+    {
         title: "Lot",
         key: "lot",
         headerProps: {
             style: "font-weight: 700",
         },
-    },
+    }, 
     {
         title: "Expiration Date",
         key: "expiration_date",
@@ -107,7 +114,7 @@ const updateForm = useForm({
 function openUpdateDialog(item) {
     updateForm.id = item.id;
     updateForm.lot = item.lot;
-    updateForm.code = item.code;
+    updateForm.code = item.product_id;
     updateForm.expiration_date = item.expiration_date;
     editLotDialog.value = true;
 }
@@ -133,12 +140,40 @@ function deleteLot() {
         },
     })
 }
+
+const search = ref('');
+
+watch(() => search.value, (value) => {
+    router.get('/lot', {
+        search: value,
+        page: 1
+    }, {
+        preserveState: true,
+        replace: true
+    })
+})
+
+function paginations(){
+    router.get('/lot', {
+        search: search.value,
+        page: page.props.lots.current_page
+    }, 
+    {
+        preserveState: true,
+        replace: true
+    })
+}
 </script>
 <template>
     <Layout title="Lot/Batch">
         <v-container max-width="1500" fluid>
             <v-card elevation="2" class="pa-8 my-5">
-                <v-data-table :headers="headers" :items="lots">
+                <v-text-field 
+                    variant="outlined" 
+                    label="Search" 
+                    v-model="search"
+                ></v-text-field>
+                <v-data-table :headers="headers" :items="lots.data">
                     <template v-slot:item.actions="{ item }">
                         <div class="d-flex justify-center ga-2 blue">
                             <v-btn prepend-icon="mdi-pencil"  @click="openUpdateDialog(item)" color="blue-darken-4">
@@ -150,30 +185,23 @@ function deleteLot() {
                         </div>
                     </template>
                     
-                    <template
-                        v-slot:bottom="{
-                            page,
-                            itemsPerPage,
-                            pageCount,
-                            setItemsPerPage,
-                            setPage,
-                        }"
-                    >
-                        <div
-                            class="d-flex align-center justify-space-between pa-4"
+                    <template v-slot:bottom>
+                        <v-row
+                            class="d-flex align-center justify-space-between mt-5"
                         >
-                            <v-btn @click="addLotDialog = true" color="primary">
-                                Add Lot/Batch
-                            </v-btn>
-
-                            <v-data-table-footer
-                                :page="page"
-                                :items-per-page="itemsPerPage"
-                                :page-count="pageCount"
-                                @update:items-per-page="setItemsPerPage"
-                                @update:page="setPage"
-                            />
-                        </div>
+                            <v-col cols="4">
+                                <v-btn @click="addLotDialog = true" color="primary">
+                                    Add Lot/Batch
+                                </v-btn>
+                            </v-col>
+                            <v-col cols="6">
+                                <v-pagination 
+                                    v-model="lots.current_page" 
+                                    :length="lots.last_page" 
+                                    @update:modelValue="paginations"
+                                ></v-pagination> 
+                            </v-col>
+                        </v-row>
                     </template>
                 </v-data-table>
                 <v-dialog v-model="addLotDialog" max-width="500">
@@ -183,7 +211,6 @@ function deleteLot() {
                                 <v-autocomplete
                                     v-model="form.code"
                                     v-model:search="searchCode"
-                                    :error-messages="form.errors.code"
                                     :items="products"
                                     item-title="code"
                                     item-value="id"

@@ -30,7 +30,6 @@ Route::get('stockcard-pdf', function () {
 
 Route::middleware(['user-group'])->group(function () {
     Route::inertia('/login', 'Auth/Login');
-    Route::inertia('/scan', 'Scan');
 
     Route::controller(StockcardController::class)->group(function () {
         Route::get('/dashboard', 'Dashboard');
@@ -54,10 +53,6 @@ Route::middleware(['user-group'])->group(function () {
 
         Route::get('/summary', 'IndexSummary');
     });
-
-    // Route::inertia('/stockcard', 'Admin/Report/Stockcard');
-
-    Route::inertia('/summary', 'Report/Summary');
 
     // Maintenance routes
 
