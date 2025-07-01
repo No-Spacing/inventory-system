@@ -50,7 +50,8 @@ body {
 .data-table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
 .data-table th,
 .data-table td {

@@ -43,6 +43,7 @@ const headers = [
     },
 ];
 const addProductDialog = ref(false);
+const importDialog = ref(false);
 const editProductDialog = ref(false);
 const deleteDialog = ref(false);
 const snackbar = ref(false);
@@ -55,6 +56,10 @@ const form = useForm({
     type: '',
     remaining_items: ''
 });
+
+const formImport = useForm({
+    file: null,
+})
 
 const updateForm = useForm({
     id: '',
@@ -76,6 +81,20 @@ function submit() {
         onError: () => {
         }
     })
+}
+
+function submitImport () {
+    formImport.post('/import-product',
+        {
+            onSuccess: () => {
+                importDialog.value = false;
+                snackbar.value = true;
+                formImport.reset();
+            },
+            onError: (error) => {
+            }
+        }
+    )
 }
 
 function openUpdateDialog(item) {
@@ -164,8 +183,16 @@ function paginations(){
                                 <v-btn
                                     @click="addProductDialog = true"
                                     color="primary"
+                                    class="mx-2"
                                 >
                                     Add Product
+                                </v-btn>
+                                <v-btn
+                                    @click="importDialog = true"
+                                    color="green"
+                                    class="mx-2"
+                                >
+                                    Import Products
                                 </v-btn>
                             </v-col>
                             <v-col cols="6">
@@ -241,6 +268,33 @@ function paginations(){
                             </v-card-actions>
                         </v-form>
                     </v-card>
+                </v-dialog>
+                <v-dialog  v-model="importDialog" max-width="600">
+                    <v-form @submit.prevent="submitImport">
+                        <v-card
+                            title="Import file"
+                        >
+                            <v-card-text>
+                                <v-file-input 
+                                v-model="formImport.file"
+                                variant="outlined" 
+                                clearable label="File input"
+                                :error-messages="formImport.errors.file"
+                                ></v-file-input>
+                            </v-card-text>
+                                <template v-slot:actions>
+                                    <v-spacer></v-spacer>
+
+                                    <v-btn @click="importDialog = false">
+                                        cancel
+                                    </v-btn>
+
+                                    <v-btn type="submit" color="green" :loading="updateForm.processing">
+                                        Import
+                                    </v-btn>
+                                </template>
+                        </v-card>
+                    </v-form>
                 </v-dialog>
                 <v-dialog v-model="editProductDialog" max-width="500">
                     <v-card title="Edit Product">

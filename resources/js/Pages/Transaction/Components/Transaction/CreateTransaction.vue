@@ -25,6 +25,7 @@ const transferDialog = ref(false);
 const expand = ref(false);
 const expandLot = ref(false);
 const expandSerial = ref(false);
+const showMultipleSerial = ref(false);
 
 const searchCode = ref();
 
@@ -36,7 +37,11 @@ const snackbar = ref(false);
 
 const errorSnackbar = ref(false);
 
+const message = ref();
+
 const buttonLoading = ref(false);
+
+const product_type = ref();
 
 const form = useForm({
     code: '',
@@ -132,9 +137,10 @@ function submitTransaction (value) {
         onSuccess: () => {
             emit('loading', false);
             snackbar.value = true;
+            message.value = page.props.flash.message
             expand.value = false;
             transferDialog.value = false
-            form.reset('code');
+            form.reset();
         },
         onError: () => {
             emit('loading', false);
@@ -145,7 +151,6 @@ function submitTransaction (value) {
     })
 }
 
-const product_type = ref();
 watch(() => page.props.products, (newProducts) => {
     product_type.value = newProducts[0]?.type || '';
     if(product_type.value === "Track by Serial"){
@@ -305,14 +310,20 @@ watch(() => page.props.products, (newProducts) => {
                 </v-expand-transition>
             </v-container>
         </v-card>
-        
-        <v-card title="Serial No." variant="outlined" v-if="expand && data.product_type === 'Track by Serial'" class="my-5" :disabled="preload">
-            <v-expand-transition>
-                <v-row no-gutters class="ma-2 pa-2"> 
-                    <v-col md="4" cols="12">
-                        <div
-                            class="text-subtitle-1 text-medium-emphasis mx-2"
-                        >
+        <v-expand-transition>
+        <v-card variant="outlined" v-if="expand && data.product_type === 'Track by Serial'" class="my-5" :disabled="preload">
+            <v-card-title>
+                <v-row no-gutters>
+                    <v-col>
+                        Serial No.
+                        <v-checkbox v-model="showMultipleSerial" color="primary" label="Insert Multiple Serials No."></v-checkbox>
+                    </v-col>
+                </v-row>
+            </v-card-title>
+            <v-row no-gutters class="ma-2 pa-2"> 
+                <v-row no-gutters v-if="showMultipleSerial === false">
+                    <v-col md="6" cols="12">
+                        <div class="text-subtitle-1 text-medium-emphasis mx-2">
                             Serial No.
                         </div>
                         <v-autocomplete
@@ -343,9 +354,28 @@ watch(() => page.props.products, (newProducts) => {
                                 color="primary"
                                 />
                             </template>
-                            
                         </v-autocomplete>
-                        <!-- <v-text-field
+                    </v-col>
+                    <v-col md="6" cols="12" v-show="expandSerial">
+                        <div class="text-subtitle-1 text-medium-emphasis mx-2">
+                            Total Items in Serial
+                        </div>
+                        <v-text-field
+                            v-model="serialData.totalSerialItems"
+                            type="number"
+                            class="mx-2"
+                            variant="outlined"
+                            readonly
+                            disabled
+                        ></v-text-field>
+                    </v-col>
+                </v-row>
+                <v-row no-gutters v-if="showMultipleSerial === true">
+                    <v-col md="4" cols="12">
+                        <div class="text-subtitle-1 text-medium-emphasis mx-2">
+                            Model Series.
+                        </div>
+                        <v-text-field
                             v-model="form.serial_no"
                             :error-messages="form.errors.serial_no"
                             class="mx-2"
@@ -353,20 +383,19 @@ watch(() => page.props.products, (newProducts) => {
                             variant="outlined"
                             required
                             counter
-                        ></v-text-field> -->
+                        ></v-text-field>
                     </v-col>
                     <v-col md="4" cols="12">
                         <div
                             class="text-subtitle-1 text-medium-emphasis mx-2"
                         >
-                            Starting No.
+                            Series of Starting No.
                         </div>
                         <v-text-field
                             v-model="form.serialStartingNo"
                             :error-messages="form.errors.serialStartingNo"
                             type="number"
                             class="mx-2"
-                            placeholder="Starting Serial No."
                             variant="outlined"
                             required
                         ></v-text-field>
@@ -375,41 +404,23 @@ watch(() => page.props.products, (newProducts) => {
                         <div
                             class="text-subtitle-1 text-medium-emphasis mx-2"
                         >
-                            Ending No.
+                            Series of Ending No.
                         </div>
                         <v-text-field
                             v-model="form.serialEndingNo"
                             :error-messages="form.errors.serialEndingNo"
                             type="number"
                             class="mx-2"
-                            placeholder="Ending Serial No."
                             variant="outlined"
                             required
                         ></v-text-field>
                     </v-col>
-                    <v-col md="4" cols="12" v-show="expandSerial">
-                        <div
-                            class="text-subtitle-1 text-medium-emphasis mx-2"
-                        >
-                            Total Items in Serial
-                        </div>
-                        <v-text-field
-                            v-model="serialData.totalSerialItems"
-                            type="number"
-                            class="mx-2"
-                            placeholder="Ending Serial No."
-                            variant="outlined"
-                            readonly
-                            disabled
-                        ></v-text-field>
-                    </v-col>
                 </v-row>
-            </v-expand-transition>
+            </v-row>
         </v-card>
-        
-        <v-expand-transition v-if="expand === true && data.product_type === 'Track by Lot'" class="my-5">
-            <v-card variant="outlined" title="Batch/Lot No." :disabled="preload">
-
+        </v-expand-transition>
+        <v-expand-transition class="my-5">
+            <v-card variant="outlined" title="Batch/Lot No." :disabled="preload" v-if="expand === true && data.product_type === 'Track by Lot'">
                 <v-row no-gutters class="pa-2 ma-2">
                     <v-col md="4" cols="12">
                         <div
@@ -619,6 +630,7 @@ watch(() => page.props.products, (newProducts) => {
                         type="submit"
                         class="mx-4"
                         :loading="form.processing || buttonLoading"
+                        :disabled="showMultipleSerial"
                         @click="submitTransaction('outbound')"
                     >
                         Outbound
@@ -629,6 +641,8 @@ watch(() => page.props.products, (newProducts) => {
                         size="large"
                         class="mx-4"
                         @click="transferDialog = true"
+                        :loading="form.processing || buttonLoading"
+                        :disabled="showMultipleSerial"
                     >
                         Transfer
                     </v-btn>
@@ -639,6 +653,7 @@ watch(() => page.props.products, (newProducts) => {
                         size="large"
                         class="mx-4"
                         href="/receive"
+                        :loading="form.processing || buttonLoading"
                     >
                         receive
                     </v-btn>
@@ -696,7 +711,7 @@ watch(() => page.props.products, (newProducts) => {
         location="top"
         class="text"
     >
-        {{ $page.props.flash.message }}
+        {{ message }}
     </v-snackbar>
     <v-snackbar
         v-model="errorSnackbar" 
@@ -705,7 +720,6 @@ watch(() => page.props.products, (newProducts) => {
         variant="elevated"
         location="top"
         class="text"
-        size="md"
     >
         {{ $page.props.errors.message }}
     </v-snackbar>

@@ -15,12 +15,17 @@ use App\Models\Serial;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\QueryException;
 
+use App\Imports\ProductImport;
+use App\Imports\SerialImport;
+use App\Imports\LotImport;
+
+use Maatwebsite\Excel\Facades\Excel;
+
 use Inertia\Inertia;
 
 class MaintenanceController extends Controller
 {
     // Unit section starts here...
-
     public function IndexUnit(){
         return Inertia::render('Admin/Maintenance/Units', 
         [
@@ -120,8 +125,6 @@ class MaintenanceController extends Controller
     // Category Section Ends Here...
 
     public function IndexProduct(Request $request) {
-        
-
         return Inertia::render('Admin/Maintenance/Product', [
             'categories' => Category::all(),
             'units' => Unit::all(),
@@ -160,7 +163,17 @@ class MaintenanceController extends Controller
             'type' => $request->type,
         ]);
 
-        return redirect('/product')->with('message', 'Product created successfully!');
+        
+    }
+
+    public function ImportProduct (Request $request) {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx|max:10240'
+        ]);
+
+        Excel::import(new ProductImport, $request->file);
+
+        return redirect('/product')->with('message', 'Product imported successfully!');
     }
 
     public function UpdateProduct (Request $request) {
@@ -247,6 +260,16 @@ class MaintenanceController extends Controller
         return back()->with('message', 'Lot created successfully!');
     }
 
+    public function ImportLot (Request $request) {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx|max:10240'
+        ]);
+
+        Excel::import(new LotImport, $request->file);
+
+        return redirect('/lot')->with('message', 'Lot imported successfully!');
+    }
+
     public function UpdateLot(Request $request) {
         $lot = Lot::findOrFail($request->id);
 
@@ -305,44 +328,56 @@ class MaintenanceController extends Controller
             'serial_no' => 'required|unique:serials'
         ]);
 
-        if(!empty($request->serialStarting)){ // check if has input on Starting No.
-            $request->validate([
-                'serialStarting' => 'lt:serialEnding',
-                'serialEnding' => 'required|gt:serialStarting',
-            ],
-            [
-                'serialEnding.required' => 'The Ending No. field is required.',
-                'serialStarting.lt' => 'Starting No. field must be less than the Ending No. field.',
-                'serialEnding.gt' => 'Ending No. field must be greater than the Starting No. field.'
-            ]);
-
-            $serials = Serial::where('serial_no', $request->serial_no . $request->serialStarting)
-            ->orWhere('serial_no', $request->serial_no . $request->serialEnding)
-            ->first();
-            
-            if($serials){
-                return redirect('/serial')->withErrors(['message' => "Serial already exist!"]);
-            }else{
-                $length = strlen($request->serialStarting);
-                for($i = $request->serialStarting; $i <= $request->serialEnding; $i++){
-                    try {
-                        Serial::create([
-                            'serial_no' => $request->serial_no . str_pad($i, $length, "0", STR_PAD_LEFT),
-                            'product_id' => $request->code,
-                        ]);
-                    } catch (QueryException $e) {
-                        return back()->withErrors(['message' => "Some serial has duplicate entry! please check and try again!"]);
-                    }
-                }
-            }
-        }else{
-            Serial::create([
-                'serial_no' => $request->serial_no,
-                'product_id' => $request->code,
-            ]);
-        }
+        Serial::create([
+            'serial_no' => $request->serial_no,
+            'product_id' => $request->code,
+        ]);
 
         return redirect('/serial')->with('message', 'Serial created successfully!');
+    }
+
+    public function ImportSerial (Request $request) {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx|max:10240'
+        ]);
+
+        Excel::import(new SerialImport, $request->file);
+
+        return redirect('/serial')->with('message', 'Serial imported successfully!');
+    }
+
+    public function StoreMultipleSerial(Request $request)
+    {
+        $request->validate([
+            'serial_no' => 'required|unique:serials',
+            'serialStarting' => 'lt:serialEnding|numeric',
+            'serialEnding' => 'required|gt:serialStarting|numeric',
+        ],
+        [
+            'serialEnding.required' => 'The Ending No. field is required.',
+            'serialStarting.lt' => 'Starting No. field must be less than the Ending No. field.',
+            'serialEnding.gt' => 'Ending No. field must be greater than the Starting No. field.'
+        ]);
+
+        $serials = Serial::where('serial_no', $request->serial_no . $request->serialStarting)
+        ->orWhere('serial_no', $request->serial_no . $request->serialEnding)
+        ->first();
+        
+        if($serials){
+            return redirect('/serial')->withErrors(['message' => "Serial already exist!"]);
+        }else{
+            $length = strlen($request->serialStartingNo);
+            for($i = $request->serialStarting; $i <= $request->serialEnding; $i++){
+                try {
+                    Serial::create([
+                        'serial_no' => $request->serial_no . str_pad($i, $length, "0", STR_PAD_LEFT),
+                        'product_id' => $request->code,
+                    ]);
+                } catch (QueryException $e) {
+                    return back()->withErrors(['message' => "Some serial has duplicate entry! please check and try again!"]);
+                }
+            }
+        }
     }
 
     public function UpdateSerial(Request $request) {

@@ -42,16 +42,15 @@ Route::middleware(['user-group'])->group(function () {
 
         Route::get('/receive', 'IndexReceive');
         Route::patch('/received', 'Received');
-
-
     });
 
     Route::controller(ReportsController::class)->group(function () {
         Route::get('/stockcard', 'IndexStockcard');
         Route::get('/generate-stockcard-pdf', 'GenerateStockcardPdf')->name('show.stockcard.pdf');
-        Route::post('view-stockcard-pdf', 'ViewStockcardPdf');
+        Route::post('view-stockcard', 'ViewStockcard');
 
         Route::get('/summary', 'IndexSummary');
+        Route::post('/view-summary', 'ViewSummary');
     });
 
     // Maintenance routes
@@ -69,16 +68,20 @@ Route::middleware(['user-group'])->group(function () {
 
         Route::get('/product', 'IndexProduct')->can('view', User::class);
         Route::post('/store-product', 'StoreProduct')->can('create', User::class);
+        Route::post('/import-product', 'ImportProduct')->can('create', User::class);
         Route::patch('/update-product', 'UpdateProduct')->can('update', User::class);
         Route::delete('/delete-product', 'DeleteProduct')->can('delete', User::class);
 
         Route::get('/lot', 'IndexLot')->can('view', User::class);
         Route::post('/store-lot', 'StoreLot')->can('create', User::class);
+        Route::post('/import-lot', 'ImportLot')->can('create', User::class);
         Route::patch('/update-lot', 'UpdateLot')->can('update', User::class);
         Route::delete('/delete-lot', 'DeleteLot')->can('delete', User::class);
 
         Route::get('/serial', 'IndexSerial')->can('view', User::class);
         Route::post('/store-serial', 'StoreSerial')->can('create', User::class);
+        Route::post('/store-multiple-serial', 'StoreMultipleSerial')->can('create', User::class);
+        Route::post('/import-serial', 'ImportSerial')->can('create', User::class);
         Route::patch('/update-serial', 'UpdateSerial')->can('update', User::class);
         Route::delete('/delete-serial', 'DeleteSerial')->can('delete', User::class);
 

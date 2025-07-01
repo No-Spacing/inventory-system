@@ -11,14 +11,14 @@ const props = defineProps({
 
 const page = usePage();
 
+const addSerialDialog = ref(false);
+const addMultipleSerialDialog = ref(false);
+const importDialog = ref(false);
 const editSerialDialog = ref(false);
 const deleteDialog = ref(false);
 
 const snackbar = ref(false);
 const errorSnackbar = ref(false);
-
-const addSerialDialog = ref(false);
-const addMultipleSerialDialog = ref(false);
 
 const headers = [
     {
@@ -51,6 +51,17 @@ const preload = ref(false);
 
 const searchCode = ref();
 
+const form = useForm({
+    code: null,
+    serial_no: null,
+    serialStarting: null,
+    serialEnding: null,
+})
+
+const formImport = useForm({
+    file: null,
+})
+
 watch(() => searchCode.value, () => {
     loading.value = true
     preload['value'] = true;
@@ -76,13 +87,6 @@ watchDebounced(() => searchCode.value,
     { debounce: 1000, maxWait: 5000 }
 );
 
-const form = useForm({
-    code: null,
-    serial_no: null,
-    serialStarting: null,
-    serialEnding: null,
-})
-
 function submit() {
     form.post('/store-serial', {
         onSuccess: () => {
@@ -91,7 +95,40 @@ function submit() {
             form.reset();
         },
         onError: () => {
-            errorSnackbar.value = true;
+            if(page.props.errors.message){
+                errorSnackbar.value = true;
+            }
+        }
+    })
+}
+
+function submitImport () {
+    formImport.post('/import-serial',
+        {
+            onSuccess: () => {
+                importDialog.value = false;
+                snackbar.value = true;
+                formImport.reset();
+            },
+            onError: (error) => {
+                
+            }
+        }
+    )
+}
+
+function submitMultipleSerial() {
+    form.post('/store-multiple-serial', {
+        onSuccess: () => {
+            addSerialDialog.value = false;
+            snackbar.value = true;
+            form.reset();
+        },
+        onError: () => {
+            if(page.props.errors.message){
+                errorSnackbar.value = true;
+            }
+            
         }
     })
 }
@@ -182,12 +219,15 @@ function paginations(){
                         <v-row
                             class="d-flex align-center justify-space-between mt-5"
                         >
-                            <v-col cols="4">
-                                <v-btn @click="addSerialDialog = true" color="orange-darken-1" class="mr-2">
+                            <v-col cols="6">
+                                <v-btn @click="addSerialDialog = true" color="orange-darken-1" class="mx-2">
                                     Add Single Serial
                                 </v-btn>
-                                <v-btn @click="addMultipleSerialDialog = true" color="primary">
+                                <v-btn @click="addMultipleSerialDialog = true" color="primary" class="mx-2">
                                     Add Multiple Serial
+                                </v-btn>
+                                <v-btn @click="importDialog = true" color="green" class="mx-2">
+                                    Import Serial
                                 </v-btn>
                             </v-col>
                             <v-col cols="6">
@@ -257,9 +297,9 @@ function paginations(){
                         </v-form>
                     </v-card>
                 </v-dialog>
-                <v-dialog v-model="addMultipleSerialDialog" max-width="500">
+                <v-dialog v-model="addMultipleSerialDialog" max-width="800">
                     <v-card title="Add Multiple Serial No.">
-                        <v-form @submit.prevent="submit">
+                        <v-form @submit.prevent="submitMultipleSerial">
                             <v-card-text>
                                 <v-autocomplete
                                     v-model="form.code"
@@ -291,8 +331,8 @@ function paginations(){
 
                                 <div class="d-flex justify-center mb-5">
                                     <v-img 
-  :width="300"
-  aspect-ratio="16/9"
+                                        :width="300"
+                                        aspect-ratio="16/9"
                                         cover
                                         src="/images/serial.jpg"
                                     ></v-img>
@@ -310,6 +350,7 @@ function paginations(){
                                             :error-messages="form.errors.serialStarting"
                                             label="Series of No. Starting"
                                             class="mr-1"
+                                            type="number"
                                         ></v-text-field>
                                     </v-col>
                                     <v-col cols="6">
@@ -318,6 +359,7 @@ function paginations(){
                                             :error-messages="form.errors.serialEnding"
                                             label="Series of No. Ending"
                                             class="ml-1"
+                                            type="number"
                                         ></v-text-field>
                                     </v-col>
                                 </v-row>
@@ -340,6 +382,33 @@ function paginations(){
                             </v-card-actions>
                         </v-form>
                     </v-card>
+                </v-dialog>
+                <v-dialog  v-model="importDialog" max-width="600">
+                    <v-form @submit.prevent="submitImport">
+                        <v-card
+                            title="Import file"
+                        >
+                            <v-card-text>
+                                <v-file-input 
+                                v-model="formImport.file"
+                                variant="outlined" 
+                                clearable label="File input"
+                                :error-messages="formImport.errors.file"
+                                ></v-file-input>
+                            </v-card-text>
+                                <template v-slot:actions>
+                                    <v-spacer></v-spacer>
+
+                                    <v-btn @click="importDialog = false">
+                                        cancel
+                                    </v-btn>
+
+                                    <v-btn type="submit" color="green" :loading="updateForm.processing">
+                                        Import
+                                    </v-btn>
+                                </template>
+                        </v-card>
+                    </v-form>
                 </v-dialog>
                 <v-dialog v-model="editSerialDialog" max-width="500">
                     <v-card title="Edit Serial">

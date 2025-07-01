@@ -85,13 +85,16 @@ class StockcardController extends Controller
 
         return Inertia::render('Transaction/Transaction', [
             'users' => User::with('role')->get(),
-            'stockcards' => Stockcard::with('product')
-            ->with('lot')
-            ->with('serial')
-            ->with('warehouse')
-            ->limit(5)
-            ->get()
-            ->map(function ($product) {
+            'stockcards' => Stockcard::with(['product', 'lot', 'serial', 'warehouse'])
+            ->when($request->search, function ($query, $search) {
+                $query->whereHas('serial', function ($q) use ($search) {
+                    $q->where('serial_no', 'like', "%{$search}%");
+                })->orWhereHas('lot', function ($q) use ($search) {
+                    $q->where('lot', 'like', "%{$search}%");
+                });
+            })
+            ->paginate(10)
+            ->through(function ($product) {
                 return [
                     'code' => $product->product->code,
                     'description' => $product->product->description,
@@ -159,7 +162,7 @@ class StockcardController extends Controller
             }
             
             if($request->input('action') === "transfer")
-            {
+            {   
                 $warehouse = Warehouse::select('warehouse')
                 ->where('id', $request->transferWarehouse)
                 ->first();
@@ -169,7 +172,7 @@ class StockcardController extends Controller
                     $lot->id,
                     $request->warehouse
                 );
-
+                
                 if ($available >= $request->quantity) {
                     $transferRemarks = "Transfer to " . $warehouse->warehouse;
                     $request->merge(['remarks' => $transferRemarks]);
@@ -191,24 +194,42 @@ class StockcardController extends Controller
             $serial = Serial::select('id')->where('serial_no', $request->serial_no)->where('product_id', $product->id)->first();
     
             if($request->input('action') === 'inbound') {
-                if(isset($request->startingSerialNo))
+                if(isset($request->serialStartingNo))
                 {
-                    dd('Hi');
-                } else {
-                    dd('Hello');
-                }
+                    $request->validate([
+                        'serial_no' => 'required|unique:serials',
+                        'serialStartingNo' => 'lt:serialEndingNo|numeric',
+                        'serialEndingNo' => 'required|gt:serialStartingNo|numeric',
+                    ],
+                    [
+                        'serialEndingNo.required' => 'The Ending No. field is required.',
+                        'serialStartingNo.lt' => 'Starting No. field must be less than the Ending No. field.',
+                        'serialEndingNo.gt' => 'Ending No. field must be greater than the Starting No. field.'
+                    ]);
+                    
+                    $length = strlen($request->serialStartingNo);
+                    for($i = $request->serialStartingNo; $i <= $request->serialEndingNo; $i++){  
+                        $serial = Serial::select('id')
+                        ->where('serial_no', $request->serial_no . str_pad($i, $length, "0", STR_PAD_LEFT))
+                        ->where('product_id', $product->id)
+                        ->first(); 
+                        $this->createStockcardData($request->all(), null, $serial->id, $product->id);
+                    }
 
-                // $available = Stockcard::getSerialRemainingStock(
-                //     $product->id,
-                //     $serial->id,
-                //     $request->warehouse
-                // );
-                // if($available == $request->quantity){
-                //     return back()->withErrors(['message' => 'This Serial No. still has an item!.']);
-                // }else{
-                //     $this->createStockcardData($request->all(), null, $serial->id, $product->id);
-                //     $message = 'Stock has been stored successfully to inventory.';
-                // }
+                    $message = 'Stock has been stored successfully to inventory.';
+                } else {
+                    $available = Stockcard::getSerialRemainingStock(
+                        $product->id,
+                        $serial->id,
+                        $request->warehouse
+                    );
+                    if($available == $request->quantity){
+                        return back()->withErrors(['message' => 'This Serial No. still has an item!.']);
+                    }else{
+                        $this->createStockcardData($request->all(), null, $serial->id, $product->id);
+                        $message = 'Stock has been stored successfully to inventory.';
+                    }
+                }
             }
 
             if ($request->input('action') === 'outbound') {
@@ -223,6 +244,30 @@ class StockcardController extends Controller
                 } else {
                     return back()->withErrors(['message' => 'Insufficient balance for this specific serial.']);
                 }
+            }
+
+            if($request->input('action') === "transfer")
+            {   
+                
+                $warehouse = Warehouse::select('warehouse')
+                ->where('id', $request->transferWarehouse)
+                ->first();
+
+                $available = Stockcard::getSerialRemainingStock(
+                    $product->id,
+                    $serial->id,
+                    $request->warehouse
+                );
+                
+                if ($available >= $request->quantity) {
+                    $transferRemarks = "Transfer to " . $warehouse->warehouse;
+                    $request->merge(['remarks' => $transferRemarks]);
+                    $request->merge(['action' => "outbound"]);
+                    $this->createStockcardData($request->all(), null, $serial->id, $product->id);
+                    $message = 'Stock has been released successfully from inventory.';
+                } else {
+                    return back()->withErrors(['message' => 'Insufficient balance for this specific lot.']);
+                }   
             }
         }
         
@@ -283,10 +328,11 @@ class StockcardController extends Controller
         Stockcard::where('id', $request->stockcardId)->update(['received_at' => \Carbon\Carbon::parse(\Carbon\Carbon::parse(now())->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d')]);
         
         $warehouse = Warehouse::where('warehouse', $request->to)->first();
+
         Stockcard::create([
             'product_id' => $stockcard->product_id,
             'lot_id' => $stockcard->lot_id,
-            'serial_no' => $stockcard->serial_no,
+            'serial_id' => $stockcard->serial_id,
             'transaction_type' => 'inbound',
             'quantity' => $stockcard->quantity,
             'enduser_id' => Auth::user()->id,

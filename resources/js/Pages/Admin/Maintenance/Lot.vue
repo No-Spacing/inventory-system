@@ -2,13 +2,15 @@
 import Layout from "../../../Layout/Main.vue";
 import { ref, watch } from "vue";
 import { watchDebounced } from "@vueuse/core";
-import { useForm, router } from '@inertiajs/vue3';
+import { useForm, router, usePage } from '@inertiajs/vue3';
 import { VDateInput } from 'vuetify/labs/VDateInput'
 
 defineProps({
     lots: Object,
     products: Object
 })
+
+const page = usePage();
 
 const headers = [
     {
@@ -50,7 +52,7 @@ const headers = [
     },
 ];
 
-
+const importDialog = ref(false);
 const editLotDialog = ref(false);
 const addLotDialog = ref(false);
 const deleteDialog = ref(false);
@@ -61,35 +63,23 @@ const preload = ref(false);
 
 const searchCode = ref();
 
-watch(() => searchCode.value, () => {
-    loading.value = true
-    preload['value'] = true;
-})
-
-watchDebounced(() => searchCode.value,
-    (value) => {
-        router.get(
-            "/lot",
-            {
-                code: value,
-            },
-            {
-                preserveState: true,
-                preserveScroll: true,
-                onSuccess: () => {
-                    loading.value = false
-                    preload['value'] = false;
-                },
-            }
-        );
-    },
-    { debounce: 1000, maxWait: 5000 }
-);
+const search = ref('');
 
 const form = useForm({
     code: null,
     lot: null,
     expiration_date: null,
+});
+
+const formImport = useForm({
+    file: null,
+})
+
+const updateForm = useForm({
+    id: '',
+    lot: '',
+    code: '',
+    expiration_date: ''
 });
 
 function submit() {
@@ -104,12 +94,19 @@ function submit() {
     })
 }
 
-const updateForm = useForm({
-    id: '',
-    lot: '',
-    code: '',
-    expiration_date: ''
-});
+function submitImport () {
+    formImport.post('/import-lot',
+        {
+            onSuccess: () => {
+                importDialog.value = false;
+                snackbar.value = true;
+                formImport.reset();
+            },
+            onError: (error) => {
+            }
+        }
+    )
+}
 
 function openUpdateDialog(item) {
     updateForm.id = item.id;
@@ -141,8 +138,6 @@ function deleteLot() {
     })
 }
 
-const search = ref('');
-
 watch(() => search.value, (value) => {
     router.get('/lot', {
         search: value,
@@ -152,6 +147,31 @@ watch(() => search.value, (value) => {
         replace: true
     })
 })
+
+watch(() => searchCode.value, () => {
+    loading.value = true
+    preload['value'] = true;
+})
+
+watchDebounced(() => searchCode.value,
+    (value) => {
+        router.get(
+            "/lot",
+            {
+                code: value,
+            },
+            {
+                preserveState: true,
+                preserveScroll: true,
+                onSuccess: () => {
+                    loading.value = false
+                    preload['value'] = false;
+                },
+            }
+        );
+    },
+    { debounce: 1000, maxWait: 5000 }
+);
 
 function paginations(){
     router.get('/lot', {
@@ -190,8 +210,11 @@ function paginations(){
                             class="d-flex align-center justify-space-between mt-5"
                         >
                             <v-col cols="4">
-                                <v-btn @click="addLotDialog = true" color="primary">
+                                <v-btn @click="addLotDialog = true" color="primary" class="mx-2">
                                     Add Lot/Batch
+                                </v-btn>
+                                <v-btn @click="importDialog = true" color="green" class="mx-2">
+                                    Import Lot
                                 </v-btn>
                             </v-col>
                             <v-col cols="6">
@@ -337,6 +360,33 @@ function paginations(){
                             </v-card-actions>
                         </v-form>
                     </v-card>
+                </v-dialog>
+                <v-dialog  v-model="importDialog" max-width="600">
+                    <v-form @submit.prevent="submitImport">
+                        <v-card
+                            title="Import file"
+                        >
+                            <v-card-text>
+                                <v-file-input 
+                                v-model="formImport.file"
+                                variant="outlined" 
+                                clearable label="File input"
+                                :error-messages="formImport.errors.file"
+                                ></v-file-input>
+                            </v-card-text>
+                                <template v-slot:actions>
+                                    <v-spacer></v-spacer>
+
+                                    <v-btn @click="importDialog = false">
+                                        cancel
+                                    </v-btn>
+
+                                    <v-btn type="submit" color="green" :loading="updateForm.processing">
+                                        Import
+                                    </v-btn>
+                                </template>
+                        </v-card>
+                    </v-form>
                 </v-dialog>
                 <v-dialog  v-model="deleteDialog"  max-width="400">
                     <v-form @submit.prevent="deleteLot">

@@ -32,6 +32,8 @@ const form = reactive({
     code: null,
     lot: null,
     serial: null,
+    from: null,
+    to: null
 })
 
 const shouldRetract = computed(() => {
@@ -113,8 +115,20 @@ watch(() => page.props.products, (newProducts) => {
     }
 }, { deep: true });
 
+const errorMessages = ref();
+
 function submit(){
-    router.post('view-stockcard-pdf', form)
+    router.post('view-stockcard', form,
+        {
+            onSuccess: () => {
+            },
+            
+            onError: (error) => {
+                errorMessages.value = error
+            },
+        }
+        
+    )
     // axios.post('view-stockcard-pdf', form, {
     //     responseType: 'blob',
     // })
@@ -142,6 +156,7 @@ function submit(){
 
                             <v-select
                                 v-model="form.warehouse"
+                                :error-messages="errorMessages?.warehouse"
                                 :items="warehouses"
                                 item-title="warehouse"
                                 item-value="id"
@@ -160,6 +175,7 @@ function submit(){
                             <v-autocomplete
                                 v-model="form.code"
                                 v-model:search="searchCode"
+                                :error-messages="errorMessages?.code"
                                 :items="products"
                                 item-title="code"
                                 item-value="id"
@@ -167,6 +183,7 @@ function submit(){
                                 @update:modelValue="form.lot = null;"
                                 variant="outlined"
                                 menu-icon=""
+                                clearable
                             >
                                 <template v-slot:no-data>
                                     <v-container fluid>
@@ -188,6 +205,7 @@ function submit(){
                                     placeholder="Description"
                                     variant="outlined"
                                     required
+                                    disabled
                                 ></v-text-field>
                             </v-col>
                         </v-row>
@@ -201,6 +219,7 @@ function submit(){
                                 <v-autocomplete
                                     v-model="form.lot"
                                     v-model:search="searchLot"
+                                    :error-messages="errorMessages?.lot"
                                     :items="products[0].lots"
                                     item-title="lot"
                                     item-value="id"
@@ -222,12 +241,14 @@ function submit(){
                                 </div>
                                 <v-autocomplete
                                     v-model="form.serial"
+                                    :error-messages="errorMessages?.serial"
                                     :items="serials"
                                     item-title="serial_no"
                                     item-value="id"
                                     placeholder="Select..."
                                     variant="outlined"
                                     menu-icon=""
+                                    clearable
                                 >
                                     <template v-slot:no-data>
                                         <v-container fluid>
@@ -247,6 +268,8 @@ function submit(){
                                 Date From
                             </div>
                             <v-date-input
+                                v-model="form.from"
+                                :error-messages="errorMessages?.from"
                                 placeholder="Date from"
                                 prepend-icon=""
                                 prepend-inner-icon="$calendar"
@@ -261,6 +284,8 @@ function submit(){
                                 Date to
                             </div>
                             <v-date-input
+                                v-model="form.to"
+                                :error-messages="errorMessages?.to"
                                 placeholder="Date to"
                                 prepend-icon=""
                                 prepend-inner-icon="$calendar"

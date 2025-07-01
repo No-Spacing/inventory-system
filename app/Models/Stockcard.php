@@ -48,7 +48,7 @@ class Stockcard extends Model
         return $this->hasOne(Serial::class, 'id', 'serial_id');
     }
 
-     public function warehouse(): HasOne
+    public function warehouse(): HasOne
     {
         return $this->hasOne(Warehouse::class, 'id', 'warehouse_id');
     }

@@ -1,7 +1,9 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
+import { router, usePage } from "@inertiajs/vue3";
 
-const search = ref("");
+const page = usePage();
+
 const headers = [
     {
         align: "start",
@@ -61,6 +63,29 @@ const headers = [
 
     },
 ];
+
+const search = ref('');
+
+watch(() => search.value, (value) => {
+    router.get('/transaction', {
+        search: value,
+        page: 1
+    }, {
+        preserveState: true,
+        replace: true
+    })
+})
+
+function paginations(){
+    router.get('/transaction', {
+        search: search.value,
+        page: page.props.stockcards.current_page
+    }, {
+        preserveState: true,
+        replace: true
+    })
+}
+
 </script>
 <template>
     <v-text-field
@@ -71,10 +96,21 @@ const headers = [
         single-line
     ></v-text-field>
     <v-data-table
-        :filter-keys="['code', 'description', 'serialLotNo']"
         :headers="headers"
-        :search="search"
-        :items="$page.props.stockcards"
+        :items="$page.props.stockcards.data"
     >
+        <template v-slot:bottom>
+            <v-row
+                class="d-flex align-center justify-end mt-5"
+            >
+                <v-col cols="6">
+                    <v-pagination 
+                        v-model="$page.props.stockcards.current_page" 
+                        :length="$page.props.stockcards.last_page" 
+                        @update:modelValue="paginations"
+                    ></v-pagination> 
+                </v-col>
+            </v-row>
+        </template>
     </v-data-table>
 </template>

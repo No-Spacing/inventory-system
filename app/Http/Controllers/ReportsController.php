@@ -43,16 +43,32 @@ class ReportsController extends Controller
         ]);
     }
 
-    public function ViewStockcardPdf(Request $request) {
+    public function ViewStockcard(Request $request) {
+
+        $request->validate([
+            'warehouse' => 'required',
+            'code' => 'required',
+            'from' => 'required',
+            'to' => 'required',
+        ]);
+
+        $from = \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->from)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d');
+        $to = \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->to)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d');
 
         $product = Product::with('unit', 'lot', 'serial')->where('id', $request->code)->first();
 
         $totalItems = 0;
-        if ($request->filled('serial')) {
+        if ($product->type === "Track by Serial") {
+
+            $request->validate([
+                'serial' => 'required',
+            ]);
+            
             $stockcards = Stockcard::with('product', 'lot', 'serial', 'warehouse', 'user')
             ->where('product_id', $request->code)
             ->where('serial_id', $request->serial)
             ->where('warehouse_id', $request->warehouse)
+            ->whereBetween('transaction_date', [$from, $to])
             ->orderBy('warehouse_id')
             ->orderBy('lot_id')
             ->orderBy('serial_id')
@@ -66,7 +82,71 @@ class ReportsController extends Controller
                 $balance = 0;
 
                 return $group->map(function ($product) use (&$balance) {
-                    $balance += $product->quantity;
+                    if ($product->transaction_type == 'inbound') {
+                        $balance += $product->quantity;
+                    } else {
+                        $balance -= $product->quantity;
+                    }
+                    return [
+                        'transaction_date' => $product->transaction_date,
+                        'lotNo' => optional($product->lot)->lot,
+                        'serialNo' => optional($product->serial)->serial_no,
+                        'expiration_date' => optional($product->lot)->expiration_date,
+                        'transaction_type' => $product->transaction_type,
+                        'warehouse' => $product->warehouse->warehouse,
+                        'quantity' => $product->quantity,
+                        'balance' => $balance,
+                        'reference' => $product->reference,
+                        'remarks' => $product->remarks,
+                        'document_no' => $product->document_no,
+                        'enduser' => $product->user->name,
+                        'created_at' => $product->created_at,
+                    ];
+                });
+            });
+
+            if($stockcards->isEmpty())
+            {
+                $totalItems = 0;
+            }
+            else
+            {
+                $totalItems = StockCard::getSerialRemainingStock(
+                    $request->code,
+                    $request->serial,
+                    $request->warehouse,
+                );
+            } 
+
+        }else if($product->type === "Track by Lot"){
+
+            $request->validate([
+                'lot' => 'required',
+            ]);
+            
+            $stockcards = Stockcard::with('product', 'lot', 'serial', 'warehouse', 'user')
+            ->where('product_id', $request->code)
+            ->where('lot_id', $request->lot)
+            ->where('warehouse_id', $request->warehouse)
+            ->whereBetween('transaction_date', [$from, $to])
+            ->orderBy('warehouse_id')
+            ->orderBy('lot_id')
+            ->orderBy('serial_id')
+            ->orderBy('created_at')
+            ->orderBy('id')
+            ->get()
+            ->groupBy(function ($item) {
+                return $item->warehouse_id . '-' . ($item->lot_id ?? 'null') . '-' . ($item->serial_id ?? 'null');
+            })
+            ->flatMap(function ($group) {
+                $balance = 0;
+
+                return $group->map(function ($product) use (&$balance) {
+                    if ($product->transaction_type == 'inbound') {
+                        $balance += $product->quantity;
+                    } else {
+                        $balance -= $product->quantity;
+                    }
 
                     return [
                         'transaction_date' => $product->transaction_date,
@@ -81,226 +161,97 @@ class ReportsController extends Controller
                         'remarks' => $product->remarks,
                         'document_no' => $product->document_no,
                         'enduser' => $product->user->name,
+                        'created_at' => $product->created_at,
                     ];
                 });
             });
-            $totalItems = StockCard::getSerialRemainingStock(
-                $request->code,
-                $request->serial,
-                $request->warehouse,
-            );
-        }else if($request->filled('lot')){
-            if(isset($request->warehouse)){
-                $stockcards = Stockcard::with('product', 'lot', 'serial', 'warehouse', 'user')
-                ->where('product_id', $request->code)
-                ->where('lot_id', $request->lot)
-                ->where('warehouse_id', $request->warehouse)
-                ->orderBy('warehouse_id')
-                ->orderBy('lot_id')
-                ->orderBy('serial_id')
-                ->orderBy('created_at')
-                ->orderBy('id')
-                ->get()
-                ->groupBy(function ($item) {
-                    return $item->warehouse_id . '-' . ($item->lot_id ?? 'null') . '-' . ($item->serial_id ?? 'null');
-                })
-                ->flatMap(function ($group) {
-                    $balance = 0;
 
-                    return $group->map(function ($product) use (&$balance) {
-                        if ($product->transaction_type == 'inbound') {
-                            $balance += $product->quantity;
-                        } else {
-                            $balance -= $product->quantity;
-                        }
-
-                        return [
-                            'transaction_date' => $product->transaction_date,
-                            'lotNo' => optional($product->lot)->lot,
-                            'serialNo' => optional($product->serial)->serial_no,
-                            'expiration_date' => optional($product->lot)->expiration_date,
-                            'transaction_type' => $product->transaction_type,
-                            'warehouse' => $product->warehouse->warehouse,
-                            'quantity' => $product->quantity,
-                            'balance' => $balance,
-                            'reference' => $product->reference,
-                            'remarks' => $product->remarks,
-                            'document_no' => $product->document_no,
-                            'enduser' => $product->user->name,
-                        ];
-                    });
-                });
-
+            if($stockcards->isEmpty())
+            {
+                $totalItems = 0;
+            }else{
                 $totalItems = StockCard::getLotRemainingStock(
                     $request->code,
                     $request->lot,
                     $request->warehouse,
                 );
-            } else {
-                $stockcards = Stockcard::with('product', 'lot', 'serial', 'warehouse', 'user')
-                ->where('product_id', $request->code)
-                ->where('lot_id', $request->lot)
-                ->orderBy('warehouse_id')
-                ->orderBy('lot_id')
-                ->orderBy('serial_id')
-                ->orderBy('created_at')
-                ->orderBy('id')
-                ->get()
-                ->groupBy(function ($item) {
-                    return $item->warehouse_id . '-' . ($item->lot_id ?? 'null') . '-' . ($item->serial_id ?? 'null');
-                })
-                ->flatMap(function ($group) {
-                    $balance = 0;
-
-                    return $group->map(function ($product) use (&$balance) {
-                        if ($product->transaction_type == 'inbound') {
-                            $balance += $product->quantity;
-                        } else {
-                            $balance -= $product->quantity;
-                        }
-
-                        return [
-                            'transaction_date' => $product->transaction_date,
-                            'lotNo' => optional($product->lot)->lot,
-                            'serialNo' => optional($product->serial)->serial_no,
-                            'expiration_date' => optional($product->lot)->expiration_date,
-                            'transaction_type' => $product->transaction_type,
-                            'warehouse' => $product->warehouse->warehouse,
-                            'quantity' => $product->quantity,
-                            'balance' => $balance,
-                            'reference' => $product->reference,
-                            'remarks' => $product->remarks,
-                            'document_no' => $product->document_no,
-                            'enduser' => $product->user->name,
-                        ];
-                    });
-                });
-
-                $totalItems = StockCard::getLotsRemainingStock(
-                    $request->code,
-                    $request->lot,
-                );
-            }
-          
-        }else{
-            if(isset($request->warehouse)){
-                $balance = 0;
-                $stockcards = Stockcard::with('product', 'lot', 'serial', 'warehouse', 'user')
-                ->where('product_id', $request->code)
-                ->where('warehouse_id', $request->warehouse)
-                ->orderBy('warehouse_id')
-                ->orderBy('lot_id')
-                ->orderBy('serial_id')
-                ->orderBy('created_at')
-                ->orderBy('id')
-                ->get()
-                ->groupBy(function ($item) {
-                    return $item->warehouse_id . '-' . ($item->lot_id ?? 'null') . '-' . ($item->serial_id ?? 'null');
-                })
-                ->flatMap(function ($group) {
-                    $balance = 0;
-
-                    return $group->map(function ($product) use (&$balance) {
-                        if ($product->transaction_type == 'inbound') {
-                            $balance += $product->quantity;
-                        } else {
-                            $balance -= $product->quantity;
-                        }
-
-                        return [
-                            'transaction_date' => $product->transaction_date,
-                            'lotNo' => optional($product->lot)->lot,
-                            'serialNo' => optional($product->serial)->serial_no,
-                            'expiration_date' => optional($product->lot)->expiration_date,
-                            'transaction_type' => $product->transaction_type,
-                            'warehouse' => $product->warehouse->warehouse,
-                            'quantity' => $product->quantity,
-                            'balance' => $balance,
-                            'reference' => $product->reference,
-                            'remarks' => $product->remarks,
-                            'document_no' => $product->document_no,
-                            'enduser' => $product->user->name,
-                        ];
-                    });
-                });
-
-                $totalItems = StockCard::getRemainingStock(
-                    $request->code,
-                    $request->warehouse,
-                );
-            }else{
-                $balance = 0;
-                $stockcards = Stockcard::with('product', 'lot', 'serial', 'warehouse', 'user')
-                ->where('product_id', $request->code)
-                ->orderBy('warehouse_id')
-                ->orderBy('lot_id')
-                ->orderBy('serial_id')
-                ->orderBy('created_at')
-                ->orderBy('id')
-                ->get()
-                ->groupBy(function ($item) {
-                    return $item->warehouse_id . '-' . ($item->lot_id ?? 'null') . '-' . ($item->serial_id ?? 'null');
-                })
-                ->flatMap(function ($group) {
-                    $balance = 0;
-
-                    return $group->map(function ($product) use (&$balance) {
-                        if ($product->transaction_type == 'inbound') {
-                            $balance += $product->quantity;
-                        } else {
-                            $balance -= $product->quantity;
-                        }
-
-                        return [
-                            'transaction_date' => $product->transaction_date,
-                            'lotNo' => optional($product->lot)->lot,
-                            'serialNo' => optional($product->serial)->serial_no,
-                            'expiration_date' => optional($product->lot)->expiration_date,
-                            'transaction_type' => $product->transaction_type,
-                            'warehouse' => $product->warehouse->warehouse,
-                            'quantity' => $product->quantity,
-                            'balance' => $balance,
-                            'reference' => $product->reference,
-                            'remarks' => $product->remarks,
-                            'document_no' => $product->document_no,
-                            'enduser' => $product->user->name,
-                        ];
-                    });
-                });
-
-                $totalItems = StockCard::getRemainingStock(
-                    $request->code,
-                );
-            }
-
+            } 
         }
 
-        $stockcardSorted = $stockcards->sortBy('transaction_date')->values();
+        $stockcardSorted = $stockcards->sortBy('created_at')->values();
 
         return view('pdf.stockcard-pdf', 
-        [   'stockcards' => $stockcardSorted, 
+        [   
+            'stockcards' => $stockcardSorted, 
             'totalItems' => $totalItems,
             'product' => $product,
         ]);
-        // return Pdf::view('pdf.stockcard-pdf', ['stockcards' => $stockcards])
+        // return Pdf::view('pdf.stockcard-pdf',        
+        // [  
+        //     'stockcards' => $stockcardSorted, 
+        //     'totalItems' => $totalItems,
+        //     'product' => $product,
+        // ])
         // ->format('a4')
         // ->landscape()
         // ->name('invoice.pdf');
     }
 
-
-    public function GenerateStockcardPdf(){
-        $stockcards = Stockcard::with('product')
-        ->where('product_id', $request->code)
-        ->get();
-        
-        return Pdf::view('pdf.stockcard-pdf', ['stockcards' => $stockcards])
-        ->format('a4')
-        ->landscape()
-        ->name('invoice.pdf');
-    }
-
     public function IndexSummary() {
         return Inertia::render('Report/Summary');
+    }
+
+    public function ViewSummary(Request $request)
+    {
+        $request->validate(
+            [
+                'from' => 'required',
+                'to' => 'required',
+            ]
+        );
+
+        $from = \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->from)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d');
+        $to = \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->to)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d');
+
+        $stockcards = Stockcard::with('product', 'lot', 'serial', 'warehouse', 'user')
+        ->whereBetween('transaction_date', [$from, $to])
+        ->orderBy('warehouse_id')
+        ->orderBy('lot_id')
+        ->orderBy('serial_id')
+        ->orderBy('created_at')
+        ->orderBy('id')
+        ->get()
+        ->groupBy(function ($item) {
+            return $item->warehouse_id . '-' . ($item->lot_id ?? 'null') . '-' . ($item->serial_id ?? 'null');
+        })
+        ->flatMap(function ($group) {
+            $balance = 0;
+
+            return $group->map(function ($product) use (&$balance) {
+                return [
+                    'code' => $product->product->code,
+                    'description' => $product->product->description,
+                    'transaction_date' => $product->transaction_date,
+                    'lotNo' => optional($product->lot)->lot,
+                    'serialNo' => optional($product->serial)->serial_no,
+                    'expiration_date' => optional($product->lot)->expiration_date,
+                    'transaction_type' => $product->transaction_type,
+                    'warehouse' => $product->warehouse->warehouse,
+                    'quantity' => $product->quantity,
+                    'reference' => $product->reference,
+                    'remarks' => $product->remarks,
+                    'document_no' => $product->document_no,
+                    'enduser' => $product->user->name,
+                    'created_at' => $product->created_at,
+                ];
+            });
+        });
+
+        $stockcardSorted = $stockcards->sortBy('created_at')->values();
+
+        return view('pdf.summary-pdf', 
+        [   
+            'stockcards' => $stockcardSorted, 
+        ]);
     }
 }
