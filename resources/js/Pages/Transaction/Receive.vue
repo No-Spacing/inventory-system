@@ -141,9 +141,6 @@ watch(() => [form.from, form.to], ([value, value2]) => {
                             >
                                 Received
                             </v-btn>
-                            <v-btn prepend-icon="mdi-delete" color="red-darken-4">
-                                Cancel
-                            </v-btn>
                         </div>
                     </template>
                 </v-data-table>

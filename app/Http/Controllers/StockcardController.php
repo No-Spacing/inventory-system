@@ -163,6 +163,10 @@ class StockcardController extends Controller
             
             if($request->input('action') === "transfer")
             {   
+                $request->validate([
+                    'transferWarehouse' => 'required|different:warehouse'
+                ]);
+
                 $warehouse = Warehouse::select('warehouse')
                 ->where('id', $request->transferWarehouse)
                 ->first();
@@ -248,7 +252,9 @@ class StockcardController extends Controller
 
             if($request->input('action') === "transfer")
             {   
-                
+                $request->validate([
+                    'transferWarehouse' => 'required|different:warehouse'
+                ]);
                 $warehouse = Warehouse::select('warehouse')
                 ->where('id', $request->transferWarehouse)
                 ->first();

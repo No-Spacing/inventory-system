@@ -669,6 +669,7 @@ watch(() => page.props.products, (newProducts) => {
                                     <v-select
                                         v-model="form.transferWarehouse"
                                         :items="page.props.warehouses"
+                                        :error-messages="form.errors.transferWarehouse"
                                         item-value="id"
                                         item-title="warehouse"
                                         variant="outlined"
