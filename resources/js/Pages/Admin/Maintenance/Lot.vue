@@ -14,7 +14,7 @@ const page = usePage();
 
 const headers = [
     {
-        title: "Id",
+        title: "ID",
         key: "id",
         headerProps: {
             style: "font-weight: 700",

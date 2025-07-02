@@ -17,6 +17,13 @@ const props = defineProps({
     units: Object
 })
 const headers = [
+    {
+        title: "ID",
+        key: "id",
+        headerProps: {
+            style: "font-weight: 700",
+        },
+    },
     { 
         title: 'Unit',
         key: 'unit',

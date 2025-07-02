@@ -11,6 +11,13 @@ defineProps({
 
 const headers = [
     {
+        title: "ID",
+        key: "id",
+        headerProps: {
+            style: "font-weight: 700",
+        },
+    },
+    {
         title: "Code",
         key: 'code',
         headerProps: {

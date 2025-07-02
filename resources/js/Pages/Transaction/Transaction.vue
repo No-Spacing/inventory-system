@@ -13,7 +13,6 @@ const loading = ref(false)
 const handleData = (data) => {
   loading.value = data;
 };
-
 </script>
 <template>
     <Layout title="In & Out Transaction" :loading="loading">

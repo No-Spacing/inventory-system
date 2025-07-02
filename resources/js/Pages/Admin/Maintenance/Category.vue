@@ -25,6 +25,13 @@ const updateForm = useForm({
 
 const headers = [
     {
+        title: "ID",
+        key: "id",
+        headerProps: {
+            style: "font-weight: 700",
+        },
+    },
+    {
         title: "Category",
         key: "category_name",
         headerProps: {

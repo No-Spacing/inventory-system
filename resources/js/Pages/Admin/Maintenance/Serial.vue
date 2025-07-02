@@ -22,7 +22,7 @@ const errorSnackbar = ref(false);
 
 const headers = [
     {
-        title: "Id",
+        title: "ID",
         key: "id",
         headerProps: {
             style: "font-weight: 700",
