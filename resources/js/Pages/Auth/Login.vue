@@ -83,3 +83,37 @@ function submit(){
 </v-container>
 </template>
 
+<style>
+
+/* Login Section */
+
+.fill-height {
+    min-height: 100vh;
+}
+
+/* Background image */
+.login-background {
+    background: url('images/inmed.jpg') no-repeat center center;
+    background-size: cover;
+}
+
+/* Card custom width (optional, already using max-width) */
+.v-card {
+    backdrop-filter: blur(10px); /* optional: glass effect */
+    background-color: rgba(255, 255, 255, 0.85); /* slight transparency */
+}
+
+.v-card-foreground {
+    transition: opacity 0.4s ease-in-out;
+}
+
+.v-card-foreground:not(.on-hover) {
+    opacity: 0.6;
+}
+
+.show-btns {
+    color: rgba(255, 255, 255, 1) !important;
+}
+
+/* End Login Section */
+</style>

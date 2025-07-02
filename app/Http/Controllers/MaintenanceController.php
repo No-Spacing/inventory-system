@@ -163,7 +163,7 @@ class MaintenanceController extends Controller
             'type' => $request->type,
         ]);
 
-        
+        return redirect('/product')->with('message', 'Product created successfully!');  
     }
 
     public function ImportProduct (Request $request) {
