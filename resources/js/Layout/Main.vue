@@ -29,13 +29,13 @@ const openGroup = ref([""]);
 
 
 function navigationRail() {
-    this.drawer = !this.drawer;
-    this.rail = false;
+    drawer.value = !drawer.value;
+    rail.value = false;
 }
 
 onMounted(() => {
     if(mobile.value == true){
-        this.drawer.value = false
+        drawer.value = false
     }
 })
 </script>

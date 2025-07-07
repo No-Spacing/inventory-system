@@ -82,18 +82,14 @@ function submit(){
     </v-card>
 </v-container>
 </template>
-
 <style>
-
-/* Login Section */
-
 .fill-height {
     min-height: 100vh;
 }
 
 /* Background image */
 .login-background {
-    background: url('images/inmed.jpg') no-repeat center center;
+    background: url('/public/images/inmed.jpg') no-repeat center center;
     background-size: cover;
 }
 
@@ -114,6 +110,4 @@ function submit(){
 .show-btns {
     color: rgba(255, 255, 255, 1) !important;
 }
-
-/* End Login Section */
 </style>
