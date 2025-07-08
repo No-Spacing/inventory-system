@@ -1,7 +1,7 @@
 <script setup>
 import Layout from "../../../Layout/Main.vue";
-import { ref, watch, reactive } from "vue";
-import { usePage, useForm } from "@inertiajs/vue3";
+import { ref, watch } from "vue";
+import { usePage, useForm, router } from "@inertiajs/vue3";
 
 const page = usePage();
 const snackbar = ref(false);
@@ -10,6 +10,8 @@ const errorSnackbar = ref(false);
 defineProps({
     categories: Object,
 });
+
+const search = ref();
 
 // Create Inertia form object
 const form = useForm({
@@ -124,14 +126,40 @@ function deleteCategory (item) {
         }
     })
 }
+
+watch(() => search.value, (value) => {
+    router.get('/category', {
+        search: value,
+        page: 1
+    }, {
+        preserveState: true,
+        replace: true
+    })
+})
+
+function paginations(){
+    router.get('/category', {
+        search: search.value,
+        page: page.props.categories.current_page
+    }, 
+    {
+        preserveState: true,
+        replace: true
+    })
+}
 </script>
 <template>
     <Layout title="Category">
         <v-container max-width="1500" fluid>
             <v-card elevation="2" class="pa-8 my-5">
+                <v-text-field 
+                    variant="outlined" 
+                    label="Search" 
+                    v-model="search"
+                ></v-text-field>
                 <v-data-table
                     :headers="headers"
-                    :items="categories"
+                    :items="categories.data"
                 >
                     <template v-slot:item.actions="{ item }">
                         <div class="d-flex justify-center ga-2">
@@ -144,33 +172,24 @@ function deleteCategory (item) {
                         </div>
                     </template>
 
-                    <template
-                        v-slot:bottom="{
-                            page,
-                            itemsPerPage,
-                            pageCount,
-                            setItemsPerPage,
-                            setPage,
-                        }"
-                    >
-                        <div
-                            class="d-flex align-center justify-space-between pa-4"
-                        >
-                            <v-btn
-                                color="primary"
-                                @click="addCategoryDialog = true"
-                            >
-                                Add Category
-                            </v-btn>
-
-                            <v-data-table-footer
-                                :page="page"
-                                :items-per-page="itemsPerPage"
-                                :page-count="pageCount"
-                                @update:items-per-page="setItemsPerPage"
-                                @update:page="setPage"
-                            />
-                        </div>
+                    <template v-slot:bottom>
+                        <v-row class="d-flex align-center justify-space-between mt-5">
+                            <v-col cols="4">
+                                <v-btn
+                                    color="primary"
+                                    @click="addCategoryDialog = true"
+                                >
+                                    Add Category
+                                </v-btn>
+                            </v-col>
+                            <v-col cols="6">
+                                <v-pagination 
+                                    v-model="categories.current_page" 
+                                    :length="categories.last_page" 
+                                    @update:modelValue="paginations"
+                                ></v-pagination> 
+                            </v-col>
+                        </v-row>
                     </template>
                 </v-data-table>
                 <v-dialog v-model="addCategoryDialog" max-width="500">

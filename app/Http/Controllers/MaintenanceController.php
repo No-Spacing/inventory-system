@@ -11,6 +11,7 @@ use App\Models\Lot;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\Serial;
+use App\Models\Warehouse;
 
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\QueryException;
@@ -26,10 +27,11 @@ use Inertia\Inertia;
 class MaintenanceController extends Controller
 {
     // Unit section starts here...
-    public function IndexUnit(){
+    public function ViewUnit(Request $request){
         return Inertia::render('Admin/Maintenance/Units', 
         [
-            'units' => Unit::all()
+            'units' => Unit::where('unit', 'Like', '%'.$request->search.'%')
+                        ->paginate(10)
         ]);
     }
 
@@ -75,9 +77,9 @@ class MaintenanceController extends Controller
     // Unit section ends here...
 
     // Category Section Starts Here...
-    public function IndexCategory(){
+    public function ViewCategory(Request $request){
         return Inertia::render('Admin/Maintenance/Category', [
-            'categories' => Category::all(),
+            'categories' => Category::where('category_name', 'Like', '%'.$request->search.'%')->paginate(10),
         ]);
     }
 
@@ -124,7 +126,7 @@ class MaintenanceController extends Controller
     }
     // Category Section Ends Here...
 
-    public function IndexProduct(Request $request) {
+    public function ViewProduct(Request $request) {
         return Inertia::render('Admin/Maintenance/Product', [
             'categories' => Category::all(),
             'units' => Unit::all(),
@@ -220,7 +222,7 @@ class MaintenanceController extends Controller
         }
     }
 
-    public function IndexLot(Request $request) {
+    public function ViewLot(Request $request) {
         return Inertia::render('Admin/Maintenance/Lot', [
             'lots' => Lot::with('product')
             ->where('lot', 'Like', '%'.$request->search.'%')
@@ -245,7 +247,7 @@ class MaintenanceController extends Controller
     public function StoreLot(Request $request) {
         $validated = $request->validate([
             'code' => 'required',
-            'lot' => 'required|unique:lots',
+            'lot' => 'required',
         ]);
 
         Lot::create([
@@ -308,7 +310,7 @@ class MaintenanceController extends Controller
         }
     }
 
-    public function IndexSerial(Request $request) {
+    public function ViewSerial(Request $request) {
         return Inertia::render('Admin/Maintenance/Serial', [
             'serials' => Serial::where('serial_no', 'Like', '%'.$request->search.'%')
             ->paginate(10)
@@ -409,7 +411,29 @@ class MaintenanceController extends Controller
         }
     }
 
-    public function IndexUsers(){
+    public function ViewWarehouse(Request $request)
+    {
+        return Inertia::render('Admin/Maintenance/Warehouse', [
+            'warehouses' => Warehouse::where('warehouse', 'Like', '%'.$request->search.'%')
+            ->paginate(10)
+            ->withQueryString(),
+        ]);
+    }
+
+    public function StoreWarehouse(Request $request)
+    {
+        // $request->validate(
+        //     [
+        //         'warehouse' => 'required|unique:warehouses'
+        //     ]
+        // );
+
+        Validator::make($request->all(), [
+            'warehouse' => 'required',
+        ])->validate();
+    }
+
+    public function ViewUsers(){
         return Inertia::render('Admin/Maintenance/Users', [
             'users' => User::with('role')
             ->get()

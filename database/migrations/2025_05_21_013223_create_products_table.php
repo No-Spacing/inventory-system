@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->string('code');
-            $table->longText('description');
+            $table->longText('description')->nullable();
             $table->foreignId('unit_id')->nullable()->references('id')->on('units')->onUpdate('cascade');
             $table->foreignId('category_id')->nullable()->references('id')->on('categories')->onUpdate('cascade');
-            $table->longText('type');
+            $table->longText('type')->nullable();
             $table->timestamps();
         });
     }

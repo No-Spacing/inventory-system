@@ -1,7 +1,7 @@
 <script setup>
 import Layout from "../../../Layout/Main.vue"
-import { ref } from "vue";
-import { useForm, usePage } from '@inertiajs/vue3';
+import { ref, watch } from "vue";
+import { useForm, router, usePage } from '@inertiajs/vue3';
 
 const page = usePage();
 
@@ -10,6 +10,17 @@ const errorSnackbar = ref(false);
 const addUnitDialog = ref(false);
 const editUnitDialog = ref(false);
 const deleteDialog = ref(false);
+
+const search = ref('');
+
+const form = useForm({
+    unit: ''
+});
+
+const updateForm = useForm({
+    id: '', 
+    unit: ''
+});
 
 const emit = defineEmits(['snackbar']);
 
@@ -42,10 +53,6 @@ const headers = [
     },
 ]
 
-const form = useForm({
-    unit: ''
-});
-
 function submit() {
     form.post('/store-unit', {
         onSuccess: () => {
@@ -56,10 +63,7 @@ function submit() {
     })
 }
 
-const updateForm = useForm({
-    id: '', 
-    unit: ''
-});
+
 
 function openUpdateDialog(item){
     updateForm.id = item.id;
@@ -95,13 +99,38 @@ function deleteUnit(){
     })
 }
 
+watch(() => search.value, (value) => {
+    router.get('/units', {
+        search: value,
+        page: 1
+    }, {
+        preserveState: true,
+        replace: true
+    })
+})
+
+function paginations(){
+    router.get('/units', {
+        search: search.value,
+        page: page.props.units.current_page
+    }, 
+    {
+        preserveState: true,
+        replace: true
+    })
+}
 </script>
 <template>
     <Layout title="Units">
         <v-container max-width="1500" fluid>
             <v-card elevation="2" class="pa-8 my-5">
+                <v-text-field 
+                    variant="outlined" 
+                    label="Search" 
+                    v-model="search"
+                ></v-text-field>
                 <v-card-text>
-                    <v-data-table :headers="headers" :items="units">
+                    <v-data-table :headers="headers" :items="units.data">
                         <template v-slot:item.actions="{ item }">
                             <div class="d-flex justify-center ga-2 blue">
                                 <v-btn prepend-icon="mdi-pencil"  @click="openUpdateDialog(item)" color="blue-darken-4">
@@ -112,20 +141,27 @@ function deleteUnit(){
                                 </v-btn>
                             </div>
                         </template>
-                        <template v-slot:bottom="{ page, itemsPerPage, pageCount, setItemsPerPage, setPage }">
-                            <div class="d-flex align-center justify-space-between pa-4">
-                            <v-btn color="primary" @click="addUnitDialog = true">
-                                Add Units
-                            </v-btn>
-
-                            <v-data-table-footer
-                                :page="page"
-                                :items-per-page="itemsPerPage"
-                                :page-count="pageCount"
-                                @update:items-per-page="setItemsPerPage"
-                                @update:page="setPage"
-                            />
-                            </div>
+                        <template v-slot:bottom>
+                            <v-row
+                                class="d-flex align-center justify-space-between mt-5"
+                            >
+                                <v-col cols="4">
+                                    <v-btn
+                                        @click="addUnitDialog = true"
+                                        color="primary"
+                                        class="mx-2"
+                                    >
+                                        Add Unit
+                                    </v-btn>
+                                </v-col>
+                                <v-col cols="6">
+                                    <v-pagination 
+                                        v-model="units.current_page" 
+                                        :length="units.last_page" 
+                                        @update:modelValue="paginations"
+                                    ></v-pagination> 
+                                </v-col>
+                            </v-row>
                         </template>
                     </v-data-table>
                     <v-dialog v-model="addUnitDialog" max-width="500">

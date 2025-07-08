@@ -1,13 +1,15 @@
 <script setup>
 import Layout from "../../../Layout/Main.vue";
 import { ref, watch } from "vue";
-import { useForm, router } from '@inertiajs/vue3';
+import { useForm, router, usePage } from '@inertiajs/vue3';
 
 defineProps({
     categories: Object,
     units: Object,
     products: Object,
 })
+
+const page = usePage();
 
 const headers = [
     {
@@ -78,6 +80,8 @@ const updateForm = useForm({
     remaining_items: '',
 });
 
+const search = ref('');
+
 function submit() {
     form.post('/store-product', {
         onSuccess: () => {
@@ -139,8 +143,6 @@ function deleteProduct() {
     })
 }
 
-const search = ref('');
-
 watch(() => search.value, (value) => {
     router.get('/product', {
         search: value,
@@ -154,7 +156,7 @@ watch(() => search.value, (value) => {
 function paginations(){
     router.get('/product', {
         search: search.value,
-        page: page.props.lots.current_page
+        page: page.props.products.current_page
     }, 
     {
         preserveState: true,

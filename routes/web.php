@@ -56,40 +56,41 @@ Route::middleware(['user-group'])->group(function () {
     // Maintenance routes
 
     Route::controller(MaintenanceController::class)->group(function () {
-        Route::get('/units', 'IndexUnit')->can('view', User::class);
+        Route::get('/units', 'ViewUnit')->can('view', User::class);
         Route::post('/store-unit', 'StoreUnit')->can('create', User::class);
         Route::patch('/update-unit', 'UpdateUnit')->can('update', User::class);
         Route::delete('/delete-unit', 'DeleteUnit')->can('delete', User::class);
 
-        Route::get('/category', 'IndexCategory')->can('view', User::class);
+        Route::get('/category', 'ViewCategory')->can('view', User::class);
         Route::post('/store-category', 'StoreCategory')->can('create', User::class);
         Route::patch('/update-category', 'UpdateCategory')->can('update', User::class);
         Route::delete('/delete-category', 'DeleteCategory')->can('delete', User::class);
 
-        Route::get('/product', 'IndexProduct')->can('view', User::class);
+        Route::get('/product', 'ViewProduct')->can('view', User::class);
         Route::post('/store-product', 'StoreProduct')->can('create', User::class);
         Route::post('/import-product', 'ImportProduct')->can('create', User::class);
         Route::patch('/update-product', 'UpdateProduct')->can('update', User::class);
         Route::delete('/delete-product', 'DeleteProduct')->can('delete', User::class);
 
-        Route::get('/lot', 'IndexLot')->can('view', User::class);
+        Route::get('/lot', 'ViewLot')->can('view', User::class);
         Route::post('/store-lot', 'StoreLot')->can('create', User::class);
         Route::post('/import-lot', 'ImportLot')->can('create', User::class);
         Route::patch('/update-lot', 'UpdateLot')->can('update', User::class);
         Route::delete('/delete-lot', 'DeleteLot')->can('delete', User::class);
 
-        Route::get('/serial', 'IndexSerial')->can('view', User::class);
+        Route::get('/serial', 'ViewSerial')->can('view', User::class);
         Route::post('/store-serial', 'StoreSerial')->can('create', User::class);
         Route::post('/store-multiple-serial', 'StoreMultipleSerial')->can('create', User::class);
         Route::post('/import-serial', 'ImportSerial')->can('create', User::class);
         Route::patch('/update-serial', 'UpdateSerial')->can('update', User::class);
         Route::delete('/delete-serial', 'DeleteSerial')->can('delete', User::class);
 
-        Route::get('/users', 'IndexUsers')->can('viewUser', User::class);
+        Route::get('/users', 'ViewUsers')->can('viewUser', User::class);
         Route::post('/store-user', 'StoreUser')->can('addUser', User::class);
+
+        Route::get('/warehouse', 'ViewWarehouse')->can('view', User::class);
+        Route::post('/store-warehouse', 'StoreWarehouse')->can('view', User::class);
     });
-
-
 
     Route::inertia('/forgot-password', 'Auth/ForgotPassword');
 
