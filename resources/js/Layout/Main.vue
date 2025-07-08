@@ -123,6 +123,12 @@ onMounted(() => {
                     <Link href="stockcard">
                         <v-list-item title="Stockcard"></v-list-item>
                     </Link>
+                    <Link href="product-report">
+                        <v-list-item title="Products"></v-list-item>
+                    </Link>
+                    <Link href="warehouse-report">
+                        <v-list-item title="Warehouse"></v-list-item>
+                    </Link>
                     <Link href="/summary">
                         <v-list-item title="Summary"></v-list-item>
                     </Link>

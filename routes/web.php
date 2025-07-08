@@ -45,12 +45,18 @@ Route::middleware(['user-group'])->group(function () {
     });
 
     Route::controller(ReportsController::class)->group(function () {
-        Route::get('/stockcard', 'IndexStockcard');
+        Route::get('/stockcard', 'ViewStockcard');
         Route::get('/generate-stockcard-pdf', 'GenerateStockcardPdf')->name('show.stockcard.pdf');
-        Route::post('view-stockcard', 'ViewStockcard');
+        Route::post('/generate-stockcard-report', 'GenerateStockcardReport');
 
-        Route::get('/summary', 'IndexSummary');
-        Route::post('/view-summary', 'ViewSummary');
+        Route::get('/product-report', 'ProductReport');
+        Route::post('/generate-product-report', 'GenerateProductReport');
+
+        Route::get('/warehouse-report', 'WarehouseReport');
+        Route::post('/generate-warehouse-report', 'GenerateWarehouseReport');
+
+        Route::get('/summary', 'ViewSummary');
+        Route::post('/generate-summary', 'GenerateSummary');
     });
 
     // Maintenance routes

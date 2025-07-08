@@ -52,8 +52,28 @@ class Stockcard extends Model
     {
         return $this->hasOne(Warehouse::class, 'id', 'warehouse_id');
     }
+
+    public static function getProductStock($productId)
+    {
+        $query = self::where('product_id', $productId);
+
+        return $query->selectRaw("
+            SUM(CASE WHEN transaction_type = 'inbound' THEN quantity ELSE 0 END) -
+            SUM(CASE WHEN transaction_type = 'outbound' THEN quantity ELSE 0 END) AS remaining
+        ")->value('remaining') ?? 0;
+    }
     
-    public static function getRemainingStock($productId, $warehouseId = null)
+    public static function getWarehouseStock($warehouseId = null)
+    {
+        $query = self::where('warehouse_id', $warehouseId);
+
+        return $query->selectRaw("
+            SUM(CASE WHEN transaction_type = 'inbound' THEN quantity ELSE 0 END) -
+            SUM(CASE WHEN transaction_type = 'outbound' THEN quantity ELSE 0 END) AS remaining
+        ")->value('remaining') ?? 0;
+    }
+
+    public static function getProductWarehouseStock($productId, $warehouseId = null)
     {
         $query = self::where('product_id', $productId);
 

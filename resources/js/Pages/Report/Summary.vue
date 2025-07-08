@@ -18,7 +18,7 @@ const form = reactive({
 const errorMessages = ref();
 
 function submit () {
-    router.post('/view-summary', form,
+    router.post('/generate-summary', form,
         {
             onSuccess: () => {
             },

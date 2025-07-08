@@ -108,7 +108,7 @@ body {
                 </tr>
             @endforeach
             <tr>
-                <td colspan="11" style="text-align: left;">Total records: {{ count($stockcards) }}</td>
+                <td colspan="13" style="text-align: left;">Total records: {{ count($stockcards) }}</td>
             </tr>
         </tbody>
     </table>

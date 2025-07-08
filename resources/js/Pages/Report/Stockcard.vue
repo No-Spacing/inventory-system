@@ -36,10 +36,6 @@ const form = reactive({
     to: null
 })
 
-const shouldRetract = computed(() => {
-  return !form.code || form.code.length <= 1
-})
-
 const data = computed(() => {
     return {
         description: page.props.products[0]?.description || "",
@@ -118,13 +114,16 @@ watch(() => page.props.products, (newProducts) => {
 const errorMessages = ref();
 
 function submit(){
-    router.post('view-stockcard', form,
+    // loading.value = true;
+    router.post('generate-stockcard-report', form,
         {
             onSuccess: () => {
+                loading.value = false;
             },
             
             onError: (error) => {
                 errorMessages.value = error
+                loading.value = false;
             },
         }
         
