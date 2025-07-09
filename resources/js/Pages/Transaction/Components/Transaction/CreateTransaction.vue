@@ -1,5 +1,5 @@
 <script setup>
-import { router, usePage, useForm } from "@inertiajs/vue3";
+import { router, usePage, useForm, Link } from "@inertiajs/vue3";
 import { watchDebounced } from "@vueuse/core";
 import { ref, computed, watch } from "vue";
 import { VDateInput } from 'vuetify/labs/VDateInput'
@@ -647,16 +647,6 @@ watch(() => page.props.products, (newProducts) => {
                         Transfer
                     </v-btn>
 
-                    <v-btn 
-                        append-icon="mdi-send"
-                        color="#FFEE58"
-                        size="large"
-                        class="mx-4"
-                        href="/receive"
-                        :loading="form.processing || buttonLoading"
-                    >
-                        receive
-                    </v-btn>
                     <v-dialog v-model="transferDialog" max-width="500">
                         <v-card title="Transfer items" >
                             <v-form @submit.prevent>

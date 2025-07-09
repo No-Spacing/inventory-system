@@ -103,6 +103,9 @@ onMounted(() => {
                     <Link href="/transaction">
                         <v-list-item title="In & Out Transaction"></v-list-item>
                     </Link>
+                    <Link href="/receive">
+                        <v-list-item title="Receiving"></v-list-item>
+                    </Link>
                     <!-- <Link href="/out">
                         <v-list-item title="Outbound"></v-list-item>
                     </Link> -->

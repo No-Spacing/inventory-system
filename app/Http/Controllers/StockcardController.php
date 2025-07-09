@@ -78,7 +78,7 @@ class StockcardController extends Controller
             $request->warehouse,
         );
 
-        $remainingItems = StockCard::getRemainingStock(
+        $remainingItems = StockCard::getProductWarehouseStock(
             optional($prod)->id,
             $request->warehouse,
         );

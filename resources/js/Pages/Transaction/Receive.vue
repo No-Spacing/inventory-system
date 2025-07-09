@@ -9,6 +9,7 @@ defineProps({
 })
 
 const snackbar = ref(false);
+const loading = ref(false);
 
 const headers = [
     { 
@@ -71,6 +72,7 @@ const form = useForm({
 
 function submit(items)
 {
+    loading.value = true;
     router.patch('/received',
         {
             stockcardId: items.id,
@@ -81,6 +83,7 @@ function submit(items)
             preserveState: true,
             onSuccess: () => {
                 snackbar.value = true;
+                loading.value = false;
             },
         }
     )
@@ -138,6 +141,7 @@ watch(() => [form.from, form.to], ([value, value2]) => {
                                 @click="submit(item)"
                                 append-icon="mdi-send"
                                 color="#FFEE58"
+                                :loading="loading"
                             >
                                 Received
                             </v-btn>
