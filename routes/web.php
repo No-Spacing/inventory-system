@@ -35,6 +35,7 @@ Route::middleware(['user-group'])->group(function () {
         Route::get('/dashboard', 'Dashboard');
         
         Route::get('/transaction', 'Transaction');
+        Route::post('/import-stockcard', 'ImportStockcard');
         Route::post('/stockcard-data', 'StockcardData');
 
         Route::get('out', 'Out');

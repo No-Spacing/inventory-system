@@ -20,6 +20,10 @@ use App\Models\Lot;
 use App\Models\Serial;
 use App\Models\Warehouse;
 
+use App\Imports\StockcardImport;
+
+use Maatwebsite\Excel\Facades\Excel;
+
 class StockcardController extends Controller
 {
     public function Dashboard(){
@@ -119,6 +123,17 @@ class StockcardController extends Controller
             'remainingItems' => $remainingItems,
             'remainingSerialItems' => $remainingSerialItems
         ]);
+    }
+
+    public function ImportStockcard(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx|max:10240'
+        ]);
+
+        Excel::import(new StockcardImport, $request->file);
+
+        return redirect('/transaction')->with('message', 'Stockcard imported successfully!');
     }
 
     public function StockcardData(Request $request){

@@ -1,8 +1,13 @@
 <script setup>
 import { ref, watch } from 'vue';
-import { router, usePage } from "@inertiajs/vue3";
+import { router, usePage, useForm } from "@inertiajs/vue3";
 
 const page = usePage();
+
+const search = ref('');
+
+const importDialog = ref(false);
+const loading = ref(false);
 
 const headers = [
     {
@@ -64,7 +69,25 @@ const headers = [
     },
 ];
 
-const search = ref('');
+const formImport = useForm({
+    file: null,
+})
+
+function submitImport () {
+    loading.value = true
+    formImport.post('/import-stockcard',
+        {
+            onSuccess: () => {
+                importDialog.value = false;
+                loading.value = false
+                formImport.reset();
+            },
+            onError: (error) => {
+                loading.value = false
+            }
+        }
+    )
+}
 
 watch(() => search.value, (value) => {
     router.get('/transaction', {
@@ -104,6 +127,15 @@ function paginations(){
                 class="d-flex align-center justify-end mt-5"
             >
                 <v-col cols="6">
+                    <v-btn
+                        @click="importDialog = true"
+                        color="green"
+                        class="mx-2"
+                    >
+                        Import Products
+                    </v-btn>
+                </v-col>
+                <v-col cols="6">
                     <v-pagination 
                         v-model="$page.props.stockcards.current_page" 
                         :length="$page.props.stockcards.last_page" 
@@ -113,4 +145,31 @@ function paginations(){
             </v-row>
         </template>
     </v-data-table>
+    <v-dialog  v-model="importDialog" max-width="600">
+        <v-form @submit.prevent="submitImport">
+            <v-card
+                title="Import file"
+            >
+                <v-card-text>
+                    <v-file-input 
+                    v-model="formImport.file"
+                    variant="outlined" 
+                    clearable label="File input"
+                    :error-messages="formImport.errors.file"
+                    ></v-file-input>
+                </v-card-text>
+                    <template v-slot:actions>
+                        <v-spacer></v-spacer>
+
+                        <v-btn @click="importDialog = false">
+                            cancel
+                        </v-btn>
+
+                        <v-btn type="submit" color="green" :loading="loading">
+                            Import
+                        </v-btn>
+                    </template>
+            </v-card>
+        </v-form>
+    </v-dialog>
 </template>
