@@ -132,7 +132,7 @@ function paginations(){
                         color="green"
                         class="mx-2"
                     >
-                        Import Products
+                        Import Stockcard
                     </v-btn>
                 </v-col>
                 <v-col cols="6">
