@@ -312,7 +312,8 @@ class MaintenanceController extends Controller
 
     public function ViewSerial(Request $request) {
         return Inertia::render('Admin/Maintenance/Serial', [
-            'serials' => Serial::where('serial_no', 'Like', '%'.$request->search.'%')
+            'serials' => Serial::with('product')
+            ->where('serial_no', 'Like', '%'.$request->search.'%')
             ->paginate(10)
             ->withQueryString(),
             'products' => Product::select('id','code')
@@ -351,6 +352,7 @@ class MaintenanceController extends Controller
     public function StoreMultipleSerial(Request $request)
     {
         $request->validate([
+            'code' => 'required',
             'serial_no' => 'required|unique:serials',
             'serialStarting' => 'lt:serialEnding|numeric',
             'serialEnding' => 'required|gt:serialStarting|numeric',
@@ -379,6 +381,7 @@ class MaintenanceController extends Controller
                     return back()->withErrors(['message' => "Some serial has duplicate entry! please check and try again!"]);
                 }
             }
+            return redirect('/serial')->with('message', 'Serials created successfully!');
         }
     }
 

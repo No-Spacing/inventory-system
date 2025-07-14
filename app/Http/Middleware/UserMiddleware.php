@@ -17,11 +17,11 @@ class UserMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if(!Auth::check() && $request->path() != 'login'){
-            return redirect('/login')->with('message','User must be logged in.');
+        if(!Auth::check() && $request->path() != '/'){
+            return redirect('/')->with('message','User must be logged in.');
         }
 
-        if(Auth::check() && $request->path() == 'login'){
+        if(Auth::check() && $request->path() == '/'){
             return redirect('/dashboard');
         }
 

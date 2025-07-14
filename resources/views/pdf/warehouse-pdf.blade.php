@@ -79,6 +79,7 @@ body {
             <tr>
                 <th>Code</th>
                 <th>Description</th>
+                <th>UOM</th>
                 <th>Transaction Date</th>  
                 <th>Batch/Lot/Serial No.</th>
                 <th>Expiration Date</th>
@@ -88,7 +89,6 @@ body {
                 <th>Customer/Supplier Name</th>
                 <th>Document No.</th>
                 <th>Remarks</th>
-                <th>End User</th>
             </tr>
         </thead>
         <tbody>
@@ -96,6 +96,7 @@ body {
                 <tr>
                     <td style="text-align: left;">{{ $item['code'] }}</td>
                     <td style="text-align: left;">{{ $item['description'] }}</td>
+                    <td style="text-align: left;">{{ $item['unit'] ?? '' }}</td>
                     <td style="text-align: left;">{{ $item['transaction_date'] }}</td>
                     <td style="text-align: left;">{{ $item['lotNo'] ?? $item['serialNo'] }}</td>
                     <td style="text-align: left;">{{ $item['expiration_date'] }}</td> 
@@ -105,7 +106,6 @@ body {
                     <td style="text-align: left;">{{ $item['reference'] }}</td>
                     <td style="text-align: left;">{{ $item['document_no'] }}</td>
                     <td style="text-align: left;">{{ $item['remarks'] }}</td>
-                    <td style="text-align: left;">{{ $item['enduser'] }}</td>
                 </tr>
             @endforeach
             <tr>

@@ -20,7 +20,7 @@ function submit(){
         <v-card class="pa-10" :elevation="8" max-width="450" width="100%" rounded="2xl">
 
         <!-- Logo added here -->
-        <div class="text-center mb-4">
+        <div class="mb-4">
             <v-img
                 src="images/inmed-logo.png"
                 alt="Logo"

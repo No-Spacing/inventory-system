@@ -64,7 +64,7 @@ class ReportsController extends Controller
                 'serial' => 'required',
             ]);
             
-            $stockcards = Stockcard::with('product', 'lot', 'serial', 'warehouse', 'user')
+            $stockcards = Stockcard::with('product', 'lot', 'serial', 'warehouse')
             ->where('product_id', $request->code)
             ->where('serial_id', $request->serial)
             ->where('warehouse_id', $request->warehouse)
@@ -99,7 +99,6 @@ class ReportsController extends Controller
                         'reference' => $product->reference,
                         'remarks' => $product->remarks,
                         'document_no' => $product->document_no,
-                        'enduser' => $product->user->name,
                         'created_at' => $product->created_at,
                     ];
                 });
@@ -124,7 +123,7 @@ class ReportsController extends Controller
                 'lot' => 'required',
             ]);
             
-            $stockcards = Stockcard::with('product', 'lot', 'serial', 'warehouse', 'user')
+            $stockcards = Stockcard::with('product', 'lot', 'serial', 'warehouse')
             ->where('product_id', $request->code)
             ->where('lot_id', $request->lot)
             ->where('warehouse_id', $request->warehouse)
@@ -160,7 +159,6 @@ class ReportsController extends Controller
                         'reference' => $product->reference,
                         'remarks' => $product->remarks,
                         'document_no' => $product->document_no,
-                        'enduser' => $product->user->name,
                         'created_at' => $product->created_at,
                     ];
                 });
@@ -219,7 +217,7 @@ class ReportsController extends Controller
         $from = \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->from)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d');
         $to = \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->to)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d');
 
-        $stockcards = Stockcard::with('product', 'lot', 'serial', 'warehouse', 'user')
+        $stockcards = Stockcard::with('product', 'lot', 'serial', 'warehouse')
         ->where('product_id', $request->code)
         ->whereBetween('transaction_date', [$from, $to])
         ->orderBy('warehouse_id')
@@ -238,6 +236,7 @@ class ReportsController extends Controller
                 return [
                     'code' => $product->product->code,
                     'description' => $product->product->description,
+                    'unit' => $product->product->unit->unit,
                     'transaction_date' => $product->transaction_date,
                     'lotNo' => optional($product->lot)->lot,
                     'serialNo' => optional($product->serial)->serial_no,
@@ -248,7 +247,6 @@ class ReportsController extends Controller
                     'reference' => $product->reference,
                     'remarks' => $product->remarks,
                     'document_no' => $product->document_no,
-                    'enduser' => $product->user->name,
                     'created_at' => $product->created_at,
                 ];
             });
@@ -256,6 +254,8 @@ class ReportsController extends Controller
 
         $productStock = StockCard::getProductStock(
                                     $request->code,
+                                    $from,
+                                    $to,
                                 );
 
         $stockcardSorted = $stockcards->sortBy('created_at')->values();
@@ -265,7 +265,87 @@ class ReportsController extends Controller
             'stockcards' => $stockcardSorted, 
             'stocks' => $productStock,
         ]);
+    }
 
+
+    public function SerialReport(Request $request){
+        return Inertia::render('Report/Serial', [
+            'warehouses' => Warehouse::all(),
+            'products' => Product::with(['lots'])
+            ->select('id','code', 'description', 'type')
+            ->where('code', 'Like', '%'.$request->code.'%')
+            ->where('type', 'Track by Serial')
+            ->limit(5)
+            ->get(),
+        ]);
+    }
+
+    public function GenerateSerialReport(Request $request)
+    {
+        $request->validate([
+            'from' => 'required',
+            'to' => 'required'
+        ]);
+
+        $from = \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->from)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d');
+        $to = \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->to)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d');
+
+        $stockcards = Stockcard::with('product', 'lot', 'serial', 'warehouse')
+        ->when($request->warehouse, function ($query, $warehouse) {
+            return $query->where('warehouse_id', $warehouse);
+        })
+        ->whereBetween('transaction_date', [$from, $to])
+        ->whereNotNull('serial_id')
+        ->orderBy('warehouse_id')
+        ->orderBy('lot_id')
+        ->orderBy('serial_id')
+        ->orderBy('created_at')
+        ->orderBy('id')
+        ->get()
+        ->groupBy(function ($item) {
+            return $item->warehouse_id . '-' . ($item->lot_id ?? 'null') . '-' . ($item->serial_id ?? 'null');
+        })
+        ->flatMap(function ($group) {
+            $balance = 0;
+
+            return $group->map(function ($product) use (&$balance) {
+                return [
+                    'transaction_date' => $product->transaction_date,
+                    'code' => $product->product->code,
+                    'description' => $product->product->description,
+                    'quantity' => $product->quantity,
+                    'warehouse' => $product->warehouse->warehouse,
+                    'transaction_type' => $product->transaction_type
+                ];
+            });
+        });
+
+        $compiled = $stockcards->groupBy('warehouse')
+        ->map(function ($items, $code) {
+            $netQuantity = $items->reduce(function ($carry, $item) {
+                if (strtolower($item['transaction_type']) === 'inbound') {
+                    return $carry + $item['quantity'];
+                } elseif (strtolower($item['transaction_type']) === 'outbound') {
+                    return $carry - $item['quantity'];
+                }
+                return $carry;
+            }, 0);
+
+            return [
+                'code' => optional($items->first())['code'] ?? '',
+                'description' => optional($items->first())['description'] ?? '',
+                'warehouse' => optional($items->first())['warehouse'] ?? '',
+                'quantity' => $netQuantity,
+            ];
+        })
+        ->values();
+
+        return view('pdf.serial', 
+        [   
+            'stockcards' => $compiled, 
+            'from' => $from,
+            'to' => $to,
+        ]);
     }
 
     public function WarehouseReport(Request $request){
@@ -289,89 +369,53 @@ class ReportsController extends Controller
 
         $from = \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->from)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d');
         $to = \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->to)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d');
+      
+        $stockcards = Stockcard::with('product', 'lot', 'serial', 'warehouse')
+        ->when($request->warehouse, function ($query, $warehouse) {
+            return $query->where('warehouse_id', $warehouse);
+        })
+        ->when($request->code, function ($query, $code) {
+            return $query->where('product_id', $code);
+        })
+        ->whereBetween('transaction_date', [$from, $to])
+        ->orderBy('warehouse_id')
+        ->orderBy('lot_id')
+        ->orderBy('serial_id')
+        ->orderBy('created_at')
+        ->orderBy('id')
+        ->get()
+        ->groupBy(function ($item) {
+            return $item->warehouse_id . '-' . ($item->lot_id ?? 'null') . '-' . ($item->serial_id ?? 'null');
+        })
+        ->flatMap(function ($group) {
+            $balance = 0;
 
-        if(isset($request->code))
-        {
-            $stockcards = Stockcard::with('product', 'lot', 'serial', 'warehouse', 'user')
-            ->where('warehouse_id', $request->warehouse)
-            ->where('product_id', $request->code)
-            ->whereBetween('transaction_date', [$from, $to])
-            ->orderBy('warehouse_id')
-            ->orderBy('lot_id')
-            ->orderBy('serial_id')
-            ->orderBy('created_at')
-            ->orderBy('id')
-            ->get()
-            ->groupBy(function ($item) {
-                return $item->warehouse_id . '-' . ($item->lot_id ?? 'null') . '-' . ($item->serial_id ?? 'null');
-            })
-            ->flatMap(function ($group) {
-                $balance = 0;
-
-                return $group->map(function ($product) use (&$balance) {
-                    return [
-                        'code' => $product->product->code,
-                        'description' => $product->product->description,
-                        'transaction_date' => $product->transaction_date,
-                        'lotNo' => optional($product->lot)->lot,
-                        'serialNo' => optional($product->serial)->serial_no,
-                        'expiration_date' => optional($product->lot)->expiration_date,
-                        'transaction_type' => $product->transaction_type,
-                        'warehouse' => $product->warehouse->warehouse,
-                        'quantity' => $product->quantity,
-                        'reference' => $product->reference,
-                        'remarks' => $product->remarks,
-                        'document_no' => $product->document_no,
-                        'enduser' => $product->user->name,
-                        'created_at' => $product->created_at,
-                    ];
-                });
+            return $group->map(function ($product) use (&$balance) {
+                return [
+                    'code' => $product->product->code,
+                    'description' => $product->product->description,
+                    'unit' => $product->product->unit->unit,
+                    'transaction_date' => $product->transaction_date,
+                    'lotNo' => optional($product->lot)->lot,
+                    'serialNo' => optional($product->serial)->serial_no,
+                    'expiration_date' => optional($product->lot)->expiration_date,
+                    'transaction_type' => $product->transaction_type,
+                    'warehouse' => $product->warehouse->warehouse,
+                    'quantity' => $product->quantity,
+                    'reference' => $product->reference,
+                    'remarks' => $product->remarks,
+                    'document_no' => $product->document_no,
+                    'created_at' => $product->created_at,
+                ];
             });
+        });
 
-            $warehouseProductStock = StockCard::getProductWarehouseStock(
-                                        $request->code,
-                                        $request->warehouse,
-                                    );
-        }else{
-            $stockcards = Stockcard::with('product', 'lot', 'serial', 'warehouse', 'user')
-            ->where('warehouse_id', $request->warehouse)
-            ->whereBetween('transaction_date', [$from, $to])
-            ->orderBy('warehouse_id')
-            ->orderBy('lot_id')
-            ->orderBy('serial_id')
-            ->orderBy('created_at')
-            ->orderBy('id')
-            ->get()
-            ->groupBy(function ($item) {
-                return $item->warehouse_id . '-' . ($item->lot_id ?? 'null') . '-' . ($item->serial_id ?? 'null');
-            })
-            ->flatMap(function ($group) {
-                $balance = 0;
-
-                return $group->map(function ($product) use (&$balance) {
-                    return [
-                        'code' => $product->product->code,
-                        'description' => $product->product->description,
-                        'transaction_date' => $product->transaction_date,
-                        'lotNo' => optional($product->lot)->lot,
-                        'serialNo' => optional($product->serial)->serial_no,
-                        'expiration_date' => optional($product->lot)->expiration_date,
-                        'transaction_type' => $product->transaction_type,
-                        'warehouse' => $product->warehouse->warehouse,
-                        'quantity' => $product->quantity,
-                        'reference' => $product->reference,
-                        'remarks' => $product->remarks,
-                        'document_no' => $product->document_no,
-                        'enduser' => $product->user->name,
-                        'created_at' => $product->created_at,
-                    ];
-                });
-            });
-
-            $warehouseProductStock = StockCard::getWarehouseStock(
-                                        $request->warehouse,
-                                    );
-        }
+        $warehouseProductStock = StockCard::getWarehouseStock(
+                                    $request->warehouse,
+                                    $request->code,
+                                    $from,
+                                    $to,
+                                );
 
         $stockcardSorted = $stockcards->sortBy('created_at')->values();
 
@@ -416,6 +460,7 @@ class ReportsController extends Controller
                 return [
                     'code' => $product->product->code,
                     'description' => $product->product->description,
+                    'unit' => $product->product->unit->unit,
                     'transaction_date' => $product->transaction_date,
                     'lotNo' => optional($product->lot)->lot,
                     'serialNo' => optional($product->serial)->serial_no,

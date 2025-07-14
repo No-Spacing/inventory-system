@@ -2,7 +2,6 @@
 import { ref, onMounted } from "vue";
 import { useDisplay } from "vuetify";
 import { Head, Link, useForm } from "@inertiajs/vue3";
-import View from "./View.vue"
 
 const props = defineProps({
     title: String,
@@ -13,13 +12,6 @@ const form = useForm({
     data: null,
 });
 
-// const now = new Date();
-const viewDialog = ref(false); // this check all of the view port page
-// const targetDate = new Date('2025-06-26'); // example target
-
-// if (now >= targetDate) {
-//   viewDialog.value = true;
-// }
 
 const { mobile } = useDisplay();
 
@@ -128,6 +120,9 @@ onMounted(() => {
                     </Link>
                     <Link href="product-report">
                         <v-list-item title="Products"></v-list-item>
+                    </Link>
+                    <Link href="/serial-report">
+                        <v-list-item title="Serials"></v-list-item>
                     </Link>
                     <Link href="warehouse-report">
                         <v-list-item title="Warehouse"></v-list-item>

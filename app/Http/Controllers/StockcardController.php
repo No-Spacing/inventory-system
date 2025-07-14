@@ -226,13 +226,15 @@ class StockcardController extends Controller
                         'serialEndingNo.gt' => 'Ending No. field must be greater than the Starting No. field.'
                     ]);
                     
+                    $array = [];
                     $length = strlen($request->serialStartingNo);
                     for($i = $request->serialStartingNo; $i <= $request->serialEndingNo; $i++){  
                         $serial = Serial::select('id')
                         ->where('serial_no', $request->serial_no . str_pad($i, $length, "0", STR_PAD_LEFT))
                         ->where('product_id', $product->id)
                         ->first(); 
-                        $this->createStockcardData($request->all(), null, $serial->id, $product->id);
+
+                        $this->createStockcardData($request->all(), null, $serial['id'], $product->id);
                     }
 
                     $message = 'Stock has been stored successfully to inventory.';

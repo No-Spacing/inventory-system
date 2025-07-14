@@ -29,6 +29,13 @@ const headers = [
         },
     },
     {
+        title: "Code",
+        key: "product.code",
+        headerProps: {
+            style: "font-weight: 700",
+        },
+    },
+    {
         title: "Serial No.",
         key: "serial_no",
         headerProps: {
@@ -120,7 +127,7 @@ function submitImport () {
 function submitMultipleSerial() {
     form.post('/store-multiple-serial', {
         onSuccess: () => {
-            addSerialDialog.value = false;
+            addMultipleSerialDialog.value = false;
             snackbar.value = true;
             form.reset();
         },

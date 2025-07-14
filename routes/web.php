@@ -29,7 +29,7 @@ Route::get('stockcard-pdf', function () {
 });
 
 Route::middleware(['user-group'])->group(function () {
-    Route::inertia('/login', 'Auth/Login');
+    Route::inertia('/', 'Auth/Login');
 
     Route::controller(StockcardController::class)->group(function () {
         Route::get('/dashboard', 'Dashboard');
@@ -49,6 +49,9 @@ Route::middleware(['user-group'])->group(function () {
         Route::get('/stockcard', 'ViewStockcard');
         Route::get('/generate-stockcard-pdf', 'GenerateStockcardPdf')->name('show.stockcard.pdf');
         Route::post('/generate-stockcard-report', 'GenerateStockcardReport');
+
+        Route::get('/serial-report', 'SerialReport');
+        Route::post('/generate-serial-report', 'GenerateSerialReport');
 
         Route::get('/product-report', 'ProductReport');
         Route::post('/generate-product-report', 'GenerateProductReport');
@@ -108,7 +111,7 @@ Route::middleware(['user-group'])->group(function () {
 
         $request->session()->regenerateToken();
 
-        return redirect('/login');
+        return redirect('/');
     });
 
 });

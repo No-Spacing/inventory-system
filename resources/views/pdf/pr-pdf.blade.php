@@ -66,12 +66,7 @@ body {
 </style>
 <div class="container">
     <div class="title">LIST OF OUT TRANSACTIONS THAT HAVE PR NUMBER FROM</div>
-    <div class="title" style="text-align: center;">March 10, 2025 - April 10, 2025</div> {{-- This line was Made By UNFORGIVABLE BACK-END DEVELOPER --}}
-    @if(!Route::is('show.stockcard.pdf') )
-       <div class="btn-container">
-            <a href="/generate-stockcard-pdf" target='_blank' class="download-btn">Download PDF</a>
-        </div>
-    @endif
+    <div class="title" style="text-align: center;">March 10, 2025 - April 10, 2025</div>
     <table class="info-table">
         <tr>
             <td><strong>Date/Time Generated:</strong> {{ now() }}</td>

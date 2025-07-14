@@ -95,7 +95,6 @@ body {
                 <th>Customer/Supplier Name</th>
                 <th>Document No.</th>
                 <th>Remarks</th>
-                <th>End User</th>
             </tr>
         </thead>
         <tbody>
@@ -113,7 +112,6 @@ body {
                     <td style="text-align: left;">{{ $item['reference'] }}</td>
                     <td style="text-align: left;">{{ $item['document_no'] }}</td>
                     <td style="text-align: left;">{{ $item['remarks'] }}</td>
-                    <td style="text-align: left;">{{ $item['enduser'] }}</td>
                 </tr>
             @endforeach
             <tr>
