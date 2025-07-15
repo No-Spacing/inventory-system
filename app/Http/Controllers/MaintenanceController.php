@@ -425,15 +425,11 @@ class MaintenanceController extends Controller
 
     public function StoreWarehouse(Request $request)
     {
-        // $request->validate(
-        //     [
-        //         'warehouse' => 'required|unique:warehouses'
-        //     ]
-        // );
+        $request->validate([
+            'warehouse' => 'required|unique:warehouses'
+        ]);
 
-        Validator::make($request->all(), [
-            'warehouse' => 'required',
-        ])->validate();
+        Warehouse::create(['warehouse' => $request->warehouse]);
     }
 
     public function ViewUsers(){
