@@ -265,6 +265,14 @@ class ReportsController extends Controller
             'stockcards' => $stockcardSorted, 
             'stocks' => $productStock,
         ]);
+        // return Pdf::view('pdf.warehouse-pdf',        
+        // [  
+                // 'stockcards' => $stockcardSorted, 
+                // 'stocks' => $productStock,
+        // ])
+        // ->format('a4')
+        // ->landscape()
+        // ->name('invoice.pdf');
     }
 
 
@@ -346,6 +354,16 @@ class ReportsController extends Controller
             'from' => $from,
             'to' => $to,
         ]);
+
+        // return Pdf::view('pdf.serial',        
+        // [  
+                // 'stockcards' => $compiled, 
+                // 'from' => $from,
+                // 'to' => $to,
+        // ])
+        // ->format('a4')
+        // ->landscape()
+        // ->name('invoice.pdf');
     }
 
     public function WarehouseReport(Request $request){
@@ -424,6 +442,14 @@ class ReportsController extends Controller
             'stockcards' => $stockcardSorted, 
             'stocks' => $warehouseProductStock,
         ]);
+        // return Pdf::view('pdf.warehouse-pdf',        
+        // [  
+                // 'stockcards' => $stockcardSorted, 
+                // 'stocks' => $warehouseProductStock,
+        // ])
+        // ->format('a4')
+        // ->landscape()
+        // ->name('invoice.pdf');
     }
 
     public function ViewSummary() {
@@ -483,5 +509,12 @@ class ReportsController extends Controller
         [   
             'stockcards' => $stockcardSorted, 
         ]);
+        // return Pdf::view('pdf.warehouse-pdf',        
+        // [  
+                // 'stockcards' => $stockcardSorted, 
+        // ])
+        // ->format('a4')
+        // ->landscape()
+        // ->name('invoice.pdf');
     }
 }
