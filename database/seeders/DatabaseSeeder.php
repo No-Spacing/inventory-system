@@ -27,9 +27,9 @@ class DatabaseSeeder extends Seeder
         Warehouse::create(['warehouse' => 'Calle']);
         Warehouse::create(['warehouse' => 'Sterling']);
 
-        User::create(['name' => 'Admin', 'email' => 'admin@email.com', 'password' => Hash::make('admin123'), 'role_id' => 1]);
-        User::create(['name' => 'Supervisor', 'email' => 'supervisor@email.com', 'password' => Hash::make('supervisor123'), 'role_id' => 2]);
-        User::create(['name' => 'Encoder', 'email' => 'encoder@email.com', 'password' => Hash::make('encoder123'), 'role_id' => 3]);
-        User::create(['name' => 'Accounting', 'email' => 'accounting@email.com', 'password' => Hash::make('accounting123'), 'role_id' => 4]);
+        User::create(['name' => 'Admin', 'email' => 'admin@email.com', 'password' => Hash::make('inmed@superadmin'), 'role_id' => 1]);
+        User::create(['name' => 'Supervisor', 'email' => 'supervisor@email.com', 'password' => Hash::make('inmed@supervisor'), 'role_id' => 2]);
+        User::create(['name' => 'Encoder', 'email' => 'encoder@email.com', 'password' => Hash::make('inmed@encoder'), 'role_id' => 3]);
+        User::create(['name' => 'Accounting', 'email' => 'accounting@email.com', 'password' => Hash::make('inmed@accounting'), 'role_id' => 4]);
     }
 }
