@@ -68,7 +68,6 @@ class ReportsController extends Controller
             ->where('product_id', $request->code)
             ->where('serial_id', $request->serial)
             ->where('warehouse_id', $request->warehouse)
-            ->whereBetween('transaction_date', [$from, $to])
             ->orderBy('warehouse_id')
             ->orderBy('lot_id')
             ->orderBy('serial_id')
@@ -78,15 +77,25 @@ class ReportsController extends Controller
             ->groupBy(function ($item) {
                 return $item->warehouse_id . '-' . ($item->lot_id ?? 'null') . '-' . ($item->serial_id ?? 'null');
             })
-            ->flatMap(function ($group) {
-                $balance = 0;
+            ->flatMap(function ($group) use ($from) {
+                // Calculate opening balance before the 'from' date
+                $openingBalance = $group->filter(function ($product) use ($from) {
+                    return $product->transaction_date < $from;
+                })->reduce(function ($carry, $product) {
+                    return $carry + ($product->transaction_type === 'inbound' ? $product->quantity : -$product->quantity);
+                }, 0);
 
-                return $group->map(function ($product) use (&$balance) {
-                    if ($product->transaction_type == 'inbound') {
-                        $balance += $product->quantity;
+                $runningBalance = $openingBalance;
+
+                return $group->filter(function ($product) use ($from) {
+                    return $product->transaction_date >= $from;
+                })->map(function ($product) use (&$runningBalance) {
+                    if ($product->transaction_type === 'inbound') {
+                        $runningBalance += $product->quantity;
                     } else {
-                        $balance -= $product->quantity;
+                        $runningBalance -= $product->quantity;
                     }
+
                     return [
                         'transaction_date' => $product->transaction_date,
                         'lotNo' => optional($product->lot)->lot,
@@ -95,7 +104,7 @@ class ReportsController extends Controller
                         'transaction_type' => $product->transaction_type,
                         'warehouse' => $product->warehouse->warehouse,
                         'quantity' => $product->quantity,
-                        'balance' => $balance,
+                        'balance' => $runningBalance,
                         'reference' => $product->reference,
                         'remarks' => $product->remarks,
                         'document_no' => $product->document_no,
@@ -127,7 +136,6 @@ class ReportsController extends Controller
             ->where('product_id', $request->code)
             ->where('lot_id', $request->lot)
             ->where('warehouse_id', $request->warehouse)
-            ->whereBetween('transaction_date', [$from, $to])
             ->orderBy('warehouse_id')
             ->orderBy('lot_id')
             ->orderBy('serial_id')
@@ -137,14 +145,23 @@ class ReportsController extends Controller
             ->groupBy(function ($item) {
                 return $item->warehouse_id . '-' . ($item->lot_id ?? 'null') . '-' . ($item->serial_id ?? 'null');
             })
-            ->flatMap(function ($group) {
-                $balance = 0;
+            ->flatMap(function ($group) use ($from) {
+                // Calculate opening balance before the 'from' date
+                $openingBalance = $group->filter(function ($product) use ($from) {
+                    return $product->transaction_date < $from;
+                })->reduce(function ($carry, $product) {
+                    return $carry + ($product->transaction_type === 'inbound' ? $product->quantity : -$product->quantity);
+                }, 0);
 
-                return $group->map(function ($product) use (&$balance) {
-                    if ($product->transaction_type == 'inbound') {
-                        $balance += $product->quantity;
+                $runningBalance = $openingBalance;
+
+                return $group->filter(function ($product) use ($from) {
+                    return $product->transaction_date >= $from;
+                })->map(function ($product) use (&$runningBalance) {
+                    if ($product->transaction_type === 'inbound') {
+                        $runningBalance += $product->quantity;
                     } else {
-                        $balance -= $product->quantity;
+                        $runningBalance -= $product->quantity;
                     }
 
                     return [
@@ -155,7 +172,7 @@ class ReportsController extends Controller
                         'transaction_type' => $product->transaction_type,
                         'warehouse' => $product->warehouse->warehouse,
                         'quantity' => $product->quantity,
-                        'balance' => $balance,
+                        'balance' => $runningBalance,
                         'reference' => $product->reference,
                         'remarks' => $product->remarks,
                         'document_no' => $product->document_no,
@@ -254,8 +271,6 @@ class ReportsController extends Controller
 
         $productStock = StockCard::getProductStock(
                                     $request->code,
-                                    $from,
-                                    $to,
                                 );
 
         $stockcardSorted = $stockcards->sortBy('created_at')->values();
@@ -431,8 +446,6 @@ class ReportsController extends Controller
         $warehouseProductStock = StockCard::getWarehouseStock(
                                     $request->warehouse,
                                     $request->code,
-                                    $from,
-                                    $to,
                                 );
 
         $stockcardSorted = $stockcards->sortBy('created_at')->values();

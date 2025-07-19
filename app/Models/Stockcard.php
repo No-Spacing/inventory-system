@@ -53,11 +53,9 @@ class Stockcard extends Model
         return $this->hasOne(Warehouse::class, 'id', 'warehouse_id');
     }
 
-    public static function getProductStock($productId, $from, $to)
+    public static function getProductStock($productId)
     {
         $query = self::where('product_id', $productId);
-
-        $query->whereBetween('transaction_date', [$from, $to]);
 
         return $query->selectRaw("
             SUM(CASE WHEN transaction_type = 'inbound' THEN quantity ELSE 0 END) -
@@ -65,7 +63,7 @@ class Stockcard extends Model
         ")->value('remaining') ?? 0;
     }
     
-    public static function getWarehouseStock($warehouseId, $productId, $from, $to)
+    public static function getWarehouseStock($warehouseId, $productId)
     {
         $query = self::where('warehouse_id', $warehouseId);
 
@@ -73,8 +71,6 @@ class Stockcard extends Model
         {
             $query->where('product_id', $productId);
         }
-
-        $query->whereBetween('transaction_date', [$from, $to]);
 
         return $query->selectRaw("
             SUM(CASE WHEN transaction_type = 'inbound' THEN quantity ELSE 0 END) -
