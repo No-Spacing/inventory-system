@@ -56,7 +56,7 @@ class StockcardController extends Controller
 
         $prod = Product::where('code', $request->code)->first();
 
-        $lot = Lot::where('lot', $request->lot)->first();
+        $lot = Lot::where('lot', $request->lot)->where('product_id', optional($prod)->id)->first();
 
         $serial = Serial::where('serial_no', $request->serial)->first();
 
