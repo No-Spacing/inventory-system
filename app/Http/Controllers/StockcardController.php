@@ -97,6 +97,7 @@ class StockcardController extends Controller
                     $q->where('lot', 'like', "%{$search}%");
                 });
             })
+            ->orderBy('created_at', 'DESC')
             ->paginate(10)
             ->through(function ($product) {
                 return [
