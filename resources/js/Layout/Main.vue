@@ -154,6 +154,7 @@ onMounted(() => {
                     <Link href="/lot"><v-list-item title="Lot Number"></v-list-item></Link>
                     <Link href="/serial"><v-list-item title="Serial Number"></v-list-item></Link>
                     <Link href="/warehouse"><v-list-item title="Warehouse"></v-list-item></Link>
+                    <Link href="/audit-trail"><v-list-item title="Audit Trail"></v-list-item></Link>
                     <Link href="/users" v-if="$page.props.user.can.viewUser"><v-list-item title="Users"></v-list-item></Link>
                 </v-list-group>
             </v-list>

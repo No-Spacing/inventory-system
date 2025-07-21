@@ -3,7 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+
+use Maatwebsite\Excel\Facades\Excel;
 use Spatie\LaravelPdf\Facades\Pdf;
+
+use App\Exports\StockcardExport;
 
 use App\Models\Product;
 use App\Models\Lot;
@@ -12,6 +16,9 @@ use App\Models\Stockcard;
 use App\Models\Warehouse;
 
 use Inertia\Inertia;
+
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+
 
 class ReportsController extends Controller
 {
@@ -195,21 +202,35 @@ class ReportsController extends Controller
 
         $stockcardSorted = $stockcards->sortBy('created_at')->values();
 
-        return view('pdf.stockcard-pdf', 
-        [   
-            'stockcards' => $stockcardSorted, 
-            'totalItems' => $totalItems,
-            'product' => $product,
-        ]);
-        // return Pdf::view('pdf.stockcard-pdf',        
-        // [  
-        //     'stockcards' => $stockcardSorted, 
-        //     'totalItems' => $totalItems,
-        //     'product' => $product,
-        // ])
-        // ->format('a4')
-        // ->landscape()
-        // ->name('invoice.pdf');
+        if($request->action == "pdf")
+        {
+            // return view('pdf.stockcard-pdf', 
+            // [   
+            //     'stockcards' => $stockcardSorted, 
+            //     'totalItems' => $totalItems,
+            //     'product' => $product,
+            // ]);
+            return Pdf::view('pdf.stockcard-pdf',        
+            [  
+                'stockcards' => $stockcardSorted, 
+                'totalItems' => $totalItems,
+                'product' => $product,
+            ])
+            ->format('a4')
+            ->landscape()
+            ->name('stockcard.pdf');
+        }
+
+        if($request->action == "excel")
+        {
+            // return Excel::download(new StockcardExport, 'stockcard.xlsx');
+            return Stockcard::query()->where('transaction_type', 'inbound')->downloadExcel('stockcard.xlsx');
+
+        }
+    }
+    public function exportToExcel()
+    {
+        return Excel::download(new StockcardExport, 'stockcard.xlsx'); 
     }
 
     public function ProductReport(Request $request){

@@ -61,6 +61,8 @@ Route::middleware(['user-group'])->group(function () {
 
         Route::get('/summary', 'ViewSummary');
         Route::post('/generate-summary', 'GenerateSummary');
+
+        Route::get('/excel', 'exportToExcel');
     });
 
     // Maintenance routes
@@ -95,11 +97,13 @@ Route::middleware(['user-group'])->group(function () {
         Route::patch('/update-serial', 'UpdateSerial')->can('update', User::class);
         Route::delete('/delete-serial', 'DeleteSerial')->can('delete', User::class);
 
+        Route::get('/warehouse', 'ViewWarehouse')->can('view', User::class);
+        Route::post('/store-warehouse', 'StoreWarehouse')->can('view', User::class);
+
         Route::get('/users', 'ViewUsers')->can('viewUser', User::class);
         Route::post('/store-user', 'StoreUser')->can('addUser', User::class);
 
-        Route::get('/warehouse', 'ViewWarehouse')->can('view', User::class);
-        Route::post('/store-warehouse', 'StoreWarehouse')->can('view', User::class);
+        Route::get('/audit-trail', 'AuditTrail')->can('view', User::class);
     });
 
     Route::inertia('/forgot-password', 'Auth/ForgotPassword');

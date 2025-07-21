@@ -175,15 +175,15 @@ function paginations(){
                 ></v-text-field>
                 <v-data-table :headers="headers" :items="products.data">
                     <template v-slot:item.actions="{ item }">
-                            <div class="d-flex justify-center ga-2 blue">
-                                <v-btn prepend-icon="mdi-pencil"  @click="openUpdateDialog(item)" color="blue-darken-4">
-                                    Edit
-                                </v-btn>
-                                <v-btn prepend-icon="mdi-delete" @click="openDeleteDialog(item)" color="red-darken-4">
-                                    Delete
-                                </v-btn>
-                            </div>
-                        </template>
+                        <div class="d-flex justify-center ga-2 blue">
+                            <v-btn prepend-icon="mdi-pencil"  @click="openUpdateDialog(item)" color="blue-darken-4">
+                                Edit
+                            </v-btn>
+                            <v-btn prepend-icon="mdi-delete" @click="openDeleteDialog(item)" color="red-darken-4">
+                                Delete
+                            </v-btn>
+                        </div>
+                    </template>
                     <template v-slot:bottom>
                         <v-row
                             class="d-flex align-center justify-space-between mt-5"

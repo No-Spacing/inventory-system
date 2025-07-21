@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Models\Role;
 use App\Models\Serial;
 use App\Models\Warehouse;
+use App\Models\Stockcard;
 
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\QueryException;
@@ -225,7 +226,13 @@ class MaintenanceController extends Controller
     public function ViewLot(Request $request) {
         return Inertia::render('Admin/Maintenance/Lot', [
             'lots' => Lot::with('product')
-            ->where('lot', 'Like', '%'.$request->search.'%')
+            ->when($request->search, function ($query, $search) {
+                $query->whereHas('product', function ($q) use ($search) {
+                    $q->where('code', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
+                })
+                ->orWhere('lot', 'like', "%{$search}%");
+            })
             ->paginate(10)
             ->through(function ($lot) {
                 return [
@@ -313,7 +320,13 @@ class MaintenanceController extends Controller
     public function ViewSerial(Request $request) {
         return Inertia::render('Admin/Maintenance/Serial', [
             'serials' => Serial::with('product')
-            ->where('serial_no', 'Like', '%'.$request->search.'%')
+            ->when($request->search, function ($query, $search) {
+                $query->whereHas('product', function ($q) use ($search) {
+                    $q->where('code', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
+                })
+                ->orWhere('serial_no', 'like', "%{$search}%");
+            })
             ->paginate(10)
             ->withQueryString(),
             'products' => Product::select('id','code')
@@ -465,6 +478,32 @@ class MaintenanceController extends Controller
         ]);
 
         return back()->with('message', 'User created successfully!');
+    }
+
+    public function AuditTrail(Request $request)
+    {
+        $auditTrail = Stockcard::with(['product', 'lot', 'serial', 'warehouse', 'user'])
+        ->when($request->search, function ($query, $search) {
+            $query->whereHas('product', function ($q) use ($search) {
+                $q->where('code', 'like', "%{$search}%")
+                ->orWhere('description', 'like', "%{$search}%");
+            });
+        }) 
+        ->orderBy('created_at', 'DESC')
+        ->paginate(10)
+        ->through(function ($product) { 
+            return [
+                'code' => $product->product->code . " " . $product->product->description,
+                'serialLotNo' => optional($product->lot)->lot . optional($product->serial)->serial_no,
+                'quantity' => $product->quantity,
+                'warehouse' => $product->warehouse->warehouse,
+                'transaction_type' => $product->transaction_type,
+                'created_at' => \Carbon\Carbon::parse($product->created_at)->format('Y-m-d H:i:s'),
+                'expiration_date' => \Carbon\Carbon::parse($product->expiration_date)->format('Y-m-d'),
+                'enduser' => $product->user->name
+            ];
+        });
+        return Inertia::render('Admin/Maintenance/AuditTrail', ['auditTrail' => $auditTrail]);
     }
 
 }
