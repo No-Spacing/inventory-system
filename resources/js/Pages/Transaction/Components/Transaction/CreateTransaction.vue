@@ -168,7 +168,7 @@ watch(() => page.props.products, (newProducts) => {
 
 </script> 
 <template>
-    <v-form @submit.prevent>
+    <v-form @submit.prevent @keypress.enter.prevent>
         <div class="d-flex justify-center">
             <CurrentTime></CurrentTime> 
         </div>

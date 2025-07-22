@@ -223,7 +223,8 @@ class ReportsController extends Controller
             ])
             ->format('a4')
             ->landscape()
-            ->name('stockcard.pdf');
+            ->name('stockcard.pdf')
+            ->download();
         }
 
         if($request->action == "excel")
@@ -323,7 +324,7 @@ class ReportsController extends Controller
             ])
             ->format('a4')
             ->landscape()
-            ->name('invoice.pdf');
+            ->name('product.pdf');
         }
 
         if($request->action == 'excel')
