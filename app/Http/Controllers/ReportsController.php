@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use Maatwebsite\Excel\Facades\Excel;
-use Spatie\LaravelPdf\Facades\Pdf;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 use App\Exports\StockcardExport;
 use App\Exports\ProductExport;
@@ -18,9 +18,6 @@ use App\Models\Stockcard;
 use App\Models\Warehouse;
 
 use Inertia\Inertia;
-
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
-
 
 class ReportsController extends Controller
 {
@@ -215,16 +212,13 @@ class ReportsController extends Controller
             //     'totalItems' => $totalItems,
             //     'product' => $product,
             // ]);
-            return Pdf::view('pdf.stockcard-pdf',        
-            [  
+            $pdf = Pdf::loadView('pdf.stockcard-pdf', [
                 'stockcards' => $stockcardSorted, 
                 'totalItems' => $totalItems,
                 'product' => $product,
-            ])
-            ->format('a4')
-            ->landscape()
-            ->name('stockcard.pdf')
-            ->download();
+            ]);
+            $pdf->setPaper('A4', 'landscape');
+            return $pdf->stream('stockcard.pdf');
         }
 
         if($request->action == "excel")
@@ -317,14 +311,14 @@ class ReportsController extends Controller
             //     'stockcards' => $stockcardSorted, 
             //     'stocks' => $productStock,
             // ]);
-            return Pdf::view('pdf.warehouse-pdf',        
-            [  
-                    'stockcards' => $stockcardSorted, 
-                    'stocks' => $productStock,
-            ])
-            ->format('a4')
-            ->landscape()
-            ->name('product.pdf');
+
+            $pdf = Pdf::loadView('pdf.warehouse-pdf', [
+                'stockcards' => $stockcardSorted, 
+                'stocks' => $productStock,
+            ]);
+            $pdf->setPaper('A4', 'landscape');
+            return $pdf->stream('product.pdf');
+            
         }
 
         if($request->action == 'excel')
@@ -413,15 +407,14 @@ class ReportsController extends Controller
             'to' => $to,
         ]);
 
-        // return Pdf::view('pdf.serial',        
-        // [  
-                // 'stockcards' => $compiled, 
-                // 'from' => $from,
-                // 'to' => $to,
-        // ])
-        // ->format('a4')
-        // ->landscape()
-        // ->name('invoice.pdf');
+        $pdf = Pdf::loadView('pdf.serial', [
+            'stockcards' => $compiled, 
+            'from' => $from,
+            'to' => $to,
+        ]);
+        $pdf->setPaper('A4', 'landscape');
+        return $pdf->stream('serial.pdf');
+
     }
 
     public function WarehouseReport(Request $request){
@@ -498,14 +491,14 @@ class ReportsController extends Controller
             'stockcards' => $stockcardSorted, 
             'stocks' => $warehouseProductStock,
         ]);
-        // return Pdf::view('pdf.warehouse-pdf',        
-        // [  
-                // 'stockcards' => $stockcardSorted, 
-                // 'stocks' => $warehouseProductStock,
-        // ])
-        // ->format('a4')
-        // ->landscape()
-        // ->name('invoice.pdf');
+        
+        // $pdf = Pdf::loadView('pdf.warehouse-pdf', [
+        //     'stockcards' => $stockcardSorted, 
+        //     'stocks' => $warehouseProductStock,
+        // ]);
+        // $pdf->setPaper('A4', 'landscape');
+        // return $pdf->stream('warehouse.pdf');
+        
     }
 
     public function ViewSummary() {
@@ -566,13 +559,12 @@ class ReportsController extends Controller
             // [   
             //     'stockcards' => $stockcardSorted, 
             // ]);
-            return Pdf::view('pdf.summary-pdf',        
-            [  
+
+            $pdf = Pdf::loadView('pdf.summary-pdf', [
                 'stockcards' => $stockcardSorted, 
-            ])
-            ->format('a4')
-            ->landscape()
-            ->name('stockcard.pdf');
+            ]);
+            $pdf->setPaper('A4', 'landscape');
+            return $pdf->stream('sumarry.pdf');
         }
 
         if($request->action == "excel")

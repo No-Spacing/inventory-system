@@ -25,12 +25,12 @@ function submit (value) {
     
     if(value == "pdf")
     {
-        axios.post('/generate-summary', form, {
+        axios.post('generate-summary', form, {
             responseType: 'blob',
         })
         .then((response) => {
-            const contentType = response.headers['content-type'];
-            download(response.data, 'summary.pdf', contentType);
+            const fileURL = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+            window.open(fileURL); // Opens in a new tab
             loading.value = false
         })
         .catch((error) => {

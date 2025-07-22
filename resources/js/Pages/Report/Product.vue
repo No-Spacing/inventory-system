@@ -90,13 +90,12 @@ function submit(value){
             responseType: 'blob',
         })
         .then((response) => {
-            const contentType = response.headers['content-type'];
-            download(response.data, 'product.pdf', contentType);
-            loading.value = false
+            const fileURL = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+            window.open(fileURL); // Opens in a new tab
         })
         .catch((error) => {
             console.error('PDF generation failed:', error);
-        });  
+        });
     }
 
     if(value == 'excel')

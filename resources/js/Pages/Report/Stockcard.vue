@@ -115,7 +115,7 @@ watch(() => page.props.products, (newProducts) => {
 const errorMessages = ref();
 
 function submit(value){
-    // loading.value = true;
+    loading.value = true;
     form.action = value;
     // router.post('generate-stockcard-report', form,
     //     {
@@ -135,11 +135,13 @@ function submit(value){
             responseType: 'blob',
         })
         .then((response) => {
-            const contentType = response.headers['content-type'];
-            download(response.data, 'stockcard.pdf', contentType);
+            const fileURL = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+            window.open(fileURL); // Opens in a new tab
+            loading.value = false
         })
         .catch((error) => {
             console.error('PDF generation failed:', error);
+            loading.value = false
         });
     }
     if(value == "excel")
