@@ -3,7 +3,8 @@ import Layout from "../../Layout/Main.vue";
 import { VDateInput } from "vuetify/labs/VDateInput";
 import { ref, reactive } from "vue";
 import { router } from "@inertiajs/vue3"
- 
+import download from 'downloadjs'; 
+
 const loading = ref(false);
 function load() {
     loading.value = true;
@@ -13,21 +14,56 @@ function load() {
 const form = reactive({
     from: null,
     to: null,
+    action: null,
 })
 
 const errorMessages = ref();
 
-function submit () {
-    router.post('/generate-summary', form,
-        {
-            onSuccess: () => {
-            },
-            onError: (error) => {
-                errorMessages.value = error
-                console.log(error)
-            },
-        }
-    )
+function submit (value) {
+    loading.value = true
+    form.action = value;
+    
+    if(value == "pdf")
+    {
+        axios.post('/generate-summary', form, {
+            responseType: 'blob',
+        })
+        .then((response) => {
+            const contentType = response.headers['content-type'];
+            download(response.data, 'summary.pdf', contentType);
+            loading.value = false
+        })
+        .catch((error) => {
+            console.error('PDF generation failed:', error);
+            loading.value = false
+        });
+    }
+    if(value == "excel")
+    {
+        axios.post('/generate-summary', form, {
+            responseType: 'blob',
+        })
+        .then((response) => {
+            const contentType = response.headers['content-type'];
+            download(response.data, 'summary.xlsx', contentType);
+            loading.value = false
+        })
+        .catch((error) => {
+            console.error('Excel generation failed:', error);
+            loading.value = false
+        });
+    }
+    // router.post('/generate-summary', form,
+        //     {
+        //         onSuccess: () => {
+        //             loading.value = false
+        //         },
+        //         onError: (error) => {
+        //             errorMessages.value = error
+        //             console.log(error)
+        //         },
+        //     }
+        // )
 }
 
 </script>
@@ -35,7 +71,7 @@ function submit () {
     <Layout title="Summary">
         <v-container max-width="1500" fluid>
             <v-card elevation="2" class="pa-8 my-5">
-                <v-form @submit.prevent="submit">
+                <v-form @submit.prevent>
                     <v-row no-gutters>
                         <v-col md="6" cols="12">
                             <div
@@ -71,8 +107,25 @@ function submit () {
 
                     <v-row justify="center">
                         <v-col cols="12" sm="auto" class="text-center">
-                            <v-btn class="me-4" color="green" size="large" type="submit">
+                            <v-btn 
+                                class="me-4" 
+                                color="green" 
+                                size="large" 
+                                type="submit" 
+                                :loading="loading"
+                                @click="submit('pdf')"
+                            >
                                 Generate PDF
+                            </v-btn>
+                            <v-btn
+                                type="submit"
+                                class="me-4"
+                                color="primary"
+                                :loading="loading"
+                                size="large"
+                                @click="submit('excel')"
+                            >
+                                Export Excel
                             </v-btn>
                         </v-col>
                     </v-row>

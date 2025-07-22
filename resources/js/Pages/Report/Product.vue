@@ -26,6 +26,9 @@ const showDescription = ref(false);
 
 const form = reactive({
     code: null,
+    from: null,
+    to: null,
+    action: null,
 })
 
 const data = computed(() => {
@@ -65,38 +68,59 @@ watchDebounced(() => searchCode.value,
     { debounce: 1000, maxWait: 5000 }
 );
 
-function submit(){
-    // loading.value = true
-    router.post('generate-product-report', form,
-        {
-            onSuccess: () => {
-                loading.value = false
-            },
+function submit(value){
+    loading.value = true
+    form.action = value
+    // router.post('generate-product-report', form,
+    //     {
+    //         onSuccess: () => {
+    //             loading.value = false
+    //         },
             
-            onError: (error) => {
-                errorMessages.value = error;
-                loading.value = false;
-            },
-        }
+    //         onError: (error) => {
+    //             errorMessages.value = error;
+    //             loading.value = false;
+    //         },
+    //     }
         
-    )
-    // axios.post('view-stockcard-pdf', form, {
-    //     responseType: 'blob',
-    // })
-    // .then((response) => {
-    //     const contentType = response.headers['content-type'];
-    //     download(response.data, 'invoice.pdf', contentType);
-    // })
-    // .catch((error) => {
-    //     console.error('PDF generation failed:', error);
-    // });
+    // )
+    if(value == 'pdf')
+    {
+        axios.post('generate-product-report', form, {
+            responseType: 'blob',
+        })
+        .then((response) => {
+            const contentType = response.headers['content-type'];
+            download(response.data, 'product.pdf', contentType);
+            loading.value = false
+        })
+        .catch((error) => {
+            console.error('PDF generation failed:', error);
+        });  
+    }
+
+    if(value == 'excel')
+    {
+        axios.post('/generate-product-report', form, {
+            responseType: 'blob',
+        })
+        .then((response) => {
+            const contentType = response.headers['content-type'];
+            download(response.data, 'product.xlsx', contentType);
+            loading.value = false
+        })
+        .catch((error) => {
+            console.error('Excel generation failed:', error);
+            loading.value = false
+        });
+    }
 }
 </script>
 <template>
     <Layout title="Product Report" :loading="loading">
         <v-container max-width="1500" fluid>
             <v-card elevation="2" class="pa-8 my-5">
-                <v-form @submit.prevent="submit">
+                <v-form @submit.prevent>
                     <v-row no-gutters>
                         <v-col cols="12">
                             <div
@@ -182,8 +206,19 @@ function submit(){
                                 color="green"
                                 :loading="loading"
                                 size="large"
+                                @click="submit('pdf')"
                             >
                                 Generate PDF
+                            </v-btn>
+                            <v-btn
+                                type="submit"
+                                class="me-4"
+                                color="primary"
+                                :loading="loading"
+                                size="large"
+                                @click="submit('excel')"
+                            >
+                                Export Excel
                             </v-btn>
                         </v-col>
                     </v-row>

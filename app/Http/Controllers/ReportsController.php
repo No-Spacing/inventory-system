@@ -8,6 +8,8 @@ use Maatwebsite\Excel\Facades\Excel;
 use Spatie\LaravelPdf\Facades\Pdf;
 
 use App\Exports\StockcardExport;
+use App\Exports\ProductExport;
+use App\Exports\SummaryExport;
 
 use App\Models\Product;
 use App\Models\Lot;
@@ -104,6 +106,8 @@ class ReportsController extends Controller
                     }
 
                     return [
+                        'code' => $product->product->code,
+                        'description' => $product->product->description,
                         'transaction_date' => $product->transaction_date,
                         'lotNo' => optional($product->lot)->lot,
                         'serialNo' => optional($product->serial)->serial_no,
@@ -153,7 +157,6 @@ class ReportsController extends Controller
                 return $item->warehouse_id . '-' . ($item->lot_id ?? 'null') . '-' . ($item->serial_id ?? 'null');
             })
             ->flatMap(function ($group) use ($from) {
-                // Calculate opening balance before the 'from' date
                 $openingBalance = $group->filter(function ($product) use ($from) {
                     return $product->transaction_date < $from;
                 })->reduce(function ($carry, $product) {
@@ -172,6 +175,8 @@ class ReportsController extends Controller
                     }
 
                     return [
+                        'code' => $product->product->code,
+                        'description' => $product->product->description,
                         'transaction_date' => $product->transaction_date,
                         'lotNo' => optional($product->lot)->lot,
                         'serialNo' => optional($product->serial)->serial_no,
@@ -224,13 +229,8 @@ class ReportsController extends Controller
         if($request->action == "excel")
         {
             // return Excel::download(new StockcardExport, 'stockcard.xlsx');
-            return Stockcard::query()->where('transaction_type', 'inbound')->downloadExcel('stockcard.xlsx');
-
+            return Excel::download(new StockcardExport($stockcardSorted), 'stockcard_report.xlsx');
         }
-    }
-    public function exportToExcel()
-    {
-        return Excel::download(new StockcardExport, 'stockcard.xlsx'); 
     }
 
     public function ProductReport(Request $request){
@@ -256,39 +256,52 @@ class ReportsController extends Controller
         $to = \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->to)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d');
 
         $stockcards = Stockcard::with('product', 'lot', 'serial', 'warehouse')
-        ->where('product_id', $request->code)
-        ->whereBetween('transaction_date', [$from, $to])
-        ->orderBy('warehouse_id')
-        ->orderBy('lot_id')
-        ->orderBy('serial_id')
-        ->orderBy('created_at')
-        ->orderBy('id')
-        ->get()
-        ->groupBy(function ($item) {
-            return $item->warehouse_id . '-' . ($item->lot_id ?? 'null') . '-' . ($item->serial_id ?? 'null');
-        })
-        ->flatMap(function ($group) {
-            $balance = 0;
+            ->where('product_id', $request->code)
+            ->orderBy('warehouse_id')
+            ->orderBy('lot_id')
+            ->orderBy('serial_id')
+            ->orderBy('created_at')
+            ->orderBy('id')
+            ->get()
+            ->groupBy(function ($item) {
+                return $item->warehouse_id . '-' . ($item->lot_id ?? 'null') . '-' . ($item->serial_id ?? 'null');
+            })
+            ->flatMap(function ($group) use ($from) {
+                $openingBalance = $group->filter(function ($product) use ($from) {
+                    return $product->transaction_date < $from;
+                })->reduce(function ($carry, $product) {
+                    return $carry + ($product->transaction_type === 'inbound' ? $product->quantity : -$product->quantity);
+                }, 0);
 
-            return $group->map(function ($product) use (&$balance) {
-                return [
-                    'code' => $product->product->code,
-                    'description' => $product->product->description,
-                    'unit' => $product->product->unit->unit,
-                    'transaction_date' => $product->transaction_date,
-                    'lotNo' => optional($product->lot)->lot,
-                    'serialNo' => optional($product->serial)->serial_no,
-                    'expiration_date' => optional($product->lot)->expiration_date,
-                    'transaction_type' => $product->transaction_type,
-                    'warehouse' => $product->warehouse->warehouse,
-                    'quantity' => $product->quantity,
-                    'reference' => $product->reference,
-                    'remarks' => $product->remarks,
-                    'document_no' => $product->document_no,
-                    'created_at' => $product->created_at,
-                ];
+                $runningBalance = $openingBalance;
+
+                return $group->filter(function ($product) use ($from) {
+                    return $product->transaction_date >= $from;
+                })->map(function ($product) use (&$runningBalance) {
+                    if ($product->transaction_type === 'inbound') {
+                        $runningBalance += $product->quantity;
+                    } else {
+                        $runningBalance -= $product->quantity;
+                    }
+
+                    return [
+                        'code' => $product->product->code,
+                        'description' => $product->product->description,
+                        'transaction_date' => $product->transaction_date,
+                        'lotNo' => optional($product->lot)->lot,
+                        'serialNo' => optional($product->serial)->serial_no,
+                        'expiration_date' => optional($product->lot)->expiration_date,
+                        'transaction_type' => $product->transaction_type,
+                        'warehouse' => $product->warehouse->warehouse,
+                        'quantity' => $product->quantity,
+                        'balance' => $runningBalance,
+                        'reference' => $product->reference,
+                        'remarks' => $product->remarks,
+                        'document_no' => $product->document_no,
+                        'created_at' => $product->created_at,
+                    ];
+                });
             });
-        });
 
         $productStock = StockCard::getProductStock(
                                     $request->code,
@@ -296,19 +309,27 @@ class ReportsController extends Controller
 
         $stockcardSorted = $stockcards->sortBy('created_at')->values();
 
-        return view('pdf.warehouse-pdf', 
-        [   
-            'stockcards' => $stockcardSorted, 
-            'stocks' => $productStock,
-        ]);
-        // return Pdf::view('pdf.warehouse-pdf',        
-        // [  
-                // 'stockcards' => $stockcardSorted, 
-                // 'stocks' => $productStock,
-        // ])
-        // ->format('a4')
-        // ->landscape()
-        // ->name('invoice.pdf');
+        if($request->action == 'pdf')
+        {
+            // return view('pdf.warehouse-pdf', 
+            // [   
+            //     'stockcards' => $stockcardSorted, 
+            //     'stocks' => $productStock,
+            // ]);
+            return Pdf::view('pdf.warehouse-pdf',        
+            [  
+                    'stockcards' => $stockcardSorted, 
+                    'stocks' => $productStock,
+            ])
+            ->format('a4')
+            ->landscape()
+            ->name('invoice.pdf');
+        }
+
+        if($request->action == 'excel')
+        {
+            return Excel::download(new ProductExport($stockcardSorted), 'product.xlsx');
+        }   
     }
 
 
@@ -531,7 +552,6 @@ class ReportsController extends Controller
                     'reference' => $product->reference,
                     'remarks' => $product->remarks,
                     'document_no' => $product->document_no,
-                    'enduser' => $product->user->name,
                     'created_at' => $product->created_at,
                 ];
             });
@@ -539,10 +559,31 @@ class ReportsController extends Controller
 
         $stockcardSorted = $stockcards->sortBy('created_at')->values();
 
-        return view('pdf.summary-pdf', 
-        [   
-            'stockcards' => $stockcardSorted, 
-        ]);
+        if($request->action == "pdf")
+        {
+            // return view('pdf.summary-pdf', 
+            // [   
+            //     'stockcards' => $stockcardSorted, 
+            // ]);
+            return Pdf::view('pdf.summary-pdf',        
+            [  
+                'stockcards' => $stockcardSorted, 
+            ])
+            ->format('a4')
+            ->landscape()
+            ->name('stockcard.pdf');
+        }
+
+        if($request->action == "excel")
+        {
+            // return Excel::download(new StockcardExport, 'stockcard.xlsx');
+            return Excel::download(new SummaryExport($stockcardSorted), 'summary.xlsx');
+        }
+
+        // return view('pdf.summary-pdf', 
+        // [   
+        //     'stockcards' => $stockcardSorted, 
+        // ]);
         // return Pdf::view('pdf.warehouse-pdf',        
         // [  
                 // 'stockcards' => $stockcardSorted, 
