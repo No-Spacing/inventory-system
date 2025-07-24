@@ -630,7 +630,6 @@ watch(() => page.props.products, (newProducts) => {
                         type="submit"
                         class="mx-4"
                         :loading="form.processing || buttonLoading"
-                        :disabled="showMultipleSerial"
                         @click="submitTransaction('outbound')"
                     >
                         Outbound
@@ -642,7 +641,6 @@ watch(() => page.props.products, (newProducts) => {
                         class="mx-4"
                         @click="transferDialog = true"
                         :loading="form.processing || buttonLoading"
-                        :disabled="showMultipleSerial"
                     >
                         Transfer
                     </v-btn>
