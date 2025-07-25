@@ -20,23 +20,35 @@ const form = reactive({
 const errorMessages = ref();
 
 function submit (value) {
-    loading.value = true
     form.action = value;
     
     if(value == "pdf")
     {
-        axios.post('generate-summary', form, {
-            responseType: 'blob',
-        })
-        .then((response) => {
-            const fileURL = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
-            window.open(fileURL); // Opens in a new tab
-            loading.value = false
-        })
-        .catch((error) => {
-            console.error('PDF generation failed:', error);
-            loading.value = false
-        });
+        router.post('/generate-summary', form,
+            {
+                onSuccess: () => {
+                    loading.value = false
+                },
+                onError: (error) => {
+                    errorMessages.value = error
+                    console.log(error)
+                    loading.value = false
+                },
+            }
+        )
+
+        // axios.post('generate-summary', form, {
+        //     responseType: 'blob',
+        // })
+        // .then((response) => {
+        //     const fileURL = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+        //     window.open(fileURL); // Opens in a new tab
+        //     loading.value = false
+        // })
+        // .catch((error) => {
+        //     console.error('PDF generation failed:', error);
+        //     loading.value = false
+        // });
     }
     if(value == "excel")
     {
@@ -54,16 +66,16 @@ function submit (value) {
         });
     }
     // router.post('/generate-summary', form,
-        //     {
-        //         onSuccess: () => {
-        //             loading.value = false
-        //         },
-        //         onError: (error) => {
-        //             errorMessages.value = error
-        //             console.log(error)
-        //         },
-        //     }
-        // )
+    //     {
+    //         onSuccess: () => {
+    //             loading.value = false
+    //         },
+    //         onError: (error) => {
+    //             errorMessages.value = error
+    //             console.log(error)
+    //         },
+    //     }
+    // )
 }
 
 </script>
@@ -72,7 +84,7 @@ function submit (value) {
         <v-container max-width="1500" fluid>
             <v-card elevation="2" class="pa-8 my-5">
                 <v-form @submit.prevent>
-                    <v-row no-gutters>
+                    <!-- <v-row no-gutters>
                         <v-col md="6" cols="12">
                             <div
                                 class="text-subtitle-1 text-medium-emphasis mx-2"
@@ -103,7 +115,7 @@ function submit (value) {
                                 class="mx-2"
                             ></v-date-input>
                         </v-col>
-                    </v-row>
+                    </v-row> -->
 
                     <v-row justify="center">
                         <v-col cols="12" sm="auto" class="text-center">

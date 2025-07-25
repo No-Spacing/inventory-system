@@ -29,17 +29,11 @@ class SummaryExport implements FromCollection, WithHeadings
             'Code',
             'Description',
             'Unit',
-            'Transaction Date',
             'Lot No.',
             'Serial No.',
             'Expiration Date',
-            'Transaction Type',
             'Warehouse',
-            'Quantity',
-            'Reference',
-            'Remarks',
-            'Document No.',
-            'Created At',
+            'Total Quantity',
         ];
     }
 }

@@ -406,14 +406,20 @@ class ReportsController extends Controller
             'from' => $from,
             'to' => $to,
         ]);
+        // if($request->action == "pdf")
+        // {
+        //     $pdf = Pdf::loadView('pdf.serial', [
+        //         'stockcards' => $compiled, 
+        //     ]);
+        //     $pdf->setPaper('A4', 'landscape');
+        //     return $pdf->stream('serial.pdf');
+        // }
 
-        $pdf = Pdf::loadView('pdf.serial', [
-            'stockcards' => $compiled, 
-            'from' => $from,
-            'to' => $to,
-        ]);
-        $pdf->setPaper('A4', 'landscape');
-        return $pdf->stream('serial.pdf');
+        // if($request->action == "excel")
+        // {
+        //     // return Excel::download(new StockcardExport, 'stockcard.xlsx');
+        //     return Excel::download(new SummaryExport($compiled), 'summary.xlsx');
+        // }
 
     }
 
@@ -507,18 +513,17 @@ class ReportsController extends Controller
 
     public function GenerateSummary(Request $request)
     {
-        $request->validate(
-            [
-                'from' => 'required',
-                'to' => 'required',
-            ]
-        );
+        // $request->validate(
+        //     [
+        //         'from' => 'required',
+        //         'to' => 'required',
+        //     ]
+        // );
 
-        $from = \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->from)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d');
-        $to = \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->to)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d');
+        // $from = \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->from)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d');
+        // $to = \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->to)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d');
 
-        $stockcards = Stockcard::with('product', 'lot', 'serial', 'warehouse', 'user')
-        ->whereBetween('transaction_date', [$from, $to])
+        $stockcards = Stockcard::with('product.unit', 'lot', 'serial', 'warehouse')
         ->orderBy('warehouse_id')
         ->orderBy('lot_id')
         ->orderBy('serial_id')
@@ -526,51 +531,68 @@ class ReportsController extends Controller
         ->orderBy('id')
         ->get()
         ->groupBy(function ($item) {
-            return $item->warehouse_id . '-' . ($item->lot_id ?? 'null') . '-' . ($item->serial_id ?? 'null');
+            return implode('-', [
+                $item->warehouse_id,
+                $item->product_id,
+                $item->lot_id ?? 'null',
+            ]);
         })
-        ->flatMap(function ($group) {
-            $balance = 0;
+        ->map(function ($group) {
+            $first = $group->first();
 
-            return $group->map(function ($product) use (&$balance) {
-                return [
-                    'code' => $product->product->code,
-                    'description' => $product->product->description,
-                    'unit' => $product->product->unit->unit,
-                    'transaction_date' => $product->transaction_date,
-                    'lotNo' => optional($product->lot)->lot,
-                    'serialNo' => optional($product->serial)->serial_no,
-                    'expiration_date' => optional($product->lot)->expiration_date,
-                    'transaction_type' => $product->transaction_type,
-                    'warehouse' => $product->warehouse->warehouse,
-                    'quantity' => $product->quantity,
-                    'reference' => $product->reference,
-                    'remarks' => $product->remarks,
-                    'document_no' => $product->document_no,
-                    'created_at' => $product->created_at,
-                ];
+            // Filter for only serials with positive balance
+            $filteredSerials = $group->groupBy('serial_id')->filter(function ($serialGroup) {
+                $netQty = $serialGroup->sum(function ($item) {
+                    return $item->transaction_type === 'inbound'
+                        ? $item->quantity
+                        : -$item->quantity;
+                });
+                return $netQty > 0;
             });
-        });
 
-        $stockcardSorted = $stockcards->sortBy('created_at')->values();
+            $serials = $filteredSerials->pluck('*.serial.serial_no')
+                ->flatten()
+                ->unique()
+                ->implode(', ');
+
+            $net_quantity = $filteredSerials->flatten()->sum(function ($item) {
+                return $item->transaction_type === 'inbound'
+                    ? $item->quantity
+                    : -$item->quantity;
+            });
+
+            return [
+                'code' => $first->product->code,
+                'description' => $first->product->description,
+                'unit' => $first->product->unit->unit,
+                'lotNo' => optional($first->lot)->lot,
+                'serialNo' => $serials ?: 'None',
+                'expiration_date' => optional($first->lot)->expiration_date,
+                'warehouse' => $first->warehouse->warehouse,
+                'total_quantity' => $net_quantity,
+            ];
+        })->filter(fn($item) => $item['total_quantity'] > 0);
+
+        // $stockcardSorted = $stockcards->sortBy('created_at')->values();
 
         if($request->action == "pdf")
         {
-            // return view('pdf.summary-pdf', 
-            // [   
+            return view('pdf.summary-pdf', 
+            [   
+                'stockcards' => $stockcards, 
+            ]);
+
+            // $pdf = Pdf::loadView('pdf.summary-pdf', [
             //     'stockcards' => $stockcardSorted, 
             // ]);
-
-            $pdf = Pdf::loadView('pdf.summary-pdf', [
-                'stockcards' => $stockcardSorted, 
-            ]);
-            $pdf->setPaper('A4', 'landscape');
-            return $pdf->stream('sumarry.pdf');
+            // $pdf->setPaper('A4', 'landscape');
+            // return $pdf->stream('sumarry.pdf');
         }
 
         if($request->action == "excel")
         {
             // return Excel::download(new StockcardExport, 'stockcard.xlsx');
-            return Excel::download(new SummaryExport($stockcardSorted), 'summary.xlsx');
+            return Excel::download(new SummaryExport($stockcards), 'summary.xlsx');
         }
 
         // return view('pdf.summary-pdf', 

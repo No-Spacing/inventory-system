@@ -79,15 +79,10 @@ body {
                 <th>Code</th>
                 <th>Description</th>
                 <th>UOM</th>
-                <th>Transaction Date</th>  
                 <th>Batch/Lot/Serial No.</th>
                 <th>Expiration Date</th>
-                <th>Transaction Type</th>
-                <th>Quantity</th>
                 <th>Warehouse</th>
-                <th>Customer/Supplier Name</th>
-                <th>Document No.</th>
-                <th>Remarks</th>
+                <th>Total Quantity</th>
             </tr>
         </thead>
         <tbody>
@@ -96,15 +91,10 @@ body {
                     <td style="text-align: left;">{{ $item['code'] }}</td>
                     <td style="text-align: left;">{{ $item['description'] }}</td>
                     <td style="text-align: left;">{{ $item['unit'] }}</td>
-                    <td style="text-align: left;">{{ $item['transaction_date'] }}</td>
                     <td style="text-align: left;">{{ $item['lotNo'] ?? $item['serialNo'] }}</td>
-                    <td style="text-align: left;">{{ $item['expiration_date'] }}</td> 
-                    <td style="text-align: left;">{{ $item['transaction_type'] }}</td>
-                    <td style="text-align: left;">{{ $item['quantity'] }}</td>
+                    <td style="text-align: left;">{{ $item['expiration_date'] }}</td>
                     <td style="text-align: left;">{{ $item['warehouse'] }}</td>
-                    <td style="text-align: left;">{{ $item['reference'] }}</td>
-                    <td style="text-align: left;">{{ $item['document_no'] }}</td>
-                    <td style="text-align: left;">{{ $item['remarks'] }}</td>
+                    <td style="text-align: left;">{{ $item['total_quantity'] }}</td>
                 </tr>
             @endforeach
             <tr>
