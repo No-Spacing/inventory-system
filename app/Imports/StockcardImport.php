@@ -17,11 +17,12 @@ class StockcardImport implements ToModel
         return new Stockcard([
             'product_id' => $row[0],
             'lot_id' => $row[1],
-            'quantity' => $row[2],
-            'enduser_id' => $row[3],
+            'serial_id' => $row[2],
+            'quantity' => $row[3],
+            'enduser_id' => $row[4],
             'transaction_type' => 'inbound',
-            'warehouse_id' => $row[4],
-            'remarks' => $row[5],
+            'warehouse_id' => $row[5],
+            'remarks' => $row[6],
             'transaction_date' => now(),
         ]);
     }

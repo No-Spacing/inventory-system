@@ -15,9 +15,9 @@ class Stockcard extends Model
     protected $fillable = [
         'product_id',
         'lot_id',
+        'serial_id',
         'approver_id',
         'enduser_id',
-        'serial_id',
         'transaction_type',
         'quantity',
         'transaction_date',
