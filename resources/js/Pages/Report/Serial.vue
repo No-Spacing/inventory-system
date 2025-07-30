@@ -26,6 +26,7 @@ const showDescription = ref(false);
 const form = reactive({
     warehouse: null,
     code: null,
+    action: null,
 })
 
 const data = computed(() => {
@@ -65,9 +66,13 @@ watchDebounced(() => searchCode.value,
     { debounce: 1000, maxWait: 5000 }
 );
 
-function submit(){
+function submit(value){
     // loading.value = true
-    router.post('generate-serial-report', form,
+    
+
+    if(value == "pdf")
+    {
+       router.post('generate-serial-report', form,
         {
             onSuccess: () => {
                 loading.value = false
@@ -77,9 +82,37 @@ function submit(){
                 errorMessages.value = error;
                 loading.value = false;
             },
-        }
+        })
+    }
+
+    if(value == "excel")
+    {
+        router.post('generate-serial-report', form,
+        {
+            onSuccess: () => {
+                loading.value = false
+            },
+            
+            onError: (error) => {
+                errorMessages.value = error;
+                loading.value = false;
+            },
+        })
+    }
+
+    // router.post('generate-serial-report', form,
+    //     {
+    //         onSuccess: () => {
+    //             loading.value = false
+    //         },
+            
+    //         onError: (error) => {
+    //             errorMessages.value = error;
+    //             loading.value = false;
+    //         },
+    //     }
         
-    )
+    // )
     // axios.post('generate-stockcard-report', form, {
     //     responseType: 'blob',
     // })
@@ -96,7 +129,7 @@ function submit(){
     <Layout title="Serial Report" :loading="loading">
         <v-container max-width="1500" fluid>
             <v-card elevation="2" class="pa-8 my-5">
-                <v-form @submit.prevent="submit">
+                <v-form @submit.prevent>
                     <v-row no-gutters>
                         <v-col cols="12">
                             <div
@@ -174,8 +207,19 @@ function submit(){
                                 color="green"
                                 :loading="loading"
                                 size="large"
+                                @click="submit('pdf')"
                             >
                                 Generate PDF
+                            </v-btn>
+                                <v-btn
+                                type="submit"
+                                class="me-4"
+                                color="primary"
+                                :loading="loading"
+                                size="large"
+                                @click="submit('excel')"
+                            >
+                                Generate Excel
                             </v-btn>
                         </v-col>
                     </v-row>

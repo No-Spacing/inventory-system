@@ -25,7 +25,7 @@ const showDescription = ref(false);
 
 const form = reactive({
     warehouse: null,
-    code: null,
+    action: null,
 })
 
 const data = computed(() => {
@@ -65,38 +65,64 @@ watchDebounced(() => searchCode.value,
     { debounce: 1000, maxWait: 5000 }
 );
 
-function submit(){
-    // loading.value = true
-    router.post('generate-warehouse-report', form,
-        {
-            onSuccess: () => {
-                loading.value = false
-            },
-            
-            onError: (error) => {
-                errorMessages.value = error;
-                loading.value = false;
-            },
-        }
-        
-    )
-    // axios.post('view-stockcard-pdf', form, {
-    //     responseType: 'blob',
-    // })
-    // .then((response) => {
-    //     const contentType = response.headers['content-type'];
-    //     download(response.data, 'invoice.pdf', contentType);
-    // })
-    // .catch((error) => {
-    //     console.error('PDF generation failed:', error);
-    // });
+function submit(value){
+    loading.value = true
+    form.action = value;
+
+    if(value == 'pdf')
+    {
+        router.post('generate-warehouse-report', form,
+            {
+                onBefore: () => {
+                    loading.value = false
+                },
+
+                onSuccess: () => {
+                    loading.value = false
+                },
+                
+                onError: (error) => {
+                    errorMessages.value = error;
+                    loading.value = false;
+                },
+            }
+        )
+        // axios.post('/generate-warehouse-report', form, {
+        //     responseType: 'blob',
+        // })
+        // .then((response) => {
+        //     const fileURL = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+        //     window.open(fileURL); // Opens in a new tab
+        //     loading.value = false;
+        // })
+        // .catch((error) => {
+        //     console.error('PDF generation failed:', error);
+        //     loading.value = false;
+        // });
+    }
+
+    if(value == 'excel')
+    {
+        axios.post('/generate-warehouse-report', form, {
+            responseType: 'blob',
+        })
+        .then((response) => {
+            const contentType = response.headers['content-type'];
+            download(response.data, 'warehouse.xlsx', contentType);
+            loading.value = true
+        })
+        .catch((error) => {
+            console.error('Excel generation failed:', error);
+            loading.value = true
+        });
+    }
 }
 </script>
 <template>
     <Layout title="Warehouse Report" :loading="loading">
         <v-container max-width="1500" fluid>
             <v-card elevation="2" class="pa-8 my-5">
-                <v-form @submit.prevent="submit">
+                <v-form @submit.prevent>
                     <v-row no-gutters>
                         <v-col cols="12">
                             <div
@@ -117,7 +143,7 @@ function submit(){
                             >
                             </v-select>
                         </v-col>
-                        <v-col cols="12">
+                        <!-- <v-col cols="12">
                             <div
                                 class="text-subtitle-1 text-medium-emphasis"
                             >
@@ -157,9 +183,9 @@ function submit(){
                                     disabled
                                 ></v-text-field>
                             </v-col>
-                        </v-expand-transition>
+                        </v-expand-transition> -->
                     </v-row>
-                    <v-row no-gutters>
+                    <!-- <v-row no-gutters>
                         <v-col cols="12" sm="6">
                             <div
                                 class="text-subtitle-1 text-medium-emphasis mx-2"
@@ -192,7 +218,7 @@ function submit(){
                                 class="ml-2"
                             ></v-date-input>
                         </v-col>
-                    </v-row>
+                    </v-row> -->
                     <v-row justify="center">
                         <v-col cols="12" sm="auto" class="text-center">
                             <v-btn
@@ -201,8 +227,21 @@ function submit(){
                                 color="green"
                                 :loading="loading"
                                 size="large"
+                                @click="submit('pdf')"
                             >
                                 Generate PDF
+                            </v-btn>
+                        </v-col>
+                        <v-col cols="12" sm="auto" class="text-center">
+                            <v-btn
+                                type="submit"
+                                class="me-4"
+                                color="primary"
+                                :loading="loading"
+                                size="large"
+                                @click="submit('excel')"
+                            >
+                                Generate Excel
                             </v-btn>
                         </v-col>
                     </v-row>

@@ -10,6 +10,9 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use App\Exports\StockcardExport;
 use App\Exports\ProductExport;
 use App\Exports\SummaryExport;
+use App\Exports\WarehouseExport;
+
+use App\Http\Controllers\MaintenanceController;
 
 use App\Models\Product;
 use App\Models\Lot;
@@ -251,52 +254,52 @@ class ReportsController extends Controller
         $to = \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->to)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d');
 
         $stockcards = Stockcard::with('product', 'lot', 'serial', 'warehouse')
-            ->where('product_id', $request->code)
-            ->orderBy('warehouse_id')
-            ->orderBy('lot_id')
-            ->orderBy('serial_id')
-            ->orderBy('created_at')
-            ->orderBy('id')
-            ->get()
-            ->groupBy(function ($item) {
-                return $item->warehouse_id . '-' . ($item->lot_id ?? 'null') . '-' . ($item->serial_id ?? 'null');
-            })
-            ->flatMap(function ($group) use ($from) {
-                $openingBalance = $group->filter(function ($product) use ($from) {
-                    return $product->transaction_date < $from;
-                })->reduce(function ($carry, $product) {
-                    return $carry + ($product->transaction_type === 'inbound' ? $product->quantity : -$product->quantity);
-                }, 0);
+        ->where('product_id', $request->code)
+        ->orderBy('warehouse_id')
+        ->orderBy('lot_id')
+        ->orderBy('serial_id')
+        ->orderBy('created_at')
+        ->orderBy('id')
+        ->get()
+        ->groupBy(function ($item) {
+            return $item->warehouse_id . '-' . ($item->lot_id ?? 'null') . '-' . ($item->serial_id ?? 'null');
+        })
+        ->flatMap(function ($group) use ($from) {
+            $openingBalance = $group->filter(function ($product) use ($from) {
+                return $product->transaction_date < $from;
+            })->reduce(function ($carry, $product) {
+                return $carry + ($product->transaction_type === 'inbound' ? $product->quantity : -$product->quantity);
+            }, 0);
 
-                $runningBalance = $openingBalance;
+            $runningBalance = $openingBalance;
 
-                return $group->filter(function ($product) use ($from) {
-                    return $product->transaction_date >= $from;
-                })->map(function ($product) use (&$runningBalance) {
-                    if ($product->transaction_type === 'inbound') {
-                        $runningBalance += $product->quantity;
-                    } else {
-                        $runningBalance -= $product->quantity;
-                    }
+            return $group->filter(function ($product) use ($from) {
+                return $product->transaction_date >= $from;
+            })->map(function ($product) use (&$runningBalance) {
+                if ($product->transaction_type === 'inbound') {
+                    $runningBalance += $product->quantity;
+                } else {
+                    $runningBalance -= $product->quantity;
+                }
 
-                    return [
-                        'code' => $product->product->code,
-                        'description' => $product->product->description,
-                        'transaction_date' => $product->transaction_date,
-                        'lotNo' => optional($product->lot)->lot,
-                        'serialNo' => optional($product->serial)->serial_no,
-                        'expiration_date' => optional($product->lot)->expiration_date,
-                        'transaction_type' => $product->transaction_type,
-                        'warehouse' => $product->warehouse->warehouse,
-                        'quantity' => $product->quantity,
-                        'balance' => $runningBalance,
-                        'reference' => $product->reference,
-                        'remarks' => $product->remarks,
-                        'document_no' => $product->document_no,
-                        'created_at' => $product->created_at,
-                    ];
-                });
+                return [
+                    'code' => $product->product->code,
+                    'description' => $product->product->description,
+                    'transaction_date' => $product->transaction_date,
+                    'lotNo' => optional($product->lot)->lot,
+                    'serialNo' => optional($product->serial)->serial_no,
+                    'expiration_date' => optional($product->lot)->expiration_date,
+                    'transaction_type' => $product->transaction_type,
+                    'warehouse' => $product->warehouse->warehouse,
+                    'quantity' => $product->quantity,
+                    'balance' => $runningBalance,
+                    'reference' => $product->reference,
+                    'remarks' => $product->remarks,
+                    'document_no' => $product->document_no,
+                    'created_at' => $product->created_at,
+                ];
             });
+        });
 
         $productStock = StockCard::getProductStock(
                                     $request->code,
@@ -327,7 +330,6 @@ class ReportsController extends Controller
         }   
     }
 
-
     public function SerialReport(Request $request){
         return Inertia::render('Report/Serial', [
             'warehouses' => Warehouse::all(),
@@ -342,6 +344,8 @@ class ReportsController extends Controller
 
     public function GenerateSerialReport(Request $request)
     {
+        dd($request->all());
+
         $request->validate([
             'from' => 'required',
             'to' => 'required'
@@ -438,21 +442,10 @@ class ReportsController extends Controller
     {
         $request->validate([
             'warehouse' => 'required',
-            'from' => 'required',
-            'to' => 'required'
         ]);
 
-        $from = \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->from)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d');
-        $to = \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->to)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d');
-      
-        $stockcards = Stockcard::with('product', 'lot', 'serial', 'warehouse')
-        ->when($request->warehouse, function ($query, $warehouse) {
-            return $query->where('warehouse_id', $warehouse);
-        })
-        ->when($request->code, function ($query, $code) {
-            return $query->where('product_id', $code);
-        })
-        ->whereBetween('transaction_date', [$from, $to])
+        $stockcards = Stockcard::with('product.unit', 'lot', 'serial', 'warehouse')
+        ->where('warehouse_id', $request->warehouse)
         ->orderBy('warehouse_id')
         ->orderBy('lot_id')
         ->orderBy('serial_id')
@@ -460,51 +453,63 @@ class ReportsController extends Controller
         ->orderBy('id')
         ->get()
         ->groupBy(function ($item) {
-            return $item->warehouse_id . '-' . ($item->lot_id ?? 'null') . '-' . ($item->serial_id ?? 'null');
+            return implode('-', [
+                $item->warehouse_id,
+                $item->product_id,
+                $item->lot_id ?? 'null',
+            ]);
         })
-        ->flatMap(function ($group) {
-            $balance = 0;
+        ->map(function ($group) {
+            $first = $group->first();
 
-            return $group->map(function ($product) use (&$balance) {
-                return [
-                    'code' => $product->product->code,
-                    'description' => $product->product->description,
-                    'unit' => $product->product->unit->unit,
-                    'transaction_date' => $product->transaction_date,
-                    'lotNo' => optional($product->lot)->lot,
-                    'serialNo' => optional($product->serial)->serial_no,
-                    'expiration_date' => optional($product->lot)->expiration_date,
-                    'transaction_type' => $product->transaction_type,
-                    'warehouse' => $product->warehouse->warehouse,
-                    'quantity' => $product->quantity,
-                    'reference' => $product->reference,
-                    'remarks' => $product->remarks,
-                    'document_no' => $product->document_no,
-                    'created_at' => $product->created_at,
-                ];
+            // Filter for only serials with positive balance
+            $filteredSerials = $group->groupBy('serial_id')->filter(function ($serialGroup) {
+                $netQty = $serialGroup->sum(function ($item) {
+                    return $item->transaction_type === 'inbound'
+                        ? $item->quantity
+                        : -$item->quantity;
+                });
+                return $netQty > 0;
             });
-        });
 
-        $warehouseProductStock = StockCard::getWarehouseStock(
-                                    $request->warehouse,
-                                    $request->code,
-                                );
+            $serials = $filteredSerials->pluck('*.serial.serial_no')
+                ->flatten()
+                ->unique()
+                ->implode(', ');
 
-        $stockcardSorted = $stockcards->sortBy('created_at')->values();
+            $net_quantity = $filteredSerials->flatten()->sum(function ($item) {
+                return $item->transaction_type === 'inbound'
+                    ? $item->quantity
+                    : -$item->quantity;
+            });
 
-        return view('pdf.warehouse-pdf', 
-        [   
-            'stockcards' => $stockcardSorted, 
-            'stocks' => $warehouseProductStock,
-        ]);
-        
-        // $pdf = Pdf::loadView('pdf.warehouse-pdf', [
-        //     'stockcards' => $stockcardSorted, 
-        //     'stocks' => $warehouseProductStock,
-        // ]);
-        // $pdf->setPaper('A4', 'landscape');
-        // return $pdf->stream('warehouse.pdf');
-        
+            return [
+                'code' => $first->product->code,
+                'description' => $first->product->description,
+                'unit' => $first->product->unit->unit,
+                'lotNo' => optional($first->lot)->lot,
+                'serialNo' => $serials ?: 'None',
+                'expiration_date' => optional($first->lot)->expiration_date,
+                'total_quantity' => $net_quantity,
+            ];
+        })->filter(fn($item) => $item['total_quantity'] > 0); 
+
+        if($request->action == 'pdf')
+        {
+            return view('pdf.warehouse-pdf', ['stockcards' => $stockcards]);
+            // $pdf = Pdf::loadView('pdf.warehouse-pdf', [
+            //     'stockcards' => $stockcards, 
+            // ]);
+
+            // $pdf->setPaper('A4', 'landscape');
+
+            // return $pdf->stream('warehouse.pdf'); 
+        }
+
+        if($request->action == 'excel')
+        {
+            return Excel::download(new WarehouseExport($stockcards), 'warehouse.xlsx');
+        }
     }
 
     public function ViewSummary() {
