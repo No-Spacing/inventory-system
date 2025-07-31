@@ -109,11 +109,11 @@ function submit(value){
         .then((response) => {
             const contentType = response.headers['content-type'];
             download(response.data, 'warehouse.xlsx', contentType);
-            loading.value = true
+            loading.value = false
         })
         .catch((error) => {
             console.error('Excel generation failed:', error);
-            loading.value = true
+            loading.value = false
         });
     }
 }
