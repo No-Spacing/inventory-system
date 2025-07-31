@@ -26,6 +26,7 @@ const showDescription = ref(false);
 const form = reactive({
     warehouse: null,
     code: null,
+    action: null,
 })
 
 const data = computed(() => {
@@ -65,9 +66,13 @@ watchDebounced(() => searchCode.value,
     { debounce: 1000, maxWait: 5000 }
 );
 
-function submit(){
+function submit(value){
     // loading.value = true
-    router.post('generate-warehouse-report', form,
+    form.action = value;
+
+    if(value == 'pdf')
+    {
+        router.post('generate-warehouse-report', form,
         {
             onSuccess: () => {
                 loading.value = false
@@ -77,9 +82,23 @@ function submit(){
                 errorMessages.value = error;
                 loading.value = false;
             },
-        }
-        
-    )
+        })  
+    }
+
+    if(value == 'excel')
+    {
+        axios.post('generate-warehouse-report', form, {
+            responseType: 'blob',
+        })
+        .then((response) => {
+            const contentType = response.headers['content-type'];
+            download(response.data, 'warehouse.xlsx', contentType);
+        })
+        .catch((error) => {
+            console.error('Excel generation failed:', error);
+        });
+    }
+    
     // axios.post('view-stockcard-pdf', form, {
     //     responseType: 'blob',
     // })
@@ -96,7 +115,7 @@ function submit(){
     <Layout title="Warehouse Report" :loading="loading">
         <v-container max-width="1500" fluid>
             <v-card elevation="2" class="pa-8 my-5">
-                <v-form @submit.prevent="submit">
+                <v-form @submit.prevent>
                     <v-row no-gutters>
                         <v-col cols="12">
                             <div
@@ -196,6 +215,7 @@ function submit(){
                     <v-row justify="center">
                         <v-col cols="12" sm="auto" class="text-center">
                             <v-btn
+                                @click="submit('pdf')"
                                 type="submit"
                                 class="me-4"
                                 color="green"
@@ -203,6 +223,18 @@ function submit(){
                                 size="large"
                             >
                                 Generate PDF
+                            </v-btn>
+                        </v-col>
+                        <v-col cols="12" sm="auto" class="text-center">
+                            <v-btn
+                                @click="submit('excel')"
+                                type="submit"
+                                class="me-4"
+                                color="primary"
+                                :loading="loading"
+                                size="large"
+                            >
+                                Generate Excel
                             </v-btn>
                         </v-col>
                     </v-row>

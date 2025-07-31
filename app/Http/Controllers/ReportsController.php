@@ -10,6 +10,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use App\Exports\StockcardExport;
 use App\Exports\ProductExport;
 use App\Exports\SummaryExport;
+use App\Exports\WarehouseExport;
 
 use App\Models\Product;
 use App\Models\Lot;
@@ -492,11 +493,20 @@ class ReportsController extends Controller
 
         $stockcardSorted = $stockcards->sortBy('created_at')->values();
 
-        return view('pdf.warehouse-pdf', 
-        [   
-            'stockcards' => $stockcardSorted, 
-            'stocks' => $warehouseProductStock,
-        ]);
+        if($request->action == 'pdf'){
+            return view('pdf.warehouse-pdf', 
+            [   
+                'stockcards' => $stockcardSorted, 
+                'stocks' => $warehouseProductStock,
+            ]);
+        }
+
+        if($request->action == 'excel')
+        {
+            return Excel::download(new WarehouseExport($stockcardSorted), 'warehouse.xlsx');
+        }
+
+
         
         // $pdf = Pdf::loadView('pdf.warehouse-pdf', [
         //     'stockcards' => $stockcardSorted, 
