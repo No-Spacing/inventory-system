@@ -26,21 +26,11 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class StockcardController extends Controller
 {
-    public function Dashboard(){
+    public function Dashboard(Request $request){
         return Inertia::render('Dashboard', [
-            'users' => User::with('role')
-            ->get()
-            ->map(function ($user) {
-                return [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'role' => $user->role->name,
-                    'created_at' => \Carbon\Carbon::parse($user->created_at)->format('Y-m-d g:i a')
-                ];
-            }),
-            'products' => Product::get()
-            ->map(function ($product) {
+            'products' => Product::where('code', 'Like', '%'.$request->search.'%')
+            ->paginate(10)
+            ->through(function ($product) {
                 return [
                     'code' => $product->code,
                     'description' => $product->description,
@@ -48,7 +38,10 @@ class StockcardController extends Controller
                     'created_at' => \Carbon\Carbon::parse($product->created_at)->format('Y-m-d g:i a')
                 ];
             }),
-            'lots' => Lot::get(),
+            'product_count' => Product::count(),
+            'lot_count' => Lot::count(),
+            'serial_count' => Serial::count(),
+            'stockcard_count' => Stockcard::count(),
         ]);
     }
 
