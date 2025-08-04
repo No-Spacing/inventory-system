@@ -63,8 +63,6 @@ function submit() {
     })
 }
 
-
-
 function openUpdateDialog(item){
     updateForm.id = item.id;
     updateForm.unit = item.unit;
