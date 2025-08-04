@@ -1,12 +1,17 @@
 <script setup>
-import { ref } from "vue";
+import { ref, watch } from "vue";
+import { usePage, router } from "@inertiajs/vue3"
 import Layout from "../Layout/Main.vue";
 
-const props = defineProps({ 
-    users: Object, 
-    products: Object ,
-    lots: Object,
+defineProps({ 
+    products: Object,
+    lot_count: Number,
+    product_count: Number,
+    serial_count: Number,
+    stockcard_count: Number,
 });
+
+const page = usePage();
 
 const search = ref("");
 const headers = [
@@ -35,9 +40,26 @@ const headers = [
     },
 ];
 
-const icons = ['mdi-rewind', 'mdi-play', 'mdi-fast-forward']
+watch(() => search.value, (value) => {
+    router.get('/dashboard', {
+        search: value,
+        page: page.props.products.current_page
+    }, {
+        preserveScroll: true,
+        preserveState: true,
+    })
+})
 
-const transparent = 'rgba(255, 255, 255, 0)'
+function paginations(){
+    router.get('/dashboard', {
+        search: search.value,
+        page: page.props.products.current_page
+    }, 
+    {
+        preserveScroll: true,
+        preserveState: true,
+    })
+}
 </script>
 
 <template>
@@ -46,28 +68,7 @@ const transparent = 'rgba(255, 255, 255, 0)'
             <v-card elevation="2" class="pa-8 my-5">
                 <v-row>
                     <!-- Small statistic cards -->
-                    <v-col cols="12" md="4">
-                        <v-card
-                            class="rounded-lg"
-                            color="primary"
-                            elevation="2"
-                        >
-                            <template v-slot:prepend>
-                                <v-icon
-                                    icon="mdi-account"
-                                    size="70px"
-                                    class="mr-5"
-                                ></v-icon>
-                            </template>
-                            <template v-slot:title>
-                                <span class="">Users</span>
-                                <br />
-                                <span class="text-h4 mt-2">{{ props.users.length }}</span>
-                            </template>
-                        </v-card>
-                    </v-col>
-
-                    <v-col cols="12" md="4">
+                    <v-col cols="12" md="3">
                         <v-card
                             class="rounded-lg"
                             color="blue-lighten-1"
@@ -83,12 +84,12 @@ const transparent = 'rgba(255, 255, 255, 0)'
                             <template v-slot:title>
                                 <span class="">Products</span>
                                 <br />
-                                <span class="text-h4 mt-2">{{ props.products.length }}</span>
+                                <span class="text-h4 mt-2">{{ product_count }}</span>
                             </template>
                         </v-card>
                     </v-col>
 
-                    <v-col cols="12" md="4">
+                    <v-col cols="12" md="3">
                         <v-card class="rounded-lg" color="green" elevation="2">
                             <template v-slot:prepend>
                                 <v-icon
@@ -100,7 +101,45 @@ const transparent = 'rgba(255, 255, 255, 0)'
                             <template v-slot:title>
                                 <span class="">Lot No.</span>
                                 <br />
-                                <span class="text-h4 mt-2">{{ props.lots.length }}</span>
+                                <span class="text-h4 mt-2">{{ lot_count }}</span>
+                            </template>
+                        </v-card>
+                    </v-col>
+
+                    <v-col cols="12" md="3">
+                        <v-card class="rounded-lg" color="primary" elevation="2">
+                            <template v-slot:prepend>
+                                <v-icon
+                                    icon="mdi-invoice-list-outline"
+                                    size="70px"
+                                    class="mr-5"
+                                ></v-icon>
+                            </template>
+                            <template v-slot:title>
+                                <span class="">Serial</span>
+                                <br />
+                                <span class="text-h4 mt-2">{{ serial_count }}</span>
+                            </template>
+                        </v-card>
+                    </v-col>
+
+                    <v-col cols="12" md="3">
+                        <v-card
+                            class="rounded-lg"
+                            color="red-darken-1"
+                            elevation="2"
+                        >
+                            <template v-slot:prepend>
+                                <v-icon
+                                    icon="mdi-clipboard-list-outline"
+                                    size="70px"
+                                    class="mr-5"
+                                ></v-icon>
+                            </template>
+                            <template v-slot:title>
+                                <span class="">Stockcard</span>
+                                <br />
+                                <span class="text-h4 mt-2">{{ stockcard_count }}</span>
                             </template>
                         </v-card>
                     </v-col>
@@ -129,9 +168,31 @@ const transparent = 'rgba(255, 255, 255, 0)'
 
             <v-data-table
                 :headers="headers"
-                :items="props.products"
+                :items="products.data"
                 :search="search"
-            ></v-data-table>
+            >
+                <template v-slot:bottom>
+                    <v-row
+                        class="d-flex align-center justify-space-between mt-5"
+                    >
+                        <v-col cols="4">
+                            <v-btn @click="addLotDialog = true" color="primary" class="mx-2">
+                                Add Lot/Batch
+                            </v-btn>
+                            <v-btn @click="importDialog = true" color="green" class="mx-2">
+                                Import Lot
+                            </v-btn>
+                        </v-col>
+                        <v-col cols="6">
+                            <v-pagination 
+                                v-model="products.current_page" 
+                                :length="products.last_page" 
+                                @update:modelValue="paginations"
+                            ></v-pagination> 
+                        </v-col>
+                    </v-row>
+                </template>
+            </v-data-table>
             </v-card>
         </v-container>
     </Layout>
