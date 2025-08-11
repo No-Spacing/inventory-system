@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('lots', function (Blueprint $table) {
             $table->id();
             $table->longText('lot');
-            $table->foreignId('product_id')->nullable()->references('id')->on('products')->onUpdate('cascade');
+            $table->foreignId('product_id')->nullable()->references('id')->on('products')->onUpdate('cascade')->onDelete('cascade');
             $table->date('expiration_date')->nullable();
             $table->timestamps();
         });

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('serials', function (Blueprint $table) {
             $table->id();
             $table->longText('serial_no');
-            $table->foreignId('product_id')->nullable()->references('id')->on('products')->onUpdate('cascade');
+            $table->foreignId('product_id')->nullable()->references('id')->on('products')->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();
         });
     }

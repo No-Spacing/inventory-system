@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('stockcards', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('product_id')->nullable()->references('id')->on('products')->onUpdate('cascade');
-            $table->foreignId('lot_id')->nullable()->references('id')->on('lots')->onUpdate('cascade');
-            $table->foreignId('serial_id')->nullable()->references('id')->on('serials')->onUpdate('cascade');
-            $table->foreignId('enduser_id')->nullable()->references('id')->on('users')->onUpdate('cascade');
+            $table->foreignId('product_id')->nullable()->references('id')->on('products')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('lot_id')->nullable()->references('id')->on('lots')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('serial_id')->nullable()->references('id')->on('serials')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('enduser_id')->nullable()->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
             $table->string('transaction_type')->nullable();
             $table->bigInteger('quantity')->nullable();
             $table->longText('document_no')->nullable();
