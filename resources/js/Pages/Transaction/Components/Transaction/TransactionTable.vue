@@ -104,6 +104,7 @@ function paginations(){
         search: search.value,
         page: page.props.stockcards.current_page
     }, {
+        preserveScroll: true,
         preserveState: true,
         replace: true
     })

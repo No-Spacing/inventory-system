@@ -91,7 +91,7 @@ class StockcardController extends Controller
                 });
             })
             ->orderBy('created_at', 'DESC')
-            ->paginate(30)
+            ->paginate(10)
             ->through(function ($product) {
                 return [
                     'code' => $product->product->code,
