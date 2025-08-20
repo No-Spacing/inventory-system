@@ -80,30 +80,57 @@ class StockcardController extends Controller
             $request->warehouse,
         );
 
-        return Inertia::render('Transaction/Transaction', [
-            'users' => User::with('role')->get(),
-            'stockcards' => Stockcard::with(['product', 'lot', 'serial', 'warehouse'])
-            ->when($request->search, function ($query, $search) {
-                $query->whereHas('serial', function ($q) use ($search) {
-                    $q->where('serial_no', 'like', "%{$search}%");
-                })->orWhereHas('lot', function ($q) use ($search) {
-                    $q->where('lot', 'like', "%{$search}%");
+        $search = $request->search;
+
+        $query = DB::table('stockcards')
+            ->join('products', 'stockcards.product_id', '=', 'products.id')
+            ->leftJoin('lots', 'stockcards.lot_id', '=', 'lots.id')
+            ->leftJoin('serials', 'stockcards.serial_id', '=', 'serials.id')
+            ->join('warehouses', 'stockcards.warehouse_id', '=', 'warehouses.id')
+            ->select(
+                'products.code',
+                'products.description',
+                DB::raw("CONCAT(COALESCE(lots.lot, ''), COALESCE(serials.serial_no, '')) AS serialLotNo"),
+                'stockcards.quantity',
+                'warehouses.warehouse',
+                'stockcards.transaction_type',
+                'stockcards.transaction_date',
+                'lots.expiration_date'
+            )
+            ->when($search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('serials.serial_no', 'like', "%{$search}%")
+                    ->orWhere('lots.lot', 'like', "%{$search}%")
+                    ->orWhere('products.code', 'like', "%{$search}%");
                 });
             })
-            ->orderBy('created_at', 'DESC')
-            ->paginate(10)
-            ->through(function ($product) {
-                return [
-                    'code' => $product->product->code,
-                    'description' => $product->product->description,
-                    'serialLotNo' => optional($product->lot)->lot . optional($product->serial)->serial_no,
-                    'quantity' => $product->quantity,
-                    'warehouse' => $product->warehouse->warehouse,
-                    'transaction_type' => $product->transaction_type,
-                    'created_at' => \Carbon\Carbon::parse($product->transaction_date)->format('Y-m-d'),
-                    'expiration_date' => \Carbon\Carbon::parse($product->expiration_date)->format('Y-m-d'),
-                ];
-            }),
+            ->orderBy('stockcards.created_at', 'DESC');
+
+        // Paginate manually
+        $page = request()->get('page', 1);
+        $perPage = 10;
+        $results = $query->paginate($perPage, ['*'], 'page', $page);
+
+        // Format the results
+        $formatted = $results->getCollection()->transform(function ($product) {
+            return [
+                'code' => $product->code,
+                'description' => $product->description,
+                'serialLotNo' => $product->serialLotNo,
+                'quantity' => $product->quantity,
+                'warehouse' => $product->warehouse,
+                'transaction_type' => $product->transaction_type,
+                'created_at' => Carbon::parse($product->transaction_date)->format('Y-m-d'),
+                'expiration_date' => Carbon::parse($product->expiration_date)->format('Y-m-d'),
+            ];
+        });
+
+        // Replace the collection with formatted data
+        $results->setCollection($formatted);
+
+        return Inertia::render('Transaction/Transaction', [
+            'users' => User::with('role')->get(),
+            'stockcards' => $results,
             'products' => Product::with([
                 'unit',
             ])
