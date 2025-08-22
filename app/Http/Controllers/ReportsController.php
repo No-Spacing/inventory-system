@@ -190,6 +190,7 @@ class ReportsController extends Controller
                     ];
                 });
             });
+            
 
             if($stockcards->isEmpty())
             {
@@ -203,7 +204,11 @@ class ReportsController extends Controller
             } 
         }
 
-        $stockcardSorted = $stockcards->sortBy('created_at')->values();
+        $filteredResults = $stockcards->filter(function ($item) use ($from, $to) {
+            return $item['transaction_date'] >= $from && $item['transaction_date'] <= $to;
+        });
+
+        $stockcardSorted = $filteredResults->sortBy('created_at')->values();
 
         if($request->action == "pdf")
         {
