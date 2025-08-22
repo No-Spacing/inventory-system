@@ -333,102 +333,6 @@ class ReportsController extends Controller
         }   
     }
 
-
-    public function SerialReport(Request $request){
-        return Inertia::render('Report/Serial', [
-            'warehouses' => Warehouse::all(),
-            'products' => Product::with(['lots'])
-            ->select('id','code', 'description', 'type')
-            ->where('code', 'Like', '%'.$request->code.'%')
-            ->where('type', 'Track by Serial')
-            ->limit(5)
-            ->get(),
-        ]);
-    }
-
-    public function GenerateSerialReport(Request $request)
-    {
-        $request->validate([
-            'from' => 'required',
-            'to' => 'required'
-        ]);
-
-        $from = \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->from)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d');
-        $to = \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->to)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d');
-
-        $stockcards = Stockcard::with('product', 'lot', 'serial', 'warehouse')
-        ->when($request->warehouse, function ($query, $warehouse) {
-            return $query->where('warehouse_id', $warehouse);
-        })
-        ->whereBetween('transaction_date', [$from, $to])
-        ->whereNotNull('serial_id')
-        ->orderBy('warehouse_id')
-        ->orderBy('lot_id')
-        ->orderBy('serial_id')
-        ->orderBy('created_at')
-        ->orderBy('id')
-        ->get()
-        ->groupBy(function ($item) {
-            return $item->warehouse_id . '-' . ($item->lot_id ?? 'null') . '-' . ($item->serial_id ?? 'null');
-        })
-        ->flatMap(function ($group) {
-            $balance = 0;
-
-            return $group->map(function ($product) use (&$balance) {
-                return [
-                    'transaction_date' => $product->transaction_date,
-                    'code' => $product->product->code,
-                    'description' => $product->product->description,
-                    'quantity' => $product->quantity,
-                    'warehouse' => $product->warehouse->warehouse,
-                    'transaction_type' => $product->transaction_type
-                ];
-            });
-        });
-
-        $compiled = $stockcards->groupBy('warehouse')
-        ->map(function ($items, $code) {
-            $netQuantity = $items->reduce(function ($carry, $item) {
-                if (strtolower($item['transaction_type']) === 'inbound') {
-                    return $carry + $item['quantity'];
-                } elseif (strtolower($item['transaction_type']) === 'outbound') {
-                    return $carry - $item['quantity'];
-                }
-                return $carry;
-            }, 0);
-
-            return [
-                'code' => optional($items->first())['code'] ?? '',
-                'description' => optional($items->first())['description'] ?? '',
-                'warehouse' => optional($items->first())['warehouse'] ?? '',
-                'quantity' => $netQuantity,
-            ];
-        })
-        ->values();
-
-        return view('pdf.serial', 
-        [   
-            'stockcards' => $compiled, 
-            'from' => $from,
-            'to' => $to,
-        ]);
-        // if($request->action == "pdf")
-        // {
-        //     $pdf = Pdf::loadView('pdf.serial', [
-        //         'stockcards' => $compiled, 
-        //     ]);
-        //     $pdf->setPaper('A4', 'landscape');
-        //     return $pdf->stream('serial.pdf');
-        // }
-
-        // if($request->action == "excel")
-        // {
-        //     // return Excel::download(new StockcardExport, 'stockcard.xlsx');
-        //     return Excel::download(new SummaryExport($compiled), 'summary.xlsx');
-        // }
-
-    }
-
     public function WarehouseReport(Request $request){
         return Inertia::render('Report/Warehouse', [
             'warehouses' => Warehouse::all(),
@@ -623,3 +527,100 @@ class ReportsController extends Controller
         // ->name('invoice.pdf');
     }
 }
+
+/*
+public function SerialReport(Request $request){
+    return Inertia::render('Report/Serial', [
+        'warehouses' => Warehouse::all(),
+        'products' => Product::with(['lots'])
+        ->select('id','code', 'description', 'type')
+        ->where('code', 'Like', '%'.$request->code.'%')
+        ->where('type', 'Track by Serial')
+        ->limit(5)
+        ->get(),
+    ]);
+}
+
+public function GenerateSerialReport(Request $request)
+{
+    $request->validate([
+        'from' => 'required',
+        'to' => 'required'
+    ]);
+
+    $from = \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->from)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d');
+    $to = \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->to)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d');
+
+    $stockcards = Stockcard::with('product', 'lot', 'serial', 'warehouse')
+    ->when($request->warehouse, function ($query, $warehouse) {
+        return $query->where('warehouse_id', $warehouse);
+    })
+    ->whereBetween('transaction_date', [$from, $to])
+    ->whereNotNull('serial_id')
+    ->orderBy('warehouse_id')
+    ->orderBy('lot_id')
+    ->orderBy('serial_id')
+    ->orderBy('created_at')
+    ->orderBy('id')
+    ->get()
+    ->groupBy(function ($item) {
+        return $item->warehouse_id . '-' . ($item->lot_id ?? 'null') . '-' . ($item->serial_id ?? 'null');
+    })
+    ->flatMap(function ($group) {
+        $balance = 0;
+
+        return $group->map(function ($product) use (&$balance) {
+            return [
+                'transaction_date' => $product->transaction_date,
+                'code' => $product->product->code,
+                'description' => $product->product->description,
+                'quantity' => $product->quantity,
+                'warehouse' => $product->warehouse->warehouse,
+                'transaction_type' => $product->transaction_type
+            ];
+        });
+    });
+
+    $compiled = $stockcards->groupBy('warehouse')
+    ->map(function ($items, $code) {
+        $netQuantity = $items->reduce(function ($carry, $item) {
+            if (strtolower($item['transaction_type']) === 'inbound') {
+                return $carry + $item['quantity'];
+            } elseif (strtolower($item['transaction_type']) === 'outbound') {
+                return $carry - $item['quantity'];
+            }
+            return $carry;
+        }, 0);
+
+        return [
+            'code' => optional($items->first())['code'] ?? '',
+            'description' => optional($items->first())['description'] ?? '',
+            'warehouse' => optional($items->first())['warehouse'] ?? '',
+            'quantity' => $netQuantity,
+        ];
+    })
+    ->values();
+
+    return view('pdf.serial', 
+    [   
+        'stockcards' => $compiled, 
+        'from' => $from,
+        'to' => $to,
+    ]);
+    // if($request->action == "pdf")
+    // {
+    //     $pdf = Pdf::loadView('pdf.serial', [
+    //         'stockcards' => $compiled, 
+    //     ]);
+    //     $pdf->setPaper('A4', 'landscape');
+    //     return $pdf->stream('serial.pdf');
+    // }
+
+    // if($request->action == "excel")
+    // {
+    //     // return Excel::download(new StockcardExport, 'stockcard.xlsx');
+    //     return Excel::download(new SummaryExport($compiled), 'summary.xlsx');
+    // }
+
+}
+*/
