@@ -75,7 +75,6 @@ body {
         <tr>
             <td><strong>Description: </strong> {{ $product->description }}</td>
             <td><strong>Date/Time Generated:</strong> {{ date('Y-m-d') }}</td>
-            <td><strong>Total Items: </strong>{{ $totalItems }}</td>
         </tr>
 
     </table>
