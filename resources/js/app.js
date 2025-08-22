@@ -18,11 +18,6 @@ const vuetify = createVuetify({
           },
         },
       },
-    icons: {
-      defaultSet: 'mdi',
-      aliases,
-      sets: { mdi },
-    },  
   })
 
 createInertiaApp({
