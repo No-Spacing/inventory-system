@@ -9,6 +9,8 @@ const search = ref('');
 const importDialog = ref(false);
 const loading = ref(false);
 
+const snackbar = ref(false);
+
 const headers = [
     {
         align: "start",
@@ -79,11 +81,12 @@ function submitImport () {
         {
             onSuccess: () => {
                 importDialog.value = false;
-                loading.value = false
+                loading.value = false;
+                snackbar.value = true;
                 formImport.reset();
             },
             onError: (error) => {
-                loading.value = false
+                loading.value = false;
             }
         }
     )
@@ -173,4 +176,14 @@ function paginations(){
             </v-card>
         </v-form>
     </v-dialog>
+    <v-snackbar
+        v-model="snackbar" 
+        :timeout="2000"
+        color="success"
+        variant="elevated"
+        location="top"
+        class="text"
+    >
+        {{ $page.props.flash.message }}
+    </v-snackbar>
 </template>
