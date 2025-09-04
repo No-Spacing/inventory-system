@@ -14,6 +14,11 @@ class ProductImport implements ToModel
     */
     public function model(array $row)
     {
+        if (Product::where('code', $row[0])->exists()) {
+            return null; // Skip this row
+        }
+
+        // Create new product if code doesn't exist
         return new Product([
             'code' => $row[0],
             'description' => $row[1],
