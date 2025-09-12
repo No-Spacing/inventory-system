@@ -526,9 +526,8 @@ class ReportsController extends Controller
         // ->landscape()
         // ->name('invoice.pdf');
     }
-}
 
-/*
+    
 public function SerialReport(Request $request){
     return Inertia::render('Report/Serial', [
         'warehouses' => Warehouse::all(),
@@ -551,59 +550,39 @@ public function GenerateSerialReport(Request $request)
     $from = \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->from)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d');
     $to = \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->to)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d');
 
-    $stockcards = Stockcard::with('product', 'lot', 'serial', 'warehouse')
-    ->when($request->warehouse, function ($query, $warehouse) {
-        return $query->where('warehouse_id', $warehouse);
-    })
+    $stockcards = Stockcard::with('product', 'serial', 'warehouse')
+    ->where('warehouse_id', $request->warehouse)
     ->whereBetween('transaction_date', [$from, $to])
-    ->whereNotNull('serial_id')
+    ->whereHas('product', function ($query) {
+        $query->where('type', 'Track by Serial');
+    })
     ->orderBy('warehouse_id')
     ->orderBy('lot_id')
     ->orderBy('serial_id')
     ->orderBy('created_at')
     ->orderBy('id')
     ->get()
-    ->groupBy(function ($item) {
-        return $item->warehouse_id . '-' . ($item->lot_id ?? 'null') . '-' . ($item->serial_id ?? 'null');
-    })
-    ->flatMap(function ($group) {
-        $balance = 0;
-
-        return $group->map(function ($product) use (&$balance) {
-            return [
-                'transaction_date' => $product->transaction_date,
-                'code' => $product->product->code,
-                'description' => $product->product->description,
-                'quantity' => $product->quantity,
-                'warehouse' => $product->warehouse->warehouse,
-                'transaction_type' => $product->transaction_type
-            ];
-        });
+    ->map(function ($item) {
+        return [
+            'code' => $item->product->code,
+            'description' => $item->product->description,
+            'transaction_date' => $item->transaction_date,
+            'serialNo' => optional($item->serial)->serial_no,
+            'transaction_type' => $item->transaction_type,
+            'warehouse' => $item->warehouse->warehouse,
+            'quantity' => $item->quantity,
+            'reference' => $item->reference,
+            'remarks' => $item->remarks,
+            'document_no' => $item->document_no,
+            'created_at' => $item->created_at,
+        ];
     });
 
-    $compiled = $stockcards->groupBy('warehouse')
-    ->map(function ($items, $code) {
-        $netQuantity = $items->reduce(function ($carry, $item) {
-            if (strtolower($item['transaction_type']) === 'inbound') {
-                return $carry + $item['quantity'];
-            } elseif (strtolower($item['transaction_type']) === 'outbound') {
-                return $carry - $item['quantity'];
-            }
-            return $carry;
-        }, 0);
-
-        return [
-            'code' => optional($items->first())['code'] ?? '',
-            'description' => optional($items->first())['description'] ?? '',
-            'warehouse' => optional($items->first())['warehouse'] ?? '',
-            'quantity' => $netQuantity,
-        ];
-    })
-    ->values();
+    $stockcardSorted = $stockcards->sortBy('created_at')->values();
 
     return view('pdf.serial', 
     [   
-        'stockcards' => $compiled, 
+        'stockcards' => $stockcardSorted, 
         'from' => $from,
         'to' => $to,
     ]);
@@ -623,4 +602,5 @@ public function GenerateSerialReport(Request $request)
     // }
 
 }
-*/
+
+}

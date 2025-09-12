@@ -49,8 +49,8 @@ Route::middleware(['user-group'])->group(function () {
         Route::get('/stockcard', 'ViewStockcard');
         Route::post('/generate-stockcard-report', 'GenerateStockcardReport');
 
-        // Route::get('/serial-report', 'SerialReport');
-        // Route::post('/generate-serial-report', 'GenerateSerialReport');
+        Route::get('/serial-report', 'SerialReport');
+        Route::post('/generate-serial-report', 'GenerateSerialReport');
 
         Route::get('/product-report', 'ProductReport');
         Route::post('/generate-product-report', 'GenerateProductReport');

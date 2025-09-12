@@ -78,8 +78,11 @@ body {
             <tr>
                 <th>PRODUCT CODE</th>
                 <th>DESCRIPTION</th>
+                <th>Serial No.</th>
                 <th>Total Quantity</th>
+                <th>Transaction Type</th>
                 <th>WAREHOUSE</th>
+                <th>Transaction Date</th>
             </tr>
         </thead>
         <tbody>
@@ -87,8 +90,11 @@ body {
                 <tr>
                     <td style="text-align: left;">{{ $item['code'] }}</td>
                     <td style="text-align: left;">{{ $item['description'] }}</td>
+                    <td style="text-align: left;">{{ $item['serialNo'] }}</td>
                     <td style="text-align: left;">{{ $item['quantity'] }}</td>
+                    <td style="text-align: left;">{{ $item['transaction_type'] }}</td>
                     <td style="text-align: left;">{{ $item['warehouse'] }}</td>
+                    <td style="text-align: left;">{{ $item['transaction_date'] }}</td>
                 </tr>
             @endforeach
             <tr>

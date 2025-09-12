@@ -121,9 +121,9 @@ onMounted(() => {
                     <Link href="product-report">
                         <v-list-item title="Products"></v-list-item>
                     </Link>
-                    <!-- <Link href="/serial-report">
+                    <Link href="/serial-report">
                         <v-list-item title="Serials"></v-list-item>
-                    </Link> -->
+                    </Link>
                     <Link href="warehouse-report">
                         <v-list-item title="Warehouse"></v-list-item>
                     </Link>
