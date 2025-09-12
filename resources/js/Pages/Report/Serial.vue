@@ -6,6 +6,7 @@ import { watchDebounced } from "@vueuse/core";
 import { useForm, router, usePage } from "@inertiajs/vue3"
 import download from 'downloadjs';
 import axios from 'axios';
+import { nullifyTransforms } from "vuetify/lib/util/animation.mjs";
 
 defineProps({
     warehouses: Object,
@@ -25,7 +26,9 @@ const showDescription = ref(false);
 
 const form = reactive({
     warehouse: null,
-    code: null,
+    from: null,
+    to: null,
+    action:null
 })
 
 const data = computed(() => {
@@ -34,69 +37,90 @@ const data = computed(() => {
     };
 });
 
-watch(() => searchCode.value, () => {
+// watch(() => searchCode.value, () => {
+//     loading.value = true
+//     preload['value'] = true;
+// })
+
+// watchDebounced(() => searchCode.value,
+//     (value) => {
+//         router.get(
+//             "/serial-report",
+//             {
+//                 code: value,
+//                 lot: searchLot.value
+//             },
+//             {
+//                 preserveState: true,
+//                 preserveScroll: true,
+//                 onSuccess: () => {
+//                     loading.value = false
+//                     preload['value'] = false;
+//                 },
+//             }
+//         );
+//         if (value) {
+//             showDescription.value = true;
+//         } else{
+//             showDescription['value'] = false;
+//         } 
+//     },
+//     { debounce: 1000, maxWait: 5000 }
+// );
+
+function submit(value){
     loading.value = true
-    preload['value'] = true;
-})
+    form.action = value;
+    if(value == "pdf")
+    {
+        // router.post('generate-serial-report', form,
+        //     {
+        //         onSuccess: () => {
+        //             loading.value = false;
+        //         },
+                
+        //         onError: (error) => {
+        //             errorMessages.value = error
+        //             loading.value = false;
+        //         },
+        //     }
+        // )
 
-watchDebounced(() => searchCode.value,
-    (value) => {
-        router.get(
-            "/serial-report",
-            {
-                code: value,
-                lot: searchLot.value
-            },
-            {
-                preserveState: true,
-                preserveScroll: true,
-                onSuccess: () => {
-                    loading.value = false
-                    preload['value'] = false;
-                },
-            }
-        );
-        if (value) {
-            showDescription.value = true;
-        } else{
-            showDescription['value'] = false;
-        } 
-    },
-    { debounce: 1000, maxWait: 5000 }
-);
-
-function submit(){
-    // loading.value = true
-    router.post('generate-serial-report', form,
-        {
-            onSuccess: () => {
-                loading.value = false
-            },
-            
-            onError: (error) => {
-                errorMessages.value = error;
-                loading.value = false;
-            },
-        }
-        
-    )
-    // axios.post('generate-stockcard-report', form, {
-    //     responseType: 'blob',
-    // })
-    // .then((response) => {
-    //     const fileURL = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
-    //     window.open(fileURL); // Opens in a new tab
-    // })
-    // .catch((error) => {
-    //     console.error('PDF generation failed:', error);
-    // });
+        axios.post('generate-serial-report', form, {
+            responseType: 'blob',
+        })
+        .then((response) => {
+            const fileURL = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+            window.open(fileURL); // Opens in a new tab
+            loading.value = false
+        })
+        .catch((error) => {
+            console.error('PDF generation failed:', error);
+            loading.value = false
+        });
+    }
+    if(value == "excel")
+    {
+        axios.post('generate-serial-report', form, {
+            responseType: 'blob',
+        })
+        .then((response) => {
+            const contentType = response.headers['content-type'];
+            download(response.data, 'serial.xlsx', contentType);
+            loading.value = false
+        })
+        .catch((error) => {
+            console.error('Excel generation failed:', error);
+            loading.value = false
+        });
+    }
 }
 </script>
 <template>
     <Layout title="Serial Report" :loading="loading">
         <v-container max-width="1500" fluid>
             <v-card elevation="2" class="pa-8 my-5">
-                <v-form @submit.prevent="submit">
+                <v-form @submit.prevent>
                     <v-row no-gutters>
                         <v-col cols="12">
                             <div
@@ -174,8 +198,19 @@ function submit(){
                                 color="green"
                                 :loading="loading"
                                 size="large"
+                                @click="submit('pdf')"
                             >
                                 Generate PDF
+                            </v-btn>
+                            <v-btn
+                                type="submit"
+                                class="me-4"
+                                color="primary"
+                                :loading="loading"
+                                size="large"
+                                @click="submit('excel')"
+                            >
+                                Export Excel
                             </v-btn>
                         </v-col>
                     </v-row>

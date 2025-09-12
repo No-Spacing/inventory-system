@@ -557,7 +557,6 @@ public function GenerateSerialReport(Request $request)
         $query->where('type', 'Track by Serial');
     })
     ->orderBy('warehouse_id')
-    ->orderBy('lot_id')
     ->orderBy('serial_id')
     ->orderBy('created_at')
     ->orderBy('id')
@@ -580,26 +579,25 @@ public function GenerateSerialReport(Request $request)
 
     $stockcardSorted = $stockcards->sortBy('created_at')->values();
 
-    return view('pdf.serial', 
-    [   
-        'stockcards' => $stockcardSorted, 
-        'from' => $from,
-        'to' => $to,
-    ]);
-    // if($request->action == "pdf")
-    // {
-    //     $pdf = Pdf::loadView('pdf.serial', [
-    //         'stockcards' => $compiled, 
-    //     ]);
-    //     $pdf->setPaper('A4', 'landscape');
-    //     return $pdf->stream('serial.pdf');
-    // }
+    // return view('pdf.serial', 
+    // [   
+    //     'stockcards' => $stockcardSorted, 
+    //     'from' => $from,
+    //     'to' => $to,
+    // ]);
+    if($request->action == "pdf")
+    {
+        $pdf = Pdf::loadView('pdf.serial', [
+            'stockcards' => $stockcardSorted, 
+        ]);
+        $pdf->setPaper('A4', 'landscape');
+        return $pdf->stream('serials.pdf');
+    }
 
-    // if($request->action == "excel")
-    // {
-    //     // return Excel::download(new StockcardExport, 'stockcard.xlsx');
-    //     return Excel::download(new SummaryExport($compiled), 'summary.xlsx');
-    // }
+    if($request->action == "excel")
+    {
+        return Excel::download(new SummaryExport($stockcardSorted), 'serials.xlsx');
+    }
 
 }
 
