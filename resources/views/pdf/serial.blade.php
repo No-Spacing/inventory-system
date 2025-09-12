@@ -76,12 +76,12 @@ body {
     <table class="data-table">
         <thead>
             <tr>
-                <th>PRODUCT CODE</th>
-                <th>DESCRIPTION</th>
+                <th>Code</th>
+                <th>Description</th>
                 <th>Serial No.</th>
-                <th>Total Quantity</th>
+                <th>Quantity</th>
                 <th>Transaction Type</th>
-                <th>WAREHOUSE</th>
+                <th>Warehouse</th>
                 <th>Transaction Date</th>
             </tr>
         </thead>
@@ -94,7 +94,7 @@ body {
                     <td style="text-align: left;">{{ $item['quantity'] }}</td>
                     <td style="text-align: left;">{{ $item['transaction_type'] }}</td>
                     <td style="text-align: left;">{{ $item['warehouse'] }}</td>
-                    <td style="text-align: left;">{{ $item['transaction_date'] }}</td>
+                    <td style="text-align: left;">{{ $item['created_at'] }}</td>
                 </tr>
             @endforeach
             <tr>

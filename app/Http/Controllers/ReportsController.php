@@ -11,6 +11,7 @@ use App\Exports\StockcardExport;
 use App\Exports\ProductExport;
 use App\Exports\SummaryExport;
 use App\Exports\WarehouseExport;
+use App\Exports\SerialExport;
 
 use App\Models\Product;
 use App\Models\Lot;
@@ -565,38 +566,39 @@ public function GenerateSerialReport(Request $request)
         return [
             'code' => $item->product->code,
             'description' => $item->product->description,
-            'transaction_date' => $item->transaction_date,
             'serialNo' => optional($item->serial)->serial_no,
+            'quantity' => $item->quantity,
             'transaction_type' => $item->transaction_type,
             'warehouse' => $item->warehouse->warehouse,
-            'quantity' => $item->quantity,
-            'reference' => $item->reference,
-            'remarks' => $item->remarks,
-            'document_no' => $item->document_no,
             'created_at' => $item->created_at,
         ];
     });
 
     $stockcardSorted = $stockcards->sortBy('created_at')->values();
 
-    // return view('pdf.serial', 
-    // [   
-    //     'stockcards' => $stockcardSorted, 
-    //     'from' => $from,
-    //     'to' => $to,
-    // ]);
+   
     if($request->action == "pdf")
     {
+        // return view('pdf.serial', 
+        // [   
+        //     'stockcards' => $stockcardSorted, 
+        //     'from' => $from,
+        //     'to' => $to,
+        // ]);
+
         $pdf = Pdf::loadView('pdf.serial', [
-            'stockcards' => $stockcardSorted, 
+            'stockcards' => $stockcardSorted,
+            'from' => $from,
+            'to' => $to,
         ]);
         $pdf->setPaper('A4', 'landscape');
         return $pdf->stream('serials.pdf');
+
     }
 
     if($request->action == "excel")
     {
-        return Excel::download(new SummaryExport($stockcardSorted), 'serials.xlsx');
+        return Excel::download(new SerialExport($stockcardSorted), 'serials.xlsx');
     }
 
 }
