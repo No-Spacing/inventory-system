@@ -29,6 +29,7 @@ class StockcardController extends Controller
     public function Dashboard(Request $request){
         return Inertia::render('Dashboard', [
             'products' => Product::where('code', 'Like', '%'.$request->search.'%')
+            ->orderBy('created_at', 'DESC')
             ->paginate(10)
             ->through(function ($product) {
                 return [
