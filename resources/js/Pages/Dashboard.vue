@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from "vue";
+import { ref, watch, onMounted } from "vue";
 import { usePage, router } from "@inertiajs/vue3"
 import Layout from "../Layout/Main.vue";
 
@@ -9,6 +9,8 @@ defineProps({
     product_count: Number,
     serial_count: Number,
     stockcard_count: Number,
+    monthlyOutbound: Object,
+    highestPerMonth: Object,
 });
 
 const page = usePage();
@@ -40,6 +42,12 @@ const headers = [
     },
 ];
 
+const series = ref([]);
+const chartOptions = ref({});
+
+const product = [...new Set(page.props.monthlyOutbound.map((item) => item.product.name))];
+const months = [...new Set(page.props.monthlyOutbound.map((item) => item.month))];
+
 watch(() => search.value, (value) => {
     router.get('/dashboard', {
         search: value,
@@ -50,18 +58,64 @@ watch(() => search.value, (value) => {
     })
 })
 
-function paginations(){
-    router.get('/dashboard', {
-        search: search.value,
-        page: page.props.products.current_page
-    }, 
-    {
-        preserveScroll: true,
-        preserveState: true,
-    })
-}
-</script>
+series.value = product.map((productCode) => {
+  console.log("Building series for productCode:", productCode);
+    
+  return {
+    name: productCode,
+    data: months.map((month) => {
+      const record = page.props.monthlyOutbound.find((item) => {
+        // log each comparison
+        console.log(
+          "Comparing productCode:", productCode,
+          "with item.product.code:", item.product?.code,
+          "for month:", month
+        );
+        return item.product?.code === productCode && item.month === month;
+      });
 
+      console.log(
+        "Result for productCode:", productCode,
+        "month:", month,
+        "record:", record
+      );
+
+      return record ? record.total_outbound : 0;
+    }),
+  };
+});
+
+chartOptions.value = {
+  chart: {
+    type: "bar",
+    height: 350,
+    stacked: false,
+  },
+  xaxis: {
+    categories: months.map((m) =>
+      new Date(new Date().getFullYear(), m - 1).toLocaleString("default", { month: "short" })
+    ),
+  },
+  title: {
+    text: "Monthly Outbound Totals",
+    align: "center",
+  },
+  annotations: {
+    points: months.map((month) => {
+      const winner = page.props.highestPerMonth[month];
+      return {
+        x: new Date(new Date().getFullYear(), month - 1).toLocaleString("default", { month: "short" }),
+        y: winner.total_outbound,
+        label: {
+          text: `Highest: ${winner.product.code}`, // ✅ correct
+          style: { background: "#FF4560", color: "#fff" },
+        },
+      };
+    }),
+  },
+};
+
+</script>
 <template>
     <Layout title="Dashboard">
         <v-container max-width="1600" fluid>
@@ -145,55 +199,31 @@ function paginations(){
                     </v-col>
                 </v-row>
             </v-card>
-
-            <!-- Table content  -->
-            <!-- <v-card elevation="2" class="pa-8 my-5">
-                <v-card-title class="mb-2">
-                    Statistic
-                    <v-divider></v-divider>
-                </v-card-title>
-                
-            </v-card> -->
-            <v-card title="Products" elevation="2" class="pa-8 my-5">
-            <template v-slot:text>
-                <v-text-field
-                    v-model="search"
-                    label="Search"
-                    prepend-inner-icon="mdi-magnify"
-                    variant="outlined"
-                    hide-details
-                    single-line
-                ></v-text-field>
-            </template>
-
-            <v-data-table
-                :headers="headers"
-                :items="products.data"
-                :search="search"
-            >
-                <template v-slot:bottom>
-                    <v-row
-                        class="d-flex align-center justify-space-between mt-5"
-                    >
-                        <v-col cols="4">
-                            <v-btn @click="addLotDialog = true" color="primary" class="mx-2">
-                                Add Lot/Batch
-                            </v-btn>
-                            <v-btn @click="importDialog = true" color="green" class="mx-2">
-                                Import Lot
-                            </v-btn>
-                        </v-col>
-                        <v-col cols="6">
-                            <v-pagination 
-                                v-model="products.current_page" 
-                                :length="products.last_page" 
-                                @update:modelValue="paginations"
-                            ></v-pagination> 
-                        </v-col>
-                    </v-row>
-                </template>
-            </v-data-table>
-            </v-card>
+            <v-row>
+                <v-col cols="12" md="6">
+                    <v-card elevation="2" class="pa-8 my-5">
+                        <v-card-title>
+                            New Products
+                        </v-card-title>
+                        <v-divider></v-divider>
+                        <v-data-table
+                            :headers="headers"
+                            :items="products"
+                            :search="search"
+                            :hide-default-footer="true"
+                        ></v-data-table>
+                    </v-card>
+                </v-col>
+                <v-col cols="12" md="6">
+                    <v-card elevation="2" class="pa-8 my-5">
+                        <v-card-title>
+                            Chart 
+                        </v-card-title>
+                        <v-divider></v-divider>
+                        <apexchart type="bar" :options="chartOptions" :series="series"></apexchart>
+                    </v-card>
+                </v-col>
+            </v-row>
         </v-container>
     </Layout>
 </template>

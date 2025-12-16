@@ -27,22 +27,43 @@ use Maatwebsite\Excel\Facades\Excel;
 class StockcardController extends Controller
 {
     public function Dashboard(Request $request){
+
+        $monthlyOutbound = Stockcard::select(
+            'product_id',
+            DB::raw('MONTH(created_at) as month'),
+            DB::raw("SUM(CASE WHEN transaction_type = 'outbound' THEN quantity ELSE 0 END) as total_outbound"),
+        )
+        ->whereYear('created_at', 2025) // e.g. 2025
+        ->groupBy('product_id', 'month')
+        ->with('product')
+        ->limit(5)
+        ->get();
+
+        $highestPerMonth = $monthlyOutbound
+        ->groupBy('month')
+        ->map(function ($group) {
+            return $group->sortByDesc('total_outbound')->first();
+        });
+
+
         return Inertia::render('Dashboard', [
-            'products' => Product::where('code', 'Like', '%'.$request->search.'%')
-            ->orderBy('created_at', 'DESC')
-            ->paginate(10)
-            ->through(function ($product) {
+            'products' => Product::latest()
+            ->limit(7)
+            ->get()
+            ->map(function ($product) {
                 return [
                     'code' => $product->code,
                     'description' => $product->description,
                     'remaining_items' => $product->remaining_items,
-                    'created_at' => \Carbon\Carbon::parse($product->created_at)->format('Y-m-d g:i a')
+                    'created_at' => \Carbon\Carbon::parse($product->created_at)->format('m-d-Y'),
                 ];
             }),
             'product_count' => Product::count(),
             'lot_count' => Lot::count(),
             'serial_count' => Serial::count(),
             'stockcard_count' => Stockcard::count(),
+            'monthlyOutbound' => $monthlyOutbound,
+            'highestPerMonth' => $highestPerMonth,
         ]);
     }
 
