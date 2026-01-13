@@ -12,15 +12,13 @@ defineProps({
     products: Object,
 })
 
-const page = usePage();
-
 const loading = ref(false);
-const preload = ref(false);
 
 const errorMessages = ref();
 
+const selectedProduct = ref();
+
 const searchCode = ref();
-const searchLot = ref();
 const showDescription = ref(false);
 
 const form = reactive({
@@ -31,44 +29,37 @@ const form = reactive({
 
 const data = computed(() => {
     return {
-        description: page.props.products[0]?.description || "",
+        description: selectedProduct?.value?.description,
     };
 });
 
-watch(() => searchCode.value, () => {
-    loading.value = true
-    preload['value'] = true;
-})
+function onSearchUpdate()
+{
+    loading.value = true;
+}
 
-watchDebounced(() => searchCode.value,
-    (value) => {
-        router.get(
-            "/warehouse-report",
-            {
-                code: value,
-                lot: searchLot.value
-            },
-            {
-                preserveState: true,
-                preserveScroll: true,
-                onSuccess: () => {
-                    loading.value = false
-                    preload['value'] = false;
-                },
+function searchUpdate()
+{
+   showDescription.value = true; 
+}
+
+watchDebounced(() => searchCode.value, (query) =>{
+    router.get('/warehouse-report',
+        { code: query },
+        {
+            preserveState:true,
+            preserveUrl:true,
+            onSuccess: () => {
+                loading.value = false;
             }
-        );
-        if (value) {
-            showDescription.value = true;
-        } else{
-            showDescription['value'] = false;
-        } 
-    },
-    { debounce: 1000, maxWait: 5000 }
-);
+        }
+    )
+},{debounce: 1000})
 
 function submit(value){
-    // loading.value = true
+    loading.value = true;
     form.action = value;
+    form.code = selectedProduct.value.id;
 
     if(value == 'pdf')
     {
@@ -84,7 +75,6 @@ function submit(value){
             },
         })  
     }
-
     if(value == 'excel')
     {
         axios.post('generate-warehouse-report', form, {
@@ -98,17 +88,6 @@ function submit(value){
             console.error('Excel generation failed:', error);
         });
     }
-    
-    // axios.post('view-stockcard-pdf', form, {
-    //     responseType: 'blob',
-    // })
-    // .then((response) => {
-    //     const contentType = response.headers['content-type'];
-    //     download(response.data, 'invoice.pdf', contentType);
-    // })
-    // .catch((error) => {
-    //     console.error('PDF generation failed:', error);
-    // });
 }
 </script>
 <template>
@@ -143,25 +122,16 @@ function submit(value){
                                 Code
                             </div>
                             <v-autocomplete
-                                v-model="form.code"
+                                v-model="selectedProduct"
                                 v-model:search="searchCode"
-                                :error-messages="errorMessages?.code"
                                 :items="products"
                                 item-title="code"
+                                return-object
                                 item-value="id"
-                                placeholder="Select..."
-                                @update:modelValue="form.lot = null;"
                                 variant="outlined"
-                                menu-icon=""
-                                clearable
-                            >
-                                <template v-slot:no-data>
-                                    <v-container fluid>
-                                        <span v-if="preload">Loading...</span>
-                                        <span v-else>No results found</span>
-                                    </v-container>
-                                </template>
-                            </v-autocomplete>
+                                @update:search="onSearchUpdate"
+                                @update:model-value="searchUpdate"
+                            ></v-autocomplete>  
                         </v-col>
                         <v-expand-transition>
                             <v-col cols="12" v-show="showDescription">

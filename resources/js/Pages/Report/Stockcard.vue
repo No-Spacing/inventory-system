@@ -2,26 +2,31 @@
 import Layout from "../../Layout/Main.vue";
 import { VDateInput } from "vuetify/labs/VDateInput";
 import { ref, watch, computed, reactive } from "vue";
-import { watchDebounced } from "@vueuse/core";
+import { tryOnBeforeUnmount, watchDebounced } from "@vueuse/core";
 import { useForm, router, usePage } from "@inertiajs/vue3"
 import download from 'downloadjs';
 import axios from 'axios';
+import { useRules } from 'vuetify/labs/rules'
 
 defineProps({
     stockcards: Object,
     products: Object,
-    lots: Object,
     serials: Object,
+    lots: Object,
     warehouses: Object,
 })
 
-const page = usePage();
+const rules = useRules();
+
+const selectedProduct = ref();
+const selectedLot = ref();
 
 const loading = ref(false);
 const preload = ref(false);
 
-const searchCode = ref();
-const searchLot = ref();
+const searchCode = ref('');
+
+const errorMessages = ref();
 
 const showDescription = ref(false);
 
@@ -39,96 +44,44 @@ const form = reactive({
 
 const data = computed(() => {
     return {
-        description: page.props.products[0]?.description || "",
+        description: selectedProduct?.value?.description,
+        lots: selectedProduct?.value?.lots
     };
 });
 
-watch(() => searchCode.value, () => {
-    loading.value = true
-    preload['value'] = true;
-})
-
-watchDebounced(() => searchCode.value,
-    (value) => {
-        router.get(
-            "/stockcard",
-            {
-                code: value,
-                lot: searchLot.value
-            },
-            {
-                preserveState: true,
-                preserveScroll: true,
-                onSuccess: () => {
-                    loading.value = false
-                    preload['value'] = false;
-                },
-            }
-        );
-        if (value) {
-            showDescription.value = true;
-        } else{
-            showDescription['value'] = false;
-        } 
-    },
-    { debounce: 1000, maxWait: 5000 }
-);
-
-watch(() => searchLot.value, () => {
+function onSearchUpdate()
+{
     loading.value = true;
-    preload['value'] = true;
-})
+    selectedLot.value = null;
+}
 
-watchDebounced(() => searchLot.value,
-    (value) => {
-        router.get(
-            "/stockcard",
-            {
-                code: searchCode.value,
-                lot: value,
-            },
-            {
-                preserveState: true,
-                preserveScroll: true,
-                onSuccess: () => {
-                    loading.value = false;
-                    preload['value'] = false;
-                },
+function searchUpdate()
+{
+   showDescription.value = true; 
+}
+
+watchDebounced(() => searchCode.value, (query) =>{
+    router.get('/stockcard',
+        { code: query },
+        {
+            preserveState:true,
+            preserveUrl:true,
+            onSuccess: () => {
+                loading.value = false;
+                if(selectedProduct.value.type == "Track by Lot")
+                {
+                    showProductType.value = true;
+                }
             }
-        );
-    },
-    { debounce: 1000, maxWait: 5000 }
-);
-
-const product_type = ref();
-watch(() => page.props.products, (newProducts) => {
-    product_type.value = newProducts[0]?.type || '';
-    if(product_type.value === "Track by Serial"){
-        showProductType.value = false
-        form.lot = null;
-    }else if (product_type.value === "Track by Lot"){
-        showProductType.value = true
-        form.serial = null;
-    }
-}, { deep: true });
-
-const errorMessages = ref();
+        }
+    )
+},{debounce: 1000})
 
 function submit(value){
+    form.code = selectedProduct.value.id;
+    form.lot = selectedLot.value.id;
     loading.value = true;
     form.action = value;
-    // router.post('generate-stockcard-report', form,
-    //     {
-    //         onSuccess: () => {
-    //             loading.value = false;
-    //         },
-            
-    //         onError: (error) => {
-    //             errorMessages.value = error
-    //             loading.value = false;
-    //         },
-    //     }
-    // )
     if(value == "pdf")
     {
         axios.post('generate-stockcard-report', form, {
@@ -146,27 +99,17 @@ function submit(value){
     }
     if(value == "excel")
     {
-        // router.post('generate-stockcard-report', form,
-        //     {
-        //         onSuccess: () => {
-        //             loading.value = false;
-        //         },
-                
-        //         onError: (error) => {
-        //             errorMessages.value = error
-        //             loading.value = false;
-        //         },
-        //     }
-        // )
         axios.post('generate-stockcard-report', form, {
             responseType: 'blob',
         })
         .then((response) => {
             const contentType = response.headers['content-type'];
             download(response.data, 'stockcard.xlsx', contentType);
+            loading.value = false
         })
         .catch((error) => {
-            console.error('Excel generation failed:', error);
+            console.error('Excel generation failed:', error.response);
+            loading.value = false
         });
     }
 }
@@ -175,15 +118,12 @@ function submit(value){
     <Layout title="Stockcard" :loading="loading">
         <v-container max-width="1500" fluid>
             <v-card elevation="2" class="pa-8 my-5">
-                <v-form @submit.prevent>
+                <v-form validate-on="submit" @submit.prevent>
                     <v-row no-gutters>
                         <v-col cols="12">
-                            <div
-                                class="text-subtitle-1 text-medium-emphasis"
-                            >
+                            <div class="text-subtitle-1 text-medium-emphasis">
                                 Warehouse
                             </div>
-
                             <v-select
                                 v-model="form.warehouse"
                                 :error-messages="errorMessages?.warehouse"
@@ -193,35 +133,25 @@ function submit(value){
                                 variant="outlined"
                                 placeholder="Select your warehouse..."
                                 clearable
-                            >
-                            </v-select>
+                                :rules="[rules.required()]"
+                            ></v-select>
                         </v-col>
                         <v-col cols="12">
-                            <div
-                                class="text-subtitle-1 text-medium-emphasis"
-                            >
+                            <div class="text-subtitle-1 text-medium-emphasis">
                                 Code
                             </div>
                             <v-autocomplete
-                                v-model="form.code"
+                                v-model="selectedProduct"
                                 v-model:search="searchCode"
-                                :error-messages="errorMessages?.code"
                                 :items="products"
                                 item-title="code"
+                                return-object
                                 item-value="id"
-                                placeholder="Select..."
-                                @update:modelValue="form.lot = null;"
                                 variant="outlined"
-                                menu-icon=""
-                                clearable
-                            >
-                                <template v-slot:no-data>
-                                    <v-container fluid>
-                                        <span v-if="preload">Loading...</span>
-                                        <span v-else>No results found</span>
-                                    </v-container>
-                                </template>
-                            </v-autocomplete>
+                                @update:search="onSearchUpdate"
+                                @update:model-value="searchUpdate"
+                                :rules="[rules.required()]"
+                            ></v-autocomplete>  
                         </v-col>
                     </v-row>
                     <v-expand-transition>
@@ -246,26 +176,19 @@ function submit(value){
                                 <div class="text-subtitle-1 text-medium-emphasis">
                                     Lot/Batch No.
                                 </div>
-                                <v-autocomplete
-                                    v-model="form.lot"
-                                    v-model:search="searchLot"
+                                <v-select
+                                    v-model="selectedLot"
                                     :error-messages="errorMessages?.lot"
-                                    :items="products[0].lots"
+                                    :items="data.lots"
                                     item-title="lot"
-                                    item-value="id"
-                                    placeholder="Select..."
                                     variant="outlined"
-                                    menu-icon=""
-                                >
-                                    <template v-slot:no-data>
-                                        <v-container fluid>
-                                            <span v-if="preload">Loading...</span>
-                                            <span v-else>No results found</span>
-                                        </v-container>
-                                    </template>
-                                </v-autocomplete>
+                                    placeholder="Select your warehouse..."
+                                    return-object
+                                    :rules="[rules.required()]"
+                                    clearable
+                                ></v-select>
                             </v-col>
-                            <v-col cols="12" v-else>
+                            <v-col cols="12" v-if="!showProductType">
                                 <div class="text-subtitle-1 text-medium-emphasis">
                                     Serial No.
                                 </div>
@@ -305,6 +228,7 @@ function submit(value){
                                 prepend-inner-icon="$calendar"
                                 variant="outlined"
                                 class="mr-2"
+                                :rules="[rules.required()]"
                             ></v-date-input>
                         </v-col>
                         <v-col cols="12" sm="6">
@@ -321,6 +245,7 @@ function submit(value){
                                 prepend-inner-icon="$calendar"
                                 variant="outlined"
                                 class="ml-2"
+                                :rules="[rules.required()]"
                             ></v-date-input>
                         </v-col>
                     </v-row>
