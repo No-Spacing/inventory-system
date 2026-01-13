@@ -21,44 +21,41 @@ use App\Models\Warehouse;
 
 use Inertia\Inertia;
 
+use \Validator;
+
 class ReportsController extends Controller
 {
     public function ViewStockcard(Request $request){
+
+        $products = Product::with(['lots'])
+        ->select('id','code', 'description', 'type')
+        ->when($request->code, function ($query, $code) {
+            return $query->where('code', 'like', "%{$code}%");
+        })
+        ->limit(5)
+        ->get();
+
+        $serials = Serial::where('serial_no', 'like', "%{$request->serial}%")->limit(5)->get();
+
         return Inertia::render('Report/Stockcard', [
             'warehouses' => Warehouse::all(),
-            'products' => Product::with(['lots'])
-            ->select('id','code', 'description', 'type')
-            ->where('code', 'Like', '%'.$request->code.'%')
-            ->limit(5)
-            ->get(),
-            'lots' => Lot::select('id', 'lot')
-            ->where('lot', 'Like', '%'.$request->lot.'%')
-            ->limit(5)
-            ->get(),
-            'serials' => Serial::select('id', 'serial_no')
-            ->limit(5)
-            ->get(),
-            'stockcards' => Stockcard::with('product')
-            ->with('lot')
-            ->where('product_id', $request->code)
-            ->get()
-            ->map(function ($product) {
-                return [
-                    'lot' => optional($product->lot)->lot,
-                    'serial' => $product->serial_no,
-                ];
-            })
+            'products' => $products,    
+            'serials' => $serials
         ]);
     }
 
     public function GenerateStockcardReport(Request $request) {
 
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'warehouse' => 'required',
             'code' => 'required',
             'from' => 'required',
             'to' => 'required',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json("Error pa more!", 422);
+        } 
 
         $from = \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->from)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d');
         $to = \Carbon\Carbon::parse(\Carbon\Carbon::parse($request->to)->setTimezone('Asia/Manila')->toIso8601String())->format('Y-m-d');
