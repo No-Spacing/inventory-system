@@ -1,5 +1,7 @@
 import './bootstrap';
 import { createApp, h } from 'vue'
+import { createRulesPlugin } from 'vuetify/labs/rules'
+
 import { createInertiaApp } from '@inertiajs/vue3'
 
 import '@mdi/font/css/materialdesignicons.css'
@@ -32,6 +34,7 @@ createInertiaApp({
     .use(plugin)
     .use(vuetify)
     .use(VueApexCharts)
+    .use(createRulesPlugin({ /* options */ }, vuetify.locale))
     .mount(el)
   },
 })

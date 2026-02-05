@@ -46,7 +46,7 @@ Route::middleware(['user-group'])->group(function () {
     });
 
     Route::controller(ReportsController::class)->group(function () {
-        Route::get('/stockcard', 'ViewStockcard');
+        Route::get('/stockcard', 'StockcardReport');
         Route::post('/generate-stockcard-report', 'GenerateStockcardReport');
 
         Route::get('/serial-report', 'SerialReport');

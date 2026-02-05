@@ -210,7 +210,26 @@ watch(() => page.props.products, (newProducts) => {
                         >
                             Code
                         </div>
-                        <v-autocomplete
+                         <v-autocomplete
+                            v-model="selectedProduct"
+                            v-model:search="searchCode"
+                            :items="products"
+                            item-title="code"
+                            return-object
+                            item-value="id"
+                            variant="outlined"
+                            @update:search="onSearchUpdate"
+                            @update:model-value="searchUpdate"
+                            :rules="[rules.required()]"
+                        >
+                            <template v-slot:no-data>
+                                <v-container fluid>
+                                    <span v-if="loading">Loading...</span>
+                                    <span v-else>No results found</span>
+                                </v-container>
+                            </template>
+                        </v-autocomplete>
+                        <!-- <v-autocomplete
                             v-model="form.code"
                             v-model:search="searchCode"
                             :error-messages="form.errors.code"
@@ -237,7 +256,7 @@ watch(() => page.props.products, (newProducts) => {
                                 color="primary"
                                 />
                             </template>
-                        </v-autocomplete>
+                        </v-autocomplete> -->
                     </v-col>
                 </v-row>    
                 <v-expand-transition>

@@ -6,7 +6,7 @@ import { watchDebounced } from "@vueuse/core";
 import { useForm, router, usePage } from "@inertiajs/vue3"
 import download from 'downloadjs';
 import axios from 'axios';
-import { nullifyTransforms } from "vuetify/lib/util/animation.mjs";
+import { useRules } from 'vuetify/labs/rules'
 
 defineProps({
     warehouses: Object,
@@ -14,14 +14,15 @@ defineProps({
 })
 
 const page = usePage();
+const rules = useRules();
+
+const selectedProduct = ref();
 
 const loading = ref(false);
-const preload = ref(false);
 
 const errorMessages = ref();
 
 const searchCode = ref();
-const searchLot = ref();
 const showDescription = ref(false);
 
 const form = reactive({
@@ -31,59 +32,40 @@ const form = reactive({
     action: null,
 })
 
+
 const data = computed(() => {
     return {
-        description: page.props.products[0]?.description || "",
+        description: selectedProduct?.value?.description,
     };
 });
 
-watch(() => searchCode.value, () => {
-    loading.value = true
-    preload['value'] = true;
-})
+function onSearchUpdate()
+{
+    loading.value = true;
+}
 
-watchDebounced(() => searchCode.value,
-    (value) => {
-        router.get(
-            "/product-report",
-            {
-                code: value,
-                lot: searchLot.value
-            },
-            {
-                preserveState: true,
-                preserveScroll: true,
-                onSuccess: () => {
-                    loading.value = false
-                    preload['value'] = false;
-                },
+function searchUpdate()
+{
+   showDescription.value = true; 
+}
+
+watchDebounced(() => searchCode.value, (query) =>{
+    router.get('/product-report',
+        { code: query },
+        {
+            preserveState:true,
+            preserveUrl:true,
+            onSuccess: () => {
+                loading.value = false;
             }
-        );
-        if (value) {
-            showDescription.value = true;
-        } else{
-            showDescription['value'] = false;
-        } 
-    },
-    { debounce: 1000, maxWait: 5000 }
-);
+        }
+    )
+},{debounce: 1000})
 
 function submit(value){
     loading.value = true
     form.action = value
-    // router.post('generate-product-report', form,
-    //     {
-    //         onSuccess: () => {
-    //             loading.value = false
-    //         },
-            
-    //         onError: (error) => {
-    //             errorMessages.value = error;
-    //             loading.value = false;
-    //         },
-    //     }
-        
-    // )
+    form.code = selectedProduct.value.id;
     if(value == 'pdf')
     {
         axios.post('generate-product-report', form, {
@@ -92,9 +74,11 @@ function submit(value){
         .then((response) => {
             const fileURL = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
             window.open(fileURL); // Opens in a new tab
+            loading.value = false
         })
         .catch((error) => {
             console.error('PDF generation failed:', error);
+            loading.value = false
         });
     }
 
@@ -128,25 +112,24 @@ function submit(value){
                                 Code
                             </div>
                             <v-autocomplete
-                                v-model="form.code"
+                                v-model="selectedProduct"
                                 v-model:search="searchCode"
-                                :error-messages="errorMessages?.code"
                                 :items="products"
                                 item-title="code"
+                                return-object
                                 item-value="id"
-                                placeholder="Select..."
-                                @update:modelValue="form.lot = null;"
                                 variant="outlined"
-                                menu-icon=""
-                                clearable
+                                @update:search="onSearchUpdate"
+                                @update:model-value="searchUpdate"
+                                :rules="[rules.required()]"
                             >
                                 <template v-slot:no-data>
                                     <v-container fluid>
-                                        <span v-if="preload">Loading...</span>
+                                        <span v-if="loading">Loading...</span>
                                         <span v-else>No results found</span>
                                     </v-container>
                                 </template>
-                            </v-autocomplete>
+                            </v-autocomplete>  
                         </v-col>
                         <v-expand-transition>
                             <v-col cols="12" v-show="showDescription">

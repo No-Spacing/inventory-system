@@ -68,7 +68,7 @@ watchDebounced(() => searchCode.value, (query) =>{
             preserveUrl:true,
             onSuccess: () => {
                 loading.value = false;
-                if(selectedProduct.value.type == "Track by Lot")
+                if(selectedProduct.value?.type === "Track by Lot")
                 {
                     showProductType.value = true;
                 }
@@ -126,7 +126,6 @@ function submit(value){
                             </div>
                             <v-select
                                 v-model="form.warehouse"
-                                :error-messages="errorMessages?.warehouse"
                                 :items="warehouses"
                                 item-title="warehouse"
                                 item-value="id"
@@ -151,7 +150,14 @@ function submit(value){
                                 @update:search="onSearchUpdate"
                                 @update:model-value="searchUpdate"
                                 :rules="[rules.required()]"
-                            ></v-autocomplete>  
+                            >
+                                <template v-slot:no-data>
+                                    <v-container fluid>
+                                        <span v-if="loadingZ">Loading...</span>
+                                        <span v-else>No results found</span>
+                                    </v-container>
+                                </template>
+                            </v-autocomplete>  
                         </v-col>
                     </v-row>
                     <v-expand-transition>

@@ -83,9 +83,11 @@ function submit(value){
         .then((response) => {
             const contentType = response.headers['content-type'];
             download(response.data, 'warehouse.xlsx', contentType);
+            loading.value = false;
         })
         .catch((error) => {
             console.error('Excel generation failed:', error);
+            loading.value = false;
         });
     }
 }
@@ -131,7 +133,14 @@ function submit(value){
                                 variant="outlined"
                                 @update:search="onSearchUpdate"
                                 @update:model-value="searchUpdate"
-                            ></v-autocomplete>  
+                            >
+                                <template v-slot:no-data>
+                                    <v-container fluid>
+                                        <span v-if="loading">Loading...</span>
+                                        <span v-else>Empty results</span>
+                                    </v-container>
+                                </template>
+                            </v-autocomplete>  
                         </v-col>
                         <v-expand-transition>
                             <v-col cols="12" v-show="showDescription">
@@ -150,9 +159,7 @@ function submit(value){
                     </v-row>
                     <v-row no-gutters>
                         <v-col cols="12" sm="6">
-                            <div
-                                class="text-subtitle-1 text-medium-emphasis mx-2"
-                            >
+                            <div class="text-subtitle-1 text-medium-emphasis mx-2">
                                 Date From
                             </div>
                             <v-date-input
@@ -166,9 +173,7 @@ function submit(value){
                             ></v-date-input>
                         </v-col>
                         <v-col cols="12" sm="6">
-                            <div
-                                class="text-subtitle-1 text-medium-emphasis mx-2"
-                            >
+                            <div class="text-subtitle-1 text-medium-emphasis mx-2">
                                 Date to
                             </div>
                             <v-date-input

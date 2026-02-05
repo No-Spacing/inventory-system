@@ -25,7 +25,7 @@ use \Validator;
 
 class ReportsController extends Controller
 {
-    public function ViewStockcard(Request $request){
+    public function StockcardReport(Request $request){
 
         $products = Product::with(['lots'])
         ->select('id','code', 'description', 'type')
@@ -529,7 +529,7 @@ class ReportsController extends Controller
 public function SerialReport(Request $request){
     return Inertia::render('Report/Serial', [
         'warehouses' => Warehouse::all(),
-        'products' => Product::with(['lots'])
+        'products' => Product::with(['serials'])
         ->select('id','code', 'description', 'type')
         ->where('code', 'Like', '%'.$request->code.'%')
         ->where('type', 'Track by Serial')
@@ -550,6 +550,7 @@ public function GenerateSerialReport(Request $request)
 
     $stockcards = Stockcard::with('product', 'serial', 'warehouse')
     ->where('warehouse_id', $request->warehouse)
+    ->where('product_id', $request->code)
     ->whereBetween('transaction_date', [$from, $to])
     ->whereHas('product', function ($query) {
         $query->where('type', 'Track by Serial');
@@ -576,13 +577,6 @@ public function GenerateSerialReport(Request $request)
    
     if($request->action == "pdf")
     {
-        // return view('pdf.serial', 
-        // [   
-        //     'stockcards' => $stockcardSorted, 
-        //     'from' => $from,
-        //     'to' => $to,
-        // ]);
-
         $pdf = Pdf::loadView('pdf.serial', [
             'stockcards' => $stockcardSorted,
             'from' => $from,

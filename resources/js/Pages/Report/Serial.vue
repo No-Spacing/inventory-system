@@ -6,86 +6,70 @@ import { watchDebounced } from "@vueuse/core";
 import { useForm, router, usePage } from "@inertiajs/vue3"
 import download from 'downloadjs';
 import axios from 'axios';
-import { nullifyTransforms } from "vuetify/lib/util/animation.mjs";
+import { useRules } from 'vuetify/labs/rules'
 
 defineProps({
     warehouses: Object,
     products: Object,
 })
 
-const page = usePage();
+const rules = useRules();
 
+const selectedProduct = ref();
 const loading = ref(false);
-const preload = ref(false);
 
 const errorMessages = ref();
 
 const searchCode = ref();
-const searchLot = ref();
 const showDescription = ref(false);
 
 const form = reactive({
     warehouse: null,
+    code: null,
     from: null,
     to: null,
     action:null
 })
 
+function onSearchUpdate()
+{
+    loading.value = true;
+}
+
+function searchUpdate()
+{
+   showDescription.value = true; 
+}
+
+watchDebounced(() => searchCode.value, (query) =>{
+    router.get('/serial-report',
+        { code: query },
+        {
+            preserveState:true,
+            preserveUrl:true,
+            onSuccess: () => {
+                loading.value = false;
+                if(selectedProduct.value?.type === "Track by Lot")
+                {
+                    showProductType.value = true;
+                }
+            }
+        }
+    )
+},{debounce: 1000})
+
 const data = computed(() => {
     return {
-        description: page.props.products[0]?.description || "",
+        description: selectedProduct?.value?.description,
     };
 });
-
-// watch(() => searchCode.value, () => {
-//     loading.value = true
-//     preload['value'] = true;
-// })
-
-// watchDebounced(() => searchCode.value,
-//     (value) => {
-//         router.get(
-//             "/serial-report",
-//             {
-//                 code: value,
-//                 lot: searchLot.value
-//             },
-//             {
-//                 preserveState: true,
-//                 preserveScroll: true,
-//                 onSuccess: () => {
-//                     loading.value = false
-//                     preload['value'] = false;
-//                 },
-//             }
-//         );
-//         if (value) {
-//             showDescription.value = true;
-//         } else{
-//             showDescription['value'] = false;
-//         } 
-//     },
-//     { debounce: 1000, maxWait: 5000 }
-// );
 
 function submit(value){
     loading.value = true
     form.action = value;
+    form.code = selectedProduct.value.id;
     if(value == "pdf")
     {
-        // router.post('generate-serial-report', form,
-        //     {
-        //         onSuccess: () => {
-        //             loading.value = false;
-        //         },
-                
-        //         onError: (error) => {
-        //             errorMessages.value = error
-        //             loading.value = false;
-        //         },
-        //     }
-        // )
-
         axios.post('generate-serial-report', form, {
             responseType: 'blob',
         })
@@ -128,7 +112,6 @@ function submit(value){
                             >
                                 Warehouse
                             </div>
-
                             <v-select
                                 v-model="form.warehouse"
                                 :items="warehouses"
@@ -140,6 +123,30 @@ function submit(value){
                                 clearable
                             >
                             </v-select>
+                        </v-col>
+                        <v-col cols="12">
+                            <div class="text-subtitle-1 text-medium-emphasis">
+                                Code
+                            </div>
+                            <v-autocomplete
+                                v-model="selectedProduct"
+                                v-model:search="searchCode"
+                                :items="products"
+                                item-title="code"
+                                return-object
+                                item-value="id"
+                                variant="outlined"
+                                @update:search="onSearchUpdate"
+                                @update:model-value="searchUpdate"
+                                :rules="[rules.required()]"
+                            >
+                                <template v-slot:no-data>
+                                    <v-container fluid>
+                                        <span v-if="loading">Loading...</span>
+                                        <span v-else>No results found</span>
+                                    </v-container>
+                                </template>
+                            </v-autocomplete>  
                         </v-col>
                         <v-expand-transition>
                             <v-col cols="12" v-show="showDescription">
