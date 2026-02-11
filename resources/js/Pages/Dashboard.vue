@@ -14,7 +14,6 @@ defineProps({
 });
 
 const page = usePage();
-
 const search = ref("");
 const headers = [
     {
@@ -42,9 +41,6 @@ const headers = [
     },
 ];
 
-const series = ref([]);
-const chartOptions = ref({});
-
 const product = [
     ...new Set(page.props.monthlyOutbound.map((item) => item.product.name)),
 ];
@@ -68,74 +64,49 @@ watch(
         );
     },
 );
+const series1 = ref([
+    {
+        name: "Sales",
+        data: [10, 20, 15, 30, 25, 40],
+    },
+]);
 
-series.value = product.map((productCode) => {
-    console.log("Building series for productCode:", productCode);
-
-    return {
-        name: productCode,
-        data: months.map((month) => {
-            const record = page.props.monthlyOutbound.find((item) => {
-                // log each comparison
-                console.log(
-                    "Comparing productCode:",
-                    productCode,
-                    "with item.product.code:",
-                    item.product?.code,
-                    "for month:",
-                    month,
-                );
-                return (
-                    item.product?.code === productCode && item.month === month
-                );
-            });
-
-            console.log(
-                "Result for productCode:",
-                productCode,
-                "month:",
-                month,
-                "record:",
-                record,
-            );
-
-            return record ? record.total_outbound : 0;
-        }),
-    };
+const chartOptions1 = ref({
+    chart: {
+        zoom: {
+            enabled: false,
+        },
+        type: "line",
+        fontFamily: "Rethinksans, sans-serif",
+        toolbar: { show: false },
+        redrawOnParentResize: true,
+        redrawOnWindowResize: true,
+    },
+    stroke: { curve: "smooth" },
+    xaxis: { categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"] },
 });
 
-chartOptions.value = {
-    chart: {
-        type: "bar",
-        height: 350,
-        stacked: false,
+const series2 = ref([
+    {
+        name: "Revenue",
+        data: [100, 150, 120, 170, 140, 200],
     },
-    xaxis: {
-        categories: months.map((m) =>
-            new Date(new Date().getFullYear(), m - 1).toLocaleString(
-                "default",
-                { month: "short" },
-            ),
-        ),
-    },
+]);
 
-    annotations: {
-        points: months.map((month) => {
-            const winner = page.props.highestPerMonth[month];
-            return {
-                x: new Date(new Date().getFullYear(), month - 1).toLocaleString(
-                    "default",
-                    { month: "short" },
-                ),
-                y: winner.total_outbound,
-                label: {
-                    text: `Highest: ${winner.product.code}`, // ✅ correct
-                    style: { background: "#FF4560", color: "#fff" },
-                },
-            };
-        }),
+const chartOptions2 = ref({
+    chart: {
+        zoom: {
+            enabled: false,
+        },
+        type: "line",
+        fontFamily: "Rethinksans, sans-serif",
+        toolbar: { show: false },
+        redrawOnParentResize: true,
+        redrawOnWindowResize: true,
     },
-};
+    stroke: { curve: "smooth" },
+    xaxis: { categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"] },
+});
 </script>
 <template>
     <Layout title="Dashboard">
@@ -270,29 +241,71 @@ chartOptions.value = {
                     </v-col>
                 </v-row>
             </div>
-            <v-row>
+            <v-row align="stretch">
+                <!-- Chart Card -->
                 <v-col cols="12" md="6">
-                    <v-card elevation="2" class="pa-8 my-5 rounded-lg">
-                        <v-card-title> </v-card-title>
-                        <apexchart
-                            type="line"
-                            height="350,"
-                            :options="chartOptions"
-                            :series="series"
-                        ></apexchart>
+                    <v-card
+                        class="pa-8 my-5 rounded-lg d-flex flex-column h-100"
+                    >
+                        <v-card-title>Sample Chart</v-card-title>
+                        <div class="flex-grow-1">
+                            <apexchart
+                                width="100%"
+                                height="100%"
+                                type="line"
+                                :options="chartOptions1"
+                                :series="series1"
+                            />
+                        </div>
+                    </v-card>
+                </v-col>
+                <v-row align="stretch"></v-row>
+                <v-col cols="12" md="6">
+                    <v-card
+                        class="pa-8 my-5 rounded-lg d-flex flex-column h-100"
+                    >
+                        <v-card-title>Sample Chart</v-card-title>
+                        <div class="flex-grow-1">
+                            <apexchart
+                                width="100%"
+                                height="100%"
+                                type="line"
+                                :options="chartOptions2"
+                                :series="series2"
+                            />
+                        </div>
                     </v-card>
                 </v-col>
 
-                <v-col cols="12" md="12">
-                    <v-card elevation="2" class="pa-8 my-5">
-                        <v-card-title> New Products </v-card-title>
+                <!-- Table Card -->
+                <v-col cols="12" md="8">
+                    <v-card
+                        class="pa-8 my-5 rounded-lg d-flex flex-column h-100"
+                    >
+                        <v-card-title>New Products</v-card-title>
                         <v-divider></v-divider>
                         <v-data-table
+                            class="grow"
                             :headers="headers"
                             :items="products"
                             :search="search"
                             :hide-default-footer="true"
-                        ></v-data-table>
+                        />
+                    </v-card>
+                </v-col>
+                <v-col cols="12" md="4">
+                    <v-card
+                        class="pa-8 my-5 rounded-lg d-flex flex-column h-100"
+                    >
+                        <v-card-title>New Products</v-card-title>
+                        <v-divider></v-divider>
+                        <v-data-table
+                            class="grow"
+                            :headers="headers"
+                            :items="products"
+                            :search="search"
+                            :hide-default-footer="true"
+                        />
                     </v-card>
                 </v-col>
             </v-row>
