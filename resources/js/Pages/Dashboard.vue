@@ -118,10 +118,7 @@ chartOptions.value = {
             ),
         ),
     },
-    title: {
-        text: "Monthly Outbound Totals",
-        align: "center",
-    },
+
     annotations: {
         points: months.map((month) => {
             const winner = page.props.highestPerMonth[month];
@@ -172,6 +169,7 @@ chartOptions.value = {
                                     icon="mdi-package-variant"
                                     size="28"
                                     color="#1976D2"
+                                    style="opacity: 0.75"
                                 />
                             </div>
                         </v-card>
@@ -196,12 +194,13 @@ chartOptions.value = {
 
                             <div
                                 class="d-flex align-center justify-center rounded-lg"
-                                style="padding: 12px; background-color: #e3f2fd"
+                                style="padding: 12px; background-color: #f3e5f5"
                             >
                                 <v-icon
                                     icon="mdi-layers-outline"
                                     size="28"
-                                    color="#1976D2"
+                                    color="#9C27B0"
+                                    style="opacity: 0.75"
                                 />
                             </div>
                         </v-card>
@@ -226,12 +225,13 @@ chartOptions.value = {
 
                             <div
                                 class="d-flex align-center justify-center rounded-lg"
-                                style="padding: 12px; background-color: #e3f2fd"
+                                style="padding: 12px; background-color: #e8f5e9"
                             >
                                 <v-icon
                                     icon="mdi-barcode-scan"
                                     size="28"
-                                    color="#1976D2"
+                                    color="#388E3C"
+                                    style="opacity: 0.75"
                                 />
                             </div>
                         </v-card>
@@ -254,14 +254,16 @@ chartOptions.value = {
                                 </div>
                             </div>
 
+                            <!-- TOTAL STOCKCARD -->
                             <div
                                 class="d-flex align-center justify-center rounded-lg"
-                                style="padding: 12px; background-color: #e3f2fd"
+                                style="padding: 12px; background-color: #fff3e0"
                             >
                                 <v-icon
                                     icon="mdi-clipboard-text-outline"
                                     size="28"
-                                    color="#1976D2"
+                                    color="#F57C00"
+                                    style="opacity: 0.75"
                                 />
                             </div>
                         </v-card>
@@ -270,6 +272,18 @@ chartOptions.value = {
             </div>
             <v-row>
                 <v-col cols="12" md="6">
+                    <v-card elevation="2" class="pa-8 my-5 rounded-lg">
+                        <v-card-title> </v-card-title>
+                        <apexchart
+                            type="line"
+                            height="350,"
+                            :options="chartOptions"
+                            :series="series"
+                        ></apexchart>
+                    </v-card>
+                </v-col>
+
+                <v-col cols="12" md="12">
                     <v-card elevation="2" class="pa-8 my-5">
                         <v-card-title> New Products </v-card-title>
                         <v-divider></v-divider>
@@ -279,17 +293,6 @@ chartOptions.value = {
                             :search="search"
                             :hide-default-footer="true"
                         ></v-data-table>
-                    </v-card>
-                </v-col>
-                <v-col cols="12" md="6">
-                    <v-card elevation="2" class="pa-8 my-5">
-                        <v-card-title> Chart </v-card-title>
-                        <v-divider></v-divider>
-                        <apexchart
-                            type="bar"
-                            :options="chartOptions"
-                            :series="series"
-                        ></apexchart>
                     </v-card>
                 </v-col>
             </v-row>
