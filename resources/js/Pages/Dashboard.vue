@@ -110,139 +110,179 @@ const chartOptions2 = ref({
 </script>
 <template>
     <Layout title="Dashboard">
-        <v-container class="pa-10" fluid>
-            <div class="">
-                <v-row>
-                    <!-- Small statistic cards -->
-                    <v-col cols="12" md="3">
-                        <v-card
-                            class="rounded-lg d-flex justify-space-between align-center pa-6"
-                            style="background-color:"
-                            elevation="2"
-                        >
-                            <div>
-                                <div
-                                    class="text-grey"
-                                    style="font-size: medium"
-                                >
-                                    Total Products
-                                </div>
-                                <div style="font-size: x-large">
-                                    {{ product_count }}
-                                </div>
-                            </div>
+        <v-container class="pa-16" fluid>
+            <!-- stat-card -->
+            <div
+                style="
+                    display: grid;
+                    grid-template-columns: repeat(4, 1fr);
+                    grid-auto-rows: 100px;
+                    gap: 16px;
+                "
+            >
+                <v-card
+                    class="rounded-lg d-flex justify-space-between align-center pa-6"
+                    style="grid-row: span 2"
+                    elevation="2"
+                >
+                    <div>
+                        <div class="text-grey" style="font-size: medium">
+                            DAILY In & Out
+                        </div>
+                        <div style="font-size: xx-large">
+                            {{ product_count }}
+                        </div>
+                    </div>
 
-                            <div
-                                class="d-flex align-center justify-center rounded-lg"
-                                style="padding: 12px; background-color: #e3f2fd"
-                            >
-                                <v-icon
-                                    icon="mdi-package-variant"
-                                    size="28"
-                                    color="#1976D2"
-                                    style="opacity: 0.75"
-                                />
-                            </div>
-                        </v-card>
-                    </v-col>
+                    <div
+                        class="d-flex align-center justify-center rounded-lg"
+                        style="padding: 12px; background-color: #e3f2fd"
+                    >
+                        <v-icon
+                            icon="mdi-package-variant"
+                            size="28"
+                            color="#1976D2"
+                            style="opacity: 0.75"
+                        />
+                    </div>
+                </v-card>
 
-                    <v-col cols="12" md="3">
-                        <v-card
-                            class="rounded-lg d-flex justify-space-between align-center pa-6"
-                            elevation="2"
-                        >
-                            <div>
-                                <div
-                                    class="text-grey"
-                                    style="font-size: medium"
-                                >
-                                    Total Lot No.
-                                </div>
-                                <div style="font-size: x-large">
-                                    {{ lot_count }}
-                                </div>
-                            </div>
+                <v-card
+                    class="rounded-lg d-flex justify-space-between align-center pa-6"
+                    style="grid-row: span 2"
+                    elevation="2"
+                >
+                    <div>
+                        <div class="text-grey" style="font-size: medium">
+                            DAILY Receiving
+                        </div>
+                        <div style="font-size: xx-large">
+                            {{ product_count }}
+                        </div>
+                    </div>
 
-                            <div
-                                class="d-flex align-center justify-center rounded-lg"
-                                style="padding: 12px; background-color: #f3e5f5"
-                            >
-                                <v-icon
-                                    icon="mdi-layers-outline"
-                                    size="28"
-                                    color="#9C27B0"
-                                    style="opacity: 0.75"
-                                />
-                            </div>
-                        </v-card>
-                    </v-col>
+                    <div
+                        class="d-flex align-center justify-center rounded-lg"
+                        style="padding: 12px; background-color: #e3f2fd"
+                    >
+                        <v-icon
+                            icon="mdi-package-variant"
+                            size="28"
+                            color="#1976D2"
+                            style="opacity: 0.75"
+                        />
+                    </div>
+                </v-card>
 
-                    <v-col cols="12" md="3">
-                        <v-card
-                            class="rounded-lg d-flex justify-space-between align-center pa-6"
-                            elevation="2"
-                        >
-                            <div>
-                                <div
-                                    class="text-grey"
-                                    style="font-size: medium"
-                                >
-                                    Total Serial
-                                </div>
-                                <div style="font-size: x-large">
-                                    {{ serial_count }}
-                                </div>
-                            </div>
+                <v-card
+                    class="rounded-lg d-flex justify-space-between align-center pa-6"
+                    style="background-color:"
+                    elevation="2"
+                >
+                    <div>
+                        <div class="text-grey" style="font-size: medium">
+                            Total Products
+                        </div>
+                        <div style="font-size: x-large">
+                            {{ product_count }}
+                        </div>
+                    </div>
 
-                            <div
-                                class="d-flex align-center justify-center rounded-lg"
-                                style="padding: 12px; background-color: #e8f5e9"
-                            >
-                                <v-icon
-                                    icon="mdi-barcode-scan"
-                                    size="28"
-                                    color="#388E3C"
-                                    style="opacity: 0.75"
-                                />
-                            </div>
-                        </v-card>
-                    </v-col>
+                    <div
+                        class="d-flex align-center justify-center rounded-lg"
+                        style="padding: 12px; background-color: #e3f2fd"
+                    >
+                        <v-icon
+                            icon="mdi-package-variant"
+                            size="28"
+                            color="#1976D2"
+                            style="opacity: 0.75"
+                        />
+                    </div>
+                </v-card>
 
-                    <v-col cols="12" md="3">
-                        <v-card
-                            class="rounded-lg d-flex justify-space-between align-center pa-6"
-                            elevation="2"
-                        >
-                            <div>
-                                <div
-                                    class="text-grey"
-                                    style="font-size: medium"
-                                >
-                                    Total Stockcard
-                                </div>
-                                <div style="font-size: x-large">
-                                    {{ stockcard_count }}
-                                </div>
-                            </div>
+                <v-card
+                    class="rounded-lg d-flex justify-space-between align-center pa-6"
+                    elevation="2"
+                >
+                    <div>
+                        <div class="text-grey" style="font-size: medium">
+                            Total Lot No.
+                        </div>
+                        <div style="font-size: x-large">
+                            {{ lot_count }}
+                        </div>
+                    </div>
 
-                            <!-- TOTAL STOCKCARD -->
-                            <div
-                                class="d-flex align-center justify-center rounded-lg"
-                                style="padding: 12px; background-color: #fff3e0"
-                            >
-                                <v-icon
-                                    icon="mdi-clipboard-text-outline"
-                                    size="28"
-                                    color="#F57C00"
-                                    style="opacity: 0.75"
-                                />
-                            </div>
-                        </v-card>
-                    </v-col>
-                </v-row>
+                    <div
+                        class="d-flex align-center justify-center rounded-lg"
+                        style="padding: 12px; background-color: #f3e5f5"
+                    >
+                        <v-icon
+                            icon="mdi-layers-outline"
+                            size="28"
+                            color="#9C27B0"
+                            style="opacity: 0.75"
+                        />
+                    </div>
+                </v-card>
+
+                <v-card
+                    class="rounded-lg d-flex justify-space-between align-center pa-6"
+                    elevation="2"
+                >
+                    <div>
+                        <div class="text-grey" style="font-size: medium">
+                            Total Serial
+                        </div>
+                        <div style="font-size: x-large">
+                            {{ serial_count }}
+                        </div>
+                    </div>
+
+                    <div
+                        class="d-flex align-center justify-center rounded-lg"
+                        style="padding: 12px; background-color: #e8f5e9"
+                    >
+                        <v-icon
+                            icon="mdi-barcode-scan"
+                            size="28"
+                            color="#388E3C"
+                            style="opacity: 0.75"
+                        />
+                    </div>
+                </v-card>
+
+                <v-card
+                    class="rounded-lg d-flex justify-space-between align-center pa-6"
+                    elevation="2"
+                >
+                    <div>
+                        <div class="text-grey" style="font-size: medium">
+                            Total Stockcard
+                        </div>
+                        <div style="font-size: x-large">
+                            {{ stockcard_count }}
+                        </div>
+                    </div>
+
+                    <!-- TOTAL STOCKCARD -->
+                    <div
+                        class="d-flex align-center justify-center rounded-lg"
+                        style="padding: 12px; background-color: #fff3e0"
+                    >
+                        <v-icon
+                            icon="mdi-clipboard-text-outline"
+                            size="28"
+                            color="#F57C00"
+                            style="opacity: 0.75"
+                        />
+                    </div>
+                </v-card>
             </div>
+
+            <!-- ROW 2 Chart Card -->
             <v-row align="stretch">
-                <!-- Chart Card -->
                 <v-col cols="12" md="6">
                     <v-card
                         class="pa-8 my-5 rounded-lg d-flex flex-column h-100"
@@ -259,8 +299,24 @@ const chartOptions2 = ref({
                         </div>
                     </v-card>
                 </v-col>
-                <v-row align="stretch"></v-row>
+
+                <!-- Table Card -->
                 <v-col cols="12" md="6">
+                    <v-card
+                        class="pa-8 my-5 rounded-lg d-flex flex-column h-100"
+                    >
+                        <v-card-title>New Products</v-card-title>
+
+                        <v-data-table
+                            class="grow"
+                            :headers="headers"
+                            :items="products"
+                            :search="search"
+                            :hide-default-footer="true"
+                        />
+                    </v-card>
+                </v-col>
+                <!-- <v-col cols="12" md="4">
                     <v-card
                         class="pa-8 my-5 rounded-lg d-flex flex-column h-100"
                     >
@@ -275,39 +331,7 @@ const chartOptions2 = ref({
                             />
                         </div>
                     </v-card>
-                </v-col>
-
-                <!-- Table Card -->
-                <v-col cols="12" md="8">
-                    <v-card
-                        class="pa-8 my-5 rounded-lg d-flex flex-column h-100"
-                    >
-                        <v-card-title>New Products</v-card-title>
-                        <v-divider></v-divider>
-                        <v-data-table
-                            class="grow"
-                            :headers="headers"
-                            :items="products"
-                            :search="search"
-                            :hide-default-footer="true"
-                        />
-                    </v-card>
-                </v-col>
-                <v-col cols="12" md="4">
-                    <v-card
-                        class="pa-8 my-5 rounded-lg d-flex flex-column h-100"
-                    >
-                        <v-card-title>New Products</v-card-title>
-                        <v-divider></v-divider>
-                        <v-data-table
-                            class="grow"
-                            :headers="headers"
-                            :items="products"
-                            :search="search"
-                            :hide-default-footer="true"
-                        />
-                    </v-card>
-                </v-col>
+                </v-col> -->
             </v-row>
         </v-container>
     </Layout>
