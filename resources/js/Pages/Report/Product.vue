@@ -3,7 +3,7 @@ import Layout from "../../Layout/Main.vue";
 import { VDateInput } from "vuetify/labs/VDateInput";
 import { ref, watch, computed, reactive } from "vue";
 import { watchDebounced } from "@vueuse/core";
-import { useForm, router, usePage } from "@inertiajs/vue3"
+import { useForm, router} from "@inertiajs/vue3"
 import download from 'downloadjs';
 import axios from 'axios';
 import { useRules } from 'vuetify/labs/rules'
@@ -13,7 +13,6 @@ defineProps({
     products: Object,
 })
 
-const page = usePage();
 const rules = useRules();
 
 const selectedProduct = ref();
@@ -140,7 +139,6 @@ function submit(value){
                                     v-model="data.description"
                                     placeholder="Description"
                                     variant="outlined"
-                                    required
                                     disabled
                                 ></v-text-field>
                             </v-col>

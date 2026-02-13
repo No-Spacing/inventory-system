@@ -38,8 +38,9 @@ Route::middleware(['user-group'])->group(function () {
         Route::post('/import-stockcard', 'ImportStockcard');
         Route::post('/stockcard-data', 'StockcardData');
 
-        Route::get('out', 'Out');
-        Route::post('/create-stockcard-out', 'CreateStockcardOut');
+        Route::post('/submit-inbound', 'SubmitInbound');
+        Route::post('/submit-outbound', 'SubmitOutbound');
+        Route::post('/submit-transfer', 'SubmitTransfer');
 
         Route::get('/receive', 'IndexReceive');
         Route::patch('/received', 'Received');

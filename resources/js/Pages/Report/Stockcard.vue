@@ -65,7 +65,6 @@ watchDebounced(() => searchCode.value, (query) =>{
         { code: query },
         {
             preserveState:true,
-            preserveUrl:true,
             onSuccess: () => {
                 loading.value = false;
                 if(selectedProduct.value?.type === "Track by Lot")
@@ -184,7 +183,6 @@ function submit(value){
                                 </div>
                                 <v-select
                                     v-model="selectedLot"
-                                    :error-messages="errorMessages?.lot"
                                     :items="data.lots"
                                     item-title="lot"
                                     variant="outlined"

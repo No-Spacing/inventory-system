@@ -98,7 +98,8 @@ watch(() => search.value, (value) => {
         page: 1
     }, {
         preserveState: true,
-        replace: true
+        replace: true,
+        preserveUrl: true,
     })
 })
 

@@ -17,7 +17,7 @@ onUnmounted(() => {
 });
 </script>
 <template>
-    <v-card variant="outlined" class="d-flex justify-center" :width="500">
+    <v-card variant="outlined" class="d-flex justify-center">
         <v-container>
             <v-card-title>Current Date and Time</v-card-title>
             <v-card-text>

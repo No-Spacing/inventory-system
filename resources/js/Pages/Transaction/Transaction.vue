@@ -6,17 +6,20 @@ import { ref } from "vue";
 
 const tab = ref(null);
 
-const props = defineProps({ products: Object, stockcards: Object, warehouses: Object });
+const props = defineProps({
+    products: Object, 
+    stockcards: Object, 
+    warehouses: Object, 
+    lots: Object, 
+    serials: Object 
+});
 
 const loading = ref(false)
 
-const handleData = (data) => {
-  loading.value = data;
-};
 </script>
 <template>
     <Layout title="In & Out Transaction" :loading="loading">
-        <v-container max-width="1600" class="mt-5" fluid>
+        <v-container class="mt-5" fluid>
             <v-tabs v-model="tab" align-tabs="center" bg-color="primary">
                 <v-tab :value="1">
                     <v-icon start icon="mdi-format-list-bulleted"></v-icon>
@@ -37,7 +40,12 @@ const handleData = (data) => {
                     </v-tabs-window-item>
                     <v-tabs-window-item :value="2">
                         <v-container max-width="1500" fluid>
-                            <CreateTransactionComponent @loading="handleData"></CreateTransactionComponent>
+                            <CreateTransactionComponent 
+                                :products="props.products"
+                                :warehouses="props.warehouses"
+                                :lots="props.lots"
+                                :serials="props.serials"
+                            />
                         </v-container>
                     </v-tabs-window-item>
                 </v-tabs-window>
