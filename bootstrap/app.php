@@ -6,6 +6,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\UserMiddleware;
+use App\Http\Middleware\IpWhitelistMiddleware;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -19,8 +20,11 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);     
         
         $middleware->alias([
-            'user-group' => UserMiddleware::class
+            'user-group' => UserMiddleware::class,
+            'ip-whitelist' => IpWhitelistMiddleware::class
         ]);
+
+
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
