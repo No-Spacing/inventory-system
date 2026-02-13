@@ -4,7 +4,7 @@ import { createInertiaApp } from "@inertiajs/vue3";
 
 import "@mdi/font/css/materialdesignicons.css";
 import "vuetify/styles";
-
+import { createRulesPlugin } from 'vuetify/labs/rules'
 import { createVuetify } from "vuetify";
 
 import colors from "vuetify/util/colors";
@@ -33,6 +33,7 @@ createInertiaApp({
             .use(plugin)
             .use(vuetify)
             .use(VueApexCharts)
+            .use(createRulesPlugin({ /* options */ }, vuetify.locale))
             .mount(el);
     },
 });
