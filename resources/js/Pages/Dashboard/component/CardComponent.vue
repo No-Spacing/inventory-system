@@ -1,19 +1,19 @@
 <script setup>
 const stats = defineProps({
     productCount: {
-        type: Object,
+        type: Number,
         required: true,
     },
     lotCount: {
-        type: Object,
+        type: Number,
         required: true,
     },
     serialCount: {
-        type: Object,
+        type: Number,
         required: true,
     },
     stockCard: {
-        type: Object,
+        type: Number,
         required: true,
     },
 });

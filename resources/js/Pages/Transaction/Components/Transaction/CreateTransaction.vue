@@ -31,13 +31,11 @@ const props = defineProps({
     }
 })
 
-const formRef = ref(null)
+const messages = ref('');
 
 const transferDialog = ref(false);
 
 const expandProductDetails = ref(false);
-const expandLotDetails = ref(false);
-const expandSerial = ref(false);
 const showMultipleSerial = ref(false);
 
 const emit = defineEmits(['loading']);
@@ -157,7 +155,7 @@ function updateProductValue(value) {
         lotValue.value = null;
         form.lot_id = null;
     }else{
-        form.quantity = 0;
+        form.quantity = null;
         serialValue.value = null;
         form.serial_id = null;
         form.serial_no = null;
@@ -211,13 +209,13 @@ function submitInbound (value) {
     form.product_type = selectedProduct?.value?.type;
     form.serial_id = serialValue.value;
     form.post('/submit-inbound', {
-        preserveState: true,
         onSuccess: () => {
             emit('loading', false);
+            messages.value = "Stock has been stored successfully to inventory."
             snackbar.value = true;
-            expandLotDetails.value = false;
             transferDialog.value = false
             selectedProduct.value = null;
+            serialData.totalSerialItems = 0;
             if(selectedProduct?.value?.type === "Track by Lot"){
                 selectedLot.value = null;
             }else{
@@ -244,10 +242,12 @@ function submitOutbound (value) {
         preserveState: true,
         onSuccess: () => {
             emit('loading', false);
+            messages.value = "Stock has been released successfully from inventory."
             snackbar.value = true;
-            expandLotDetails.value = false;
             transferDialog.value = false
             selectedProduct.value = null;
+            serialData.totalSerialItems = 0;
+            lotData.totalLotItems = 0
             if(selectedProduct?.value?.type === "Track by Lot"){
                 selectedLot.value = null;
             }else{
@@ -275,9 +275,10 @@ function submitTransfer (value) {
         onSuccess: () => {
             emit('loading', false);
             snackbar.value = true;
-            expandLotDetails.value = false;
             transferDialog.value = false
             selectedProduct.value = null;
+            serialData.totalSerialItems = 0;
+            lotData.totalLotItems = 0
             if(selectedProduct?.value?.type === "Track by Lot"){
                 selectedLot.value = null;
             }else{
@@ -698,7 +699,7 @@ function submitTransfer (value) {
                         size="large"
                         type="submit"
                         class="mx-4"
-                        :loading="form.processing || buttonLoading"
+                        :loading="form.processing || loading"
                         @click="submitInbound('inbound')"
                         
                     >
@@ -710,7 +711,7 @@ function submitTransfer (value) {
                         size="large"
                         type="submit"
                         class="mx-4"
-                        :loading="form.processing || buttonLoading"
+                        :loading="form.processing || loading"
                         @click="submitOutbound('outbound')"
                     >
                         Outbound
@@ -721,7 +722,7 @@ function submitTransfer (value) {
                         size="large"
                         class="mx-4"
                         @click="transferDialog = true"
-                        :loading="form.processing || buttonLoading"
+                        :loading="form.processing || loading"
                     >
                         Transfer
                     </v-btn>
@@ -781,7 +782,7 @@ function submitTransfer (value) {
         location="top"
         class="text"
     >
-        {{ page.props.flash.message }}
+        Stock has been stored successfully to inventory.
     </v-snackbar>
     <v-snackbar
         v-model="errorSnackbar" 

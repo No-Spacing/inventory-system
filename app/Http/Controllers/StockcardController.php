@@ -45,7 +45,6 @@ class StockcardController extends Controller
             return $group->sortByDesc('total_outbound')->first();
         });
 
-
         return Inertia::render('Dashboard/Dashboard', [
             'products' => Product::latest()
             ->limit(7)
@@ -382,8 +381,9 @@ class StockcardController extends Controller
 
     public function SubmitTransfer (Request $request) {
         $request->validate([
-            'transferWarehouse' => 'required|different:warehouse'
+            'transferWarehouse' => 'required|different:warehouse_id'
         ]);
+
         $warehouse = Warehouse::select('warehouse')
         ->where('id', $request->transferWarehouse)
         ->first();

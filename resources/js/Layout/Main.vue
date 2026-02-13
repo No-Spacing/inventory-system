@@ -1,15 +1,11 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { useDisplay } from "vuetify";
-import { Head, Link, useForm } from "@inertiajs/vue3";
+import { Head, Link } from "@inertiajs/vue3";
 
 const props = defineProps({
     title: String,
     loading: Boolean,
-});
-
-const form = useForm({
-    data: null,
 });
 
 
