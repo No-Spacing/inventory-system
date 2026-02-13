@@ -46,7 +46,7 @@ class StockcardController extends Controller
         });
 
 
-        return Inertia::render('Dashboard', [
+        return Inertia::render('Dashboard/Dashboard', [
             'products' => Product::latest()
             ->limit(7)
             ->get()
