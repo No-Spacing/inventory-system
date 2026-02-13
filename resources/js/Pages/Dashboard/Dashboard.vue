@@ -117,7 +117,7 @@ const chartOptions2 = ref({
                 :productCount="props.product_count"
                 :lotCount="props.lot_count"
                 :serialCount="props.serial_count"
-                :stockCard="props.serial_count"
+                :stockCard="props.stockcard_count"
             />
             <!-- ROW 2 Chart Card -->
             <v-row align="stretch">
