@@ -10,8 +10,7 @@ const props = defineProps({
     product_count: Number,
     serial_count: Number,
     stockcard_count: Number,
-    monthlyOutbound: Object,
-    highestPerMonth: Object,
+    monthlyInAndOut: Number
 });
 
 const page = usePage();
@@ -40,13 +39,6 @@ const headers = [
             style: "font-weight: 700",
         },
     },
-];
-
-const product = [
-    ...new Set(page.props.monthlyOutbound.map((item) => item.product.name)),
-];
-const months = [
-    ...new Set(page.props.monthlyOutbound.map((item) => item.month)),
 ];
 
 watch(
@@ -87,27 +79,6 @@ const chartOptions1 = ref({
     xaxis: { categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"] },
 });
 
-/* const series2 = ref([
-    {
-        name: "Revenue",
-        data: [100, 150, 120, 170, 140, 200],
-    },
-]);
-
-const chartOptions2 = ref({
-    chart: {
-        zoom: {
-            enabled: false,
-        },
-        type: "line",
-        fontFamily: "Rethinksans, sans-serif",
-        toolbar: { show: false },
-        redrawOnParentResize: true,
-        redrawOnWindowResize: true,
-    },
-    stroke: { curve: "smooth" },
-    xaxis: { categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"] },
-}); */
 </script>
 <template>
     <Layout title="Dashboard">
@@ -118,6 +89,7 @@ const chartOptions2 = ref({
                 :lotCount="props.lot_count"
                 :serialCount="props.serial_count"
                 :stockCard="props.stockcard_count"
+                :monthlyInAndOut="props.monthlyInAndOut"
             />
             <!-- ROW 2 Chart Card -->
             <v-row align="stretch">

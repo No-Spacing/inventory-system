@@ -28,22 +28,7 @@ class StockcardController extends Controller
 {
     public function Dashboard(Request $request){
 
-        $monthlyOutbound = Stockcard::select(
-            'product_id',
-            DB::raw('MONTH(created_at) as month'),
-            DB::raw("SUM(CASE WHEN transaction_type = 'outbound' THEN quantity ELSE 0 END) as total_outbound"),
-        )
-        ->whereYear('created_at', 2025) // e.g. 2025
-        ->groupBy('product_id', 'month')
-        ->with('product')
-        ->limit(5)
-        ->get();
-
-        $highestPerMonth = $monthlyOutbound
-        ->groupBy('month')
-        ->map(function ($group) {
-            return $group->sortByDesc('total_outbound')->first();
-        });
+        $monthlyInAndOut = DB::table('stockcards')->whereMonth('created_at', now()->month)->count();
 
         return Inertia::render('Dashboard/Dashboard', [
             'products' => Product::latest()
@@ -61,8 +46,7 @@ class StockcardController extends Controller
             'lot_count' => Lot::count(),
             'serial_count' => Serial::count(),
             'stockcard_count' => Stockcard::count(),
-            'monthlyOutbound' => $monthlyOutbound,
-            'highestPerMonth' => $highestPerMonth,
+            'monthlyInAndOut' => $monthlyInAndOut,
         ]);
     }
 

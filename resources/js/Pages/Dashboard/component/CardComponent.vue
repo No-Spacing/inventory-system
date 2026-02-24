@@ -16,6 +16,10 @@ const stats = defineProps({
         type: Number,
         required: true,
     },
+    monthlyInAndOut: {
+        type: Number,
+        required: true
+    }
 });
 </script>
 
@@ -31,7 +35,7 @@ const stats = defineProps({
                     >
                         <div class="d-flex align-center justify-space-between">
                             <div class="text-grey" style="font-size: larger">
-                                In & Out
+                               Monthly <br> In & Out
                             </div>
                             <div
                                 class="d-flex align-center justify-center rounded-lg"
@@ -48,7 +52,7 @@ const stats = defineProps({
 
                         <div>
                             <div style="font-size: xx-large">
-                                {{ stats.productCount }}
+                                {{ stats.monthlyInAndOut }}
                             </div>
                         </div>
                     </v-card>
@@ -61,7 +65,7 @@ const stats = defineProps({
                     >
                         <div class="d-flex align-center justify-space-between">
                             <div class="text-grey" style="font-size: larger">
-                                Receiving
+                               Monthly <br> Receiving
                             </div>
                             <div
                                 class="d-flex align-center justify-center rounded-lg"
@@ -77,7 +81,7 @@ const stats = defineProps({
                         </div>
                         <div>
                             <div style="font-size: xx-large">
-                                {{ stats.productCount }}
+                                -
                             </div>
                         </div>
                     </v-card>
