@@ -91,6 +91,7 @@ const chartOptions1 = ref({
     },
     stroke: { curve: "smooth" },
     xaxis: { categories: months },
+    colors: ["#28a745", "#dc3545"], 
 });
 
 </script>
