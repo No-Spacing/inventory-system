@@ -1,6 +1,8 @@
 <script setup>
 import { ref, watch, onMounted } from "vue";
 import { usePage, router } from "@inertiajs/vue3";
+import dayjs from "dayjs"; 
+
 import CardComponent from "./component/CardComponent.vue";
 import Layout from "../../Layout/Main.vue";
 
@@ -10,8 +12,16 @@ const props = defineProps({
     product_count: Number,
     serial_count: Number,
     stockcard_count: Number,
-    monthlyInAndOut: Number
+    monthlyInAndOut: Number,
+    chartData: Object,
 });
+
+const months = props.chartData.map(item =>
+  dayjs().month(item.month - 1).format("MMMM") // converts 1 → January, 2 → February, etc.
+);
+const inboundData = props.chartData.map(item => item.inbound_total);
+const outboundData = props.chartData.map(item => item.outbound_total);
+
 
 const page = usePage();
 const search = ref("");
@@ -59,8 +69,12 @@ watch(
 );
 const series1 = ref([
     {
-        name: "Sales",
-        data: [10, 20, 15, 30, 25, 40],
+        name: "Inbound",
+        data: inboundData,
+    },
+    {
+        name: "Outbound",
+        data: outboundData,
     },
 ]);
 
@@ -76,7 +90,7 @@ const chartOptions1 = ref({
         redrawOnWindowResize: true,
     },
     stroke: { curve: "smooth" },
-    xaxis: { categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"] },
+    xaxis: { categories: months },
 });
 
 </script>

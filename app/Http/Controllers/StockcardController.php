@@ -30,6 +30,15 @@ class StockcardController extends Controller
 
         $monthlyInAndOut = DB::table('stockcards')->whereMonth('created_at', now()->month)->count();
 
+        $chartData = DB::table('stockcards')
+        ->selectRaw('MONTH(created_at) as month')
+        ->selectRaw("SUM(CASE WHEN transaction_type = 'inbound' THEN 1 ELSE 0 END) as inbound_total")
+        ->selectRaw("SUM(CASE WHEN transaction_type = 'outbound' THEN 1 ELSE 0 END) as outbound_total")
+        ->whereYear('created_at', now()->year)
+        ->groupBy('month')
+        ->orderBy('month')
+        ->get();
+
         return Inertia::render('Dashboard/Dashboard', [
             'products' => Product::latest()
             ->limit(7)
@@ -47,6 +56,7 @@ class StockcardController extends Controller
             'serial_count' => Serial::count(),
             'stockcard_count' => Stockcard::count(),
             'monthlyInAndOut' => $monthlyInAndOut,
+            'chartData' => $chartData,
         ]);
     }
 
