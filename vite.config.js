@@ -16,11 +16,11 @@ export default defineConfig({
         rollupOptions: {
             output: {
                 manualChunks(id) {
-                if (id.includes('node_modules')) {
-                    if (id.includes('vuetify')) return 'vuetify';
-                    if (id.includes('vue')) return 'vue';
-                    return 'vendor';
-                }
+                    if (id.includes('node_modules')) {
+                        if (id.includes('vuetify')) return 'vuetify'
+                        if (id.includes('vue')) return 'vue'
+                        return 'vendor'
+                    }
                 },
             },
         },

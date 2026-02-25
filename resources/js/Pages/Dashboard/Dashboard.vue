@@ -1,7 +1,13 @@
 <script setup>
-import { ref, watch, onMounted } from "vue";
+import { ref, watch, defineAsyncComponent } from "vue";
 import { usePage, router } from "@inertiajs/vue3";
 import dayjs from "dayjs"; 
+
+import { Chart as ChartJS, Title, Tooltip, Legend, LineElement, PointElement, LinearScale, CategoryScale, LineController } from 'chart.js'
+import { LineChart } from 'vue-chart-3'
+
+// Register Chart.js components
+ChartJS.register(Title, Tooltip, Legend, LineElement, PointElement, LinearScale, CategoryScale, LineController)
 
 import CardComponent from "./component/CardComponent.vue";
 import Layout from "../../Layout/Main.vue";
@@ -67,32 +73,40 @@ watch(
         );
     },
 );
-const series1 = ref([
-    {
-        name: "Inbound",
-        data: inboundData,
-    },
-    {
-        name: "Outbound",
-        data: outboundData,
-    },
-]);
 
-const chartOptions1 = ref({
-    chart: {
-        zoom: {
-            enabled: false,
-        },
-        type: "line",
-        fontFamily: "Rethinksans, sans-serif",
-        toolbar: { show: false },
-        redrawOnParentResize: true,
-        redrawOnWindowResize: true,
+const chartData = {
+  labels: months,
+  datasets: [
+    {
+      label: 'Inbound',
+      data: inboundData,
+      borderColor: '#28a745',
+      backgroundColor: 'rgba(40, 167, 69, 0.2)',
+      tension: 0.4 // smooth curve
     },
-    stroke: { curve: "smooth" },
-    xaxis: { categories: months },
-    colors: ["#28a745", "#dc3545"], 
-});
+    {
+      label: 'Outbound',
+      data: outboundData,
+      borderColor: '#dc3545',
+      backgroundColor: 'rgba(220, 53, 69, 0.2)',
+      tension: 0.4
+    }
+  ]
+}
+
+// Chart.js options (similar to ApexCharts "chartOptions")
+const chartOptions = {
+  responsive: true,
+  plugins: {
+    legend: { position: 'top' },
+    title: { display: true, text: 'Inbound vs Outbound' }
+  },
+  scales: {
+    x: { title: { display: true, text: 'Months' } },
+    y: { title: { display: true, text: 'Values' } }
+  }
+}
+
 
 </script>
 <template>
@@ -112,14 +126,11 @@ const chartOptions1 = ref({
                     <v-card
                         class="pa-8 my-5 rounded-lg d-flex flex-column h-100"
                     >
-                        <v-card-title>Sample Chart</v-card-title>
+                        <v-card-title>Inbound & Outbound Chart</v-card-title>
                         <div class="flex-grow-1">
-                            <apexchart
-                                width="100%"
-                                height="100%"
-                                type="line"
-                                :options="chartOptions1"
-                                :series="series1"
+                            <LineChart
+                                :chart-data="chartData"
+                                :chart-options="chartOptions"
                             />
                         </div>
                     </v-card>
@@ -141,22 +152,6 @@ const chartOptions1 = ref({
                         />
                     </v-card>
                 </v-col>
-                <!-- <v-col cols="12" md="4">
-                    <v-card
-                        class="pa-8 my-5 rounded-lg d-flex flex-column h-100"
-                    >
-                        <v-card-title>Sample Chart</v-card-title>
-                        <div class="flex-grow-1">
-                            <apexchart
-                                width="100%"
-                                height="100%"
-                                type="line"
-                                :options="chartOptions2"
-                                :series="series2"
-                            />
-                        </div>
-                    </v-card>
-                </v-col> -->
             </v-row>
         </v-container>
     </Layout>

@@ -9,8 +9,6 @@ import { createVuetify } from "vuetify";
 
 import colors from "vuetify/util/colors";
 
-import VueApexCharts from "vue3-apexcharts";
-
 const vuetify = createVuetify({
     theme: {
         themes: {
@@ -32,7 +30,6 @@ createInertiaApp({
         createApp({ render: () => h(App, props) })
             .use(plugin)
             .use(vuetify)
-            .use(VueApexCharts)
             .use(createRulesPlugin({ /* options */ }, vuetify.locale))
             .mount(el);
     },
