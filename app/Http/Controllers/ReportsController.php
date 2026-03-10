@@ -25,6 +25,7 @@ use \Validator;
 
 class ReportsController extends Controller
 {
+    //          Stockcard Section           //
     public function StockcardReport(Request $request){
 
         $products = Product::with(['lots'])
@@ -231,7 +232,9 @@ class ReportsController extends Controller
             return Excel::download(new StockcardExport($stockcardSorted), 'stockcard_report.xlsx');
         }
     }
+    //          End of Stockcard Section        //
 
+    //          Product Section         //
     public function ProductReport(Request $request){
         return Inertia::render('Report/Product', [
             'warehouses' => Warehouse::all(),
@@ -330,7 +333,9 @@ class ReportsController extends Controller
             return Excel::download(new ProductExport($stockcardSorted), 'product.xlsx');
         }   
     }
+    //          End of Product Section       //
 
+    //          Warehouse Section           //
     public function WarehouseReport(Request $request){
         return Inertia::render('Report/Warehouse', [
             'warehouses' => Warehouse::all(),
@@ -393,11 +398,8 @@ class ReportsController extends Controller
             });
         });
 
-        $warehouseProductStock = StockCard::getWarehouseStock(
-                                    $request->warehouse,
-                                    $request->code,
-                                );
-
+        $warehouseProductStock = StockCard::getWarehouseStock($request->warehouse, $request->code);
+      
         $stockcardSorted = $stockcards->sortBy('created_at')->values();
 
         if($request->action == 'pdf'){
@@ -423,6 +425,9 @@ class ReportsController extends Controller
         // return $pdf->stream('warehouse.pdf');
         
     }
+    //      End of Warehouse Section      //
+
+    //      Summary Section         //
 
     public function ViewSummary() {
         return Inertia::render('Report/Summary');
@@ -524,8 +529,10 @@ class ReportsController extends Controller
         // ->landscape()
         // ->name('invoice.pdf');
     }
+//          End of Summary Section          //
 
-    
+
+//          Serial Section          //
 public function SerialReport(Request $request){
     return Inertia::render('Report/Serial', [
         'warehouses' => Warehouse::all(),

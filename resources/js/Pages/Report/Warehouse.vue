@@ -59,7 +59,7 @@ watchDebounced(() => searchCode.value, (query) =>{
 function submit(value){
     loading.value = true;
     form.action = value;
-    form.code = selectedProduct.value.id;
+    form.code = selectedProduct.value?.id;
 
     if(value == 'pdf')
     {
