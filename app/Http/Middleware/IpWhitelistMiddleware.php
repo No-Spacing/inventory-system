@@ -14,9 +14,7 @@ class IpWhitelistMiddleware
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
     protected $allowedIps = [
-        '115.85.53.53', 
-        '152.32.88.150',
-        '124.106.232.97'
+        '127.0.0.1' //Localhost IP
     ];
 
     public function handle(Request $request, Closure $next)

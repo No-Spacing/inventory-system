@@ -39,7 +39,7 @@ onMounted(() => {
                 <v-list-item href="/dashboard" class="d-flex justify-center">
                     <div v-if="rail">
                         <v-img
-                            src="images/head-icon.png"
+                            src="images/v-logo.png"
                             alt="Company Logo"
                             contain
                         ></v-img>
@@ -48,7 +48,7 @@ onMounted(() => {
                         <!-- Company Logo -->
                         <div class="pt-4 pb-2 d-flex justify-center">
                                 <v-img
-                                    src="images/inmed-logo.png"
+                                    src="images/vuetify.png"
                                     alt="Company Logo"
                                     width="180"
                                     height="60"

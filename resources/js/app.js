@@ -9,17 +9,7 @@ import { createVuetify } from "vuetify";
 
 import colors from "vuetify/util/colors";
 
-const vuetify = createVuetify({
-    theme: {
-        themes: {
-            light: {
-                colors: {
-                    primary: colors.amber.darken4,
-                },
-            },
-        },
-    },
-});
+const vuetify = createVuetify({});
 
 createInertiaApp({
     resolve: (name) => {

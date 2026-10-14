@@ -22,9 +22,9 @@ function submit(){
         <!-- Logo added here -->
         <div class="mb-4">
             <v-img
-                src="images/inmed-logo.png"
+                src="images/vuetify.png"
                 alt="Logo"
-                max-width="150"
+                max-width="720"
                 contain
                 class="mx-auto"
             />
@@ -89,7 +89,7 @@ function submit(){
 
 /* Background image */
 .login-background {
-    background: url('/public/images/inmed.jpg') no-repeat center center;
+    background: url('/public/images/warehouse.jpg') no-repeat center center;
     background-size: cover;
 }
 
