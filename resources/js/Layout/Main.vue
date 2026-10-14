@@ -28,7 +28,7 @@ onMounted(() => {
 })
 </script>
 <template>
-    <Head title="StockCard" />
+    <Head title="Inventory" />
     <v-layout>
         <v-navigation-drawer
             v-model="drawer"
@@ -112,7 +112,7 @@ onMounted(() => {
                         ></v-list-item>
                     </template>
                     <Link href="stockcard">
-                        <v-list-item title="Stockcard"></v-list-item>
+                        <v-list-item title="Stocks"></v-list-item>
                     </Link>
                     <Link href="product-report">
                         <v-list-item title="Products"></v-list-item>

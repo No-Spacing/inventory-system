@@ -30,7 +30,7 @@ function submit(){
             />
         </div>
 
-        <v-card-subtitle class="text-h6 text-medium-emphasis text-center mb-2">Stockcard</v-card-subtitle>
+        <v-card-subtitle class="text-h6 text-medium-emphasis text-center mb-2">Inventory</v-card-subtitle>
 
         <v-alert
             v-if="$page.props.flash.message"

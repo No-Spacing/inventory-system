@@ -114,7 +114,7 @@ function submit(value){
 }
 </script>
 <template>
-    <Layout title="Stockcard" :loading="loading">
+    <Layout title="Stocks" :loading="loading">
         <v-container max-width="1500" fluid>
             <v-card elevation="2" class="pa-8 my-5">
                 <v-form validate-on="submit" @submit.prevent>
