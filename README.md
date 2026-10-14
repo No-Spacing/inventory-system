@@ -1,7 +1,9 @@
 📦 Multi-Warehouse Inventory Management System
+
 A robust, real-time inventory management system built with Laravel 12 (backend API) and Vue.js 3 with Vuetify 3 (frontend dashboard). Designed to streamline warehouse stock tracking, transfers, and inventory auditing across multiple locations, complete with secure internal management controls.
 
 ✨ Key Features
+
 Multi-Warehouse Management: Track and manage inventory levels independently across multiple warehouse locations.
 
 Stock In & Stock Out: Seamlessly record incoming shipments from suppliers and outgoing fulfillments or adjustments.
@@ -15,6 +17,7 @@ Internal Whitelisting & Access Control: Restrict administrative access to author
 Modern Material UI: Clean, responsive, and intuitive user interface crafted using Vuetify 3.
 
 🔒 Internal Security & Whitelisting
+
 To protect sensitive inventory operations and ensure internal management integrity, the system includes:
 
 IP Whitelisting Middleware: Restrict dashboard and API access to authorized office or warehouse static IP addresses.
@@ -24,7 +27,9 @@ User & Role Whitelisting: Granular authorization to specify which user accounts 
 Access Audit Logs: Track all access attempts and modifications performed by whitelisted users for compliance and traceability.
 
 🛠️ Tech Stack
+
 Backend
+
 PHP 8.2+
 
 Laravel 12
