@@ -50,6 +50,7 @@ Pinia (State Management)
 Axios (HTTP Client)
 
 🔄 Core Workflow Overview
+
 Stock In: Log incoming stock items, assign them to a specific target warehouse, and instantly update localized and total quantities.
 
 Stock Out: Process orders, damages, or write-offs from a designated warehouse.
