@@ -58,3 +58,11 @@ Stock Out: Process orders, damages, or write-offs from a designated warehouse.
 Warehouse Transfer: Initiate a secure stock movement from Warehouse A to Warehouse B. The system deducts stock from the source and adds it to the destination, ensuring total company stock remains completely balanced.
 
 Whitelisted Administration: Manage IP subnets and whitelisted manager accounts directly from the internal management panel.
+
+📸 Screenshots
+
+![alt text](https://github.com/No-Spacing/inventory-system/blob/main/screenshots/login.png)
+![alt text](https://github.com/No-Spacing/inventory-system/blob/main/screenshots/dashboard.png)
+![alt text](https://github.com/No-Spacing/inventory-system/blob/main/screenshots/inventory.png)
+![alt text](https://github.com/No-Spacing/inventory-system/blob/main/screenshots/in&out.png)
+![alt text](https://github.com/No-Spacing/inventory-system/blob/main/screenshots/reports.png)
